@@ -174,13 +174,15 @@ int main(int argc, char *argv[])
                 
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char* temp_first_str;
+                char temp_first_str [size_str_to_check] ;
                 #pragma omp parallel for reduction(AS_min_func : temp_Max)
-                for (int i = 0; i <= sqn_taries; i++)
+                for (int i = 0; i < sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
-                    printf("here\n");
-                    Sqn_Main_str(&temp_first_str , first_str , i , size_str_to_check);
+                    for (int j = 0; j <=size_str_to_check; j++)
+                    {
+                        temp_first_str[i] = *(first_str+j+temp_Max.sqn);
+                    }
                     #ifdef DEBUG
                         printf(" %s str %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     #endif

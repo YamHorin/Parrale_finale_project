@@ -12,7 +12,7 @@ clean:
 	rm -f *.btr
 
 run:
-	mpiexec -n 4 ./mpiCudaOpenMP <data.txt 
+	mpiexec -n 2 ./mpiCudaOpenMP <data.txt 
 
 
 
