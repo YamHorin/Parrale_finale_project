@@ -161,12 +161,12 @@ int main(int argc, char *argv[])
 
                 #endif
 
-                #pragma omp declare reduction(AS_min_func : struct score_alignment : \
+                #pragma omp declare reduction(AS_max_func : struct score_alignment : \
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
                         initializer(omp_priv = omp_orig)
                 
                 temp_Max.score = -1;
-                temp_Max.str  = (char*)malloc((strlen(str_to_check)+1)*sizeof(char));
+                temp_Max.str  = (char*)malloc((size_str_to_check+1)*sizeof(char));
                 
                 if (!temp_Max.str)
                 {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                 char temp_first_str [size_str_to_check]  = {};
-                #pragma omp parallel for reduction(AS_min_func : temp_Max)
+                #pragma omp parallel for reduction(AS_max_func : temp_Max)
                 for (int i = 0; i < sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
@@ -190,16 +190,16 @@ int main(int argc, char *argv[])
                     #ifdef DEBUG
                         printf(" %s str %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     #endif
-                    #pragma omp parallel for reduction(AS_min_func : temp_Max)
-                    for (int d = 0; d < size_str_to_check-1; d++)
+                    #pragma omp parallel for reduction(AS_max_func : temp_Max)
+                    for (int d = 0; d < size_str_to_check; d++)
                     {
                         temp_Max.MS = i;
 
                         strcpy(temp_Max.str , str_to_check);   
-                        Mutanat_Squence(temp_Max.str , i,size_str_to_check+1);
+                        Mutanat_Squence(temp_Max.str , i,size_str_to_check);
                         #ifdef DEBUG
                         printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , i);
-                        printf("\n\nsize temp_Max.str = %d\n",strlen(temp_Max.str));
+                        printf("size temp_Max.str = %d\n",strlen(temp_Max.str));
                         #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
@@ -210,11 +210,14 @@ int main(int argc, char *argv[])
                     temp_first_str[0] = '\0';
                 }
                 
-            }
+            
             strcpy(temp_Max.str , str_to_check);
+            printf("here\n");
             MPI_Send(&temp_Max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             free(str_to_check);
-            free(temp_Max.str); 
+            free(temp_Max.str);
+            }
+
         } while (tag != STOP);
        
     }

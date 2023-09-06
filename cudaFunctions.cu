@@ -9,6 +9,9 @@
 __device__ int matrix_caculate[MATRIX_SIZE];
 
 
+
+
+
 __device__ int getScoreFromMatrix(char a, char b) {
     int x = a - 'A';
     int y = b - 'A';
@@ -113,7 +116,7 @@ int computeOnGPU(const char  *s1, const char *s2) {
     // copy the result back from the GPU to the CPU
     int result;
     cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
-	    
+	printf("result = %d\n");
     // free memory on the GPU side
     cudaFree(dev_s1);
     cudaFree(dev_s2);
