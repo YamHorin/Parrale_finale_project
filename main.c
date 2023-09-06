@@ -82,17 +82,17 @@ int main(int argc, char *argv[])
       MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
       MPI_Bcast(first_str , strlen(first_str)*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
       char* str_to_send;
-      int str_lenght;
+      int str_length;
       for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             str_to_send = createDynStr();
-            str_lenght = strlen(str_to_send)+1;
+            str_length = strlen(str_to_send);
             #ifdef DEBUG
                 printf("send to rank %d -%s\n",worker_rank , str_to_send);
 
             #endif
-            MPI_Send(&str_lenght , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
-            MPI_Send(str_to_send, str_lenght*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
+            MPI_Send(&str_length , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
+            MPI_Send(str_to_send, str_length*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
         }
         int str_send = num_procs-1; 
         int tasks = number_strings/(num_procs-1);
@@ -108,8 +108,8 @@ int main(int argc, char *argv[])
             int tasks_not_sent_yet = tasks - str_send;
             if (tasks_not_sent_yet > 0) {
                     str_to_send = createDynStr();
-                    str_lenght = strlen(str_to_send);
-                    MPI_Send(&str_lenght , 1 , MPI_CHAR , status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
+                    str_length = strlen(str_to_send);
+                    MPI_Send(&str_length , 1 , MPI_CHAR , status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
                     MPI_Send(str_to_send, strlen(str_to_send)*sizeof(char) , MPI_CHAR , status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                     str_send++;
                 }
@@ -142,21 +142,22 @@ int main(int argc, char *argv[])
 
             MPI_Recv(&size_str_to_check , 1 , MPI_INT , 
             ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
+            printf("size_str_to_check  = %d\n\n",size_str_to_check);
             tag = status.MPI_TAG;
             struct score_alignment temp_Max;
             if (tag==WORK)
             {
-                str_to_check = (char*)malloc(size_str_to_check*sizeof(char));
+                str_to_check = (char*)malloc((size_str_to_check)*sizeof(char));
                 if (!str_to_check)
                 {
                     perror("malloc");
                     exit(1);
                 }
-                MPI_Recv(str_to_check, size_str_to_check*sizeof(char), 
+                MPI_Recv(str_to_check, size_str_to_check, 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
                 #ifdef DEBUG
                     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
-                    printf("got str:%s \n",str_to_check);
+                    printf("got str:%s , %d \n",str_to_check, strlen(str_to_check));
 
                 #endif
 
@@ -174,14 +175,14 @@ int main(int argc, char *argv[])
                 
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char temp_first_str [size_str_to_check] ;
+                char temp_first_str [size_str_to_check]  = {};
                 #pragma omp parallel for reduction(AS_min_func : temp_Max)
                 for (int i = 0; i < sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
                     for (int j = 0; j <=size_str_to_check; j++)
                     {
-                        temp_first_str[i] = *(first_str+j+temp_Max.sqn);
+                        temp_first_str[j] = *(first_str+j+i);
                     }
                     #ifdef DEBUG
                         printf(" %s str %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
