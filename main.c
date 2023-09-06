@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
       MPI_Status status;
       double t_start = MPI_Wtime();
       MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-      MPI_Bcast(first_str , strlen(first_str)*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
+      MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
       char* str_to_send;
       int str_length;
       for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
             #endif
             MPI_Send(&str_length , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
-            MPI_Send(str_to_send, str_length*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
+            MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
         }
         int str_send = num_procs-1; 
         int tasks = number_strings/(num_procs-1);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         {
              struct  score_alignment localMax;
             MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
-		                    DONE, MPI_COMM_WORLD, &status);
+                            DONE, MPI_COMM_WORLD, &status);
             printf("\nfor the string %s \n, we found that the max score alignment %d is from MS %d and %d sqn \n",
             localMax.str , localMax.score , localMax.MS , localMax.sqn);
             int tasks_not_sent_yet = tasks - str_send;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
                     perror("malloc");
                     exit(1);
                 }
-                MPI_Recv(str_to_check, size_str_to_check, 
+                MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
                 #ifdef DEBUG
                     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
