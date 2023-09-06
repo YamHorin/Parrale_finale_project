@@ -14,56 +14,56 @@ char* createDynStr()
 	strcpy(str, temp);
 	return str;
 }
-void Mutanat_Squence(char* str , int k)
+void Mutanat_Squence(char* str , int k , int size_str)
 {
-	for (int i = 0; i <=(strlen(str)-k); i++)
+	for (int i = k; i <=size_str; i++)
 	{
-		if (toupper(*(str+i))== 'Z')
+		if (toupper(*(str+i))>= 'Z' && *(str+i)!= '\0' )
 			*(str+i) = 'A';
 		else
-			*(str+i) = *(str+i)+1;
+			*(str+i) = *((str+i)+1);
 	}
 	
 }
-int Sqn_Main_str(char** new_str, const char* first, int sqn, int length) {
-    if (sqn + length >= strlen(first)) {
-        return 0;  // Out-of-bounds
-    }
+// int Sqn_Main_str(char** new_str, const char* first, int sqn, int length) {
+//     if (sqn + length >= strlen(first)) {
+//         return 0;  // Out-of-bounds
+//     }
 
-    // char to_finish = first[sqn + length];
+//     // char to_finish = first[sqn + length];
 
-    // // Create a delimiter string for strtok
-    // char delimiters[1] = {to_finish};
+//     // // Create a delimiter string for strtok
+//     // char delimiters[1] = {to_finish};
 
-    // char* dummy = (char*)malloc((strlen(first) + 1) * sizeof(char));
-    // if (!dummy) {
-    //     return 0;
-    // }
+//     // char* dummy = (char*)malloc((strlen(first) + 1) * sizeof(char));
+//     // if (!dummy) {
+//     //     return 0;
+//     // }
 
-    // strcpy(dummy, first);
+//     // strcpy(dummy, first);
     
-    // char* token = strtok(dummy, delimiters);
-    // if (token) {
-    //     *new_str = (char*)malloc((strlen(token) + 1) * sizeof(char));
-    //     if (!*new_str) {
-    //         free(dummy);
-    //         return 0;
-    //     }
-    //     strcpy(*new_str, token);
-    // }
-    // printf("here in the func \n");
-    // printf("%s ,%s\n",first, *new_str);
-    // free(dummy);  // Free the allocated memory
-    printf("\n\nlenght = %d",length);
-    *new_str = (char*)malloc(length+1 * sizeof(char));
-    if (!*new_str) {
-            return 0;
-        }
-    for (int i = 0; i <=strlen(*new_str); i++)
-    {
-        *new_str[i] = first[i+sqn];
-    }
-    printf("here in the func \n");
-    printf("%s ,%s\n",first, *new_str);
-    return 1;
-}
+//     // char* token = strtok(dummy, delimiters);
+//     // if (token) {
+//     //     *new_str = (char*)malloc((strlen(token) + 1) * sizeof(char));
+//     //     if (!*new_str) {
+//     //         free(dummy);
+//     //         return 0;
+//     //     }
+//     //     strcpy(*new_str, token);
+//     // }
+//     // printf("here in the func \n");
+//     // printf("%s ,%s\n",first, *new_str);
+//     // free(dummy);  // Free the allocated memory
+//     printf("\n\nlenght = %d",length);
+//     *new_str = (char*)malloc(length+1 * sizeof(char));
+//     if (!*new_str) {
+//             return 0;
+//         }
+//     for (int i = 0; i <=strlen(*new_str); i++)
+//     {
+//         *new_str[i] = first[i+sqn];
+//     }
+//     printf("here in the func \n");
+//     printf("%s ,%s\n",first, *new_str);
+//     return 1;
+// }

@@ -166,7 +166,8 @@ int main(int argc, char *argv[])
                         initializer(omp_priv = omp_orig)
                 
                 temp_Max.score = -1;
-                temp_Max.str  = (char*)malloc(size_str_to_check*sizeof(char));
+                temp_Max.str  = (char*)malloc((strlen(str_to_check)+1)*sizeof(char));
+                
                 if (!temp_Max.str)
                 {
                     perror("malloc");
@@ -183,25 +184,30 @@ int main(int argc, char *argv[])
                     for (int j = 0; j <=size_str_to_check; j++)
                     {
                         temp_first_str[j] = *(first_str+j+i);
+                        if (j==size_str_to_check)
+                            temp_first_str[j] ='\0';
                     }
                     #ifdef DEBUG
                         printf(" %s str %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     #endif
                     #pragma omp parallel for reduction(AS_min_func : temp_Max)
-                    for (int i = 0; i < size_str_to_check; i++)
+                    for (int d = 0; d < size_str_to_check-1; d++)
                     {
                         temp_Max.MS = i;
-                    #ifdef DEBUG
-                        printf("str %s , <MS> = %d \n" , str_to_check  , i);
-                    #endif
+
                         strcpy(temp_Max.str , str_to_check);   
-                        Mutanat_Squence(temp_Max.str , i);
+                        Mutanat_Squence(temp_Max.str , i,size_str_to_check+1);
+                        #ifdef DEBUG
+                        printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , i);
+                        printf("\n\nsize temp_Max.str = %d\n",strlen(temp_Max.str));
+                        #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
                             temp.score = computeOnGPU(temp_first_str , temp_Max.str);
                         else
                             temp.score = computeOnGPUWithMatrix(temp_first_str , temp_Max.str , matrix);
                     }    
+                    temp_first_str[0] = '\0';
                 }
                 
             }
