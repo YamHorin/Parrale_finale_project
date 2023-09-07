@@ -142,7 +142,6 @@ int main(int argc, char *argv[])
 
             MPI_Recv(&size_str_to_check , 1 , MPI_INT , 
             ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
-            printf("size_str_to_check  = %d\n\n",size_str_to_check);
             tag = status.MPI_TAG;
             struct score_alignment temp_Max;
             if (tag==WORK)
@@ -166,7 +165,7 @@ int main(int argc, char *argv[])
                         initializer(omp_priv = omp_orig)
                 
                 temp_Max.score = -1;
-                temp_Max.str  = (char*)malloc((size_str_to_check+1)*sizeof(char));
+                temp_Max.str  = (char*)malloc((size_str_to_check)*sizeof(char));
                 
                 if (!temp_Max.str)
                 {
@@ -188,7 +187,7 @@ int main(int argc, char *argv[])
                             temp_first_str[j] ='\0';
                     }
                     #ifdef DEBUG
-                        printf(" %s str %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
+                        printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     #endif
                     #pragma omp parallel for reduction(AS_max_func : temp_Max)
                     for (int d = 0; d < size_str_to_check; d++)
@@ -203,9 +202,10 @@ int main(int argc, char *argv[])
                         #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp.score = computeOnGPU(temp_first_str , temp_Max.str);
+                            temp_Max.score = computeOnGPU(temp_first_str , temp_Max.str);
                         else
-                            temp.score = computeOnGPUWithMatrix(temp_first_str , temp_Max.str , matrix);
+                            temp_Max.score = computeOnGPUWithMatrix(temp_first_str , temp_Max.str , matrix);
+                        printf("temp.result = %d\n",temp_Max.score);
                     }    
                     temp_first_str[0] = '\0';
                 }

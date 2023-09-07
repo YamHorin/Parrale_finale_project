@@ -20,8 +20,12 @@ void Mutanat_Squence(char* str , int k , int size_str)
 	{
 		if (toupper(*(str+i))>= 'Z')
 			*(str+i) = 'A';
+		if (i==size_str)
+			*(str+i) = '\0';
 		else
 			*(str+i) = *((str+i))+1;
+		
+
 	}
 	
 }

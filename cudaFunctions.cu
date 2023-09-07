@@ -82,10 +82,9 @@ __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *
 
      scan_plus(flags, BLOCK_DIM);
      __syncthreads();
-     
-    r = r +flags[tid]; 
-    __syncthreads();
-    *result = r;
+     if (tid == BLOCK_DIM-1)
+        *result = r+flags[tid];
+    
     __syncthreads();
 
 }
@@ -107,7 +106,7 @@ int computeOnGPU(const char  *s1, const char *s2) {
     }
     cudaMemcpy(dev_s1, s1, n1, cudaMemcpyHostToDevice);
     cudaMemcpy(dev_s2, s2, n2, cudaMemcpyHostToDevice);
-    
+    printf("dev_s1=%s , dev_s1=%s\n" ,dev_s1 , dev_s2);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
     //if strlen <1024
@@ -116,7 +115,6 @@ int computeOnGPU(const char  *s1, const char *s2) {
     // copy the result back from the GPU to the CPU
     int result;
     cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
-	printf("result = %d\n");
     // free memory on the GPU side
     cudaFree(dev_s1);
     cudaFree(dev_s2);
