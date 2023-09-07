@@ -80,10 +80,11 @@ __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *
      __syncthreads();
 
      scan_plus(flags, BLOCK_DIM);
+     if (tid  == BLOCK_DIM-1)
+        atomicAdd(&r , flags[tid]);
      __syncthreads();
-     if (tid == BLOCK_DIM-1)
-        *result = r+flags[tid];
-    
+     if (tid == 0)
+        *result = r;
     __syncthreads();
 
 }
@@ -92,8 +93,8 @@ __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *
 int computeOnGPU(const char  *s1, const char *s2) {
     char *dev_s1, *dev_s2;
     int *dev_result;
-    int n1 = strlen(s1)+1; // null byte at the end is also counted
-    int n2 = strlen(s2)+1;
+    int n1 = strlen(s1); // null byte at the end is also counted
+    int n2 = strlen(s2);
     // allocate the memory on the GPU
 
     cudaError_t err1 = cudaMalloc((void**)&dev_s1, n1);
@@ -113,7 +114,7 @@ int computeOnGPU(const char  *s1, const char *s2) {
     err1 = cudaGetLastError();
     if (err1 != cudaSuccess)
     {
-        perror("kernel lanch error ");
+        fprintf(stderr , "kerner lanch error");
         exit(1);
     }
     // copy the result back from the GPU to the CPU
@@ -121,7 +122,7 @@ int computeOnGPU(const char  *s1, const char *s2) {
     err1 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
     if (err1 != cudaSuccess)
     {
-        perror("kernel lanch error ");
+        fprintf(stderr , "kerner lanch error");
         exit(1);
     }
     // free memory on the GPU side

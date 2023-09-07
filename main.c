@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
                 #ifdef DEBUG
                     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
-                    printf("got str:%s , %d \n",str_to_check, strlen(str_to_check));
+                    printf("got str:%s \n",str_to_check);
 
                 #endif
 
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
                         Mutanat_Squence(temp_Max.str , i,size_str_to_check);
                         #ifdef DEBUG
                         printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , i);
-                        printf("size temp_Max.str = %d\n",strlen(temp_Max.str));
+                        
                         #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
