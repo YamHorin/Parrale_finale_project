@@ -1,175 +1,54 @@
-mpiexec -n 4 ./mpiCudaOpenMP <data.txt 
-send to rank 1 -ABC
-send to rank 2 -ABABA
-send to rank 3 -AAAAAA
-rank = 1 tag = 0
-got str:ABC 
-rank = 2 tag = 0
-got str:ABABA 
-rank = 3 tag = 0
-got str:AAAAAA 
-here
-str ABC , sqn_number = 2 
-str ABC , <MS> = 0 
-here
-str AAAAAA , sqn_number = 1 
-here
-str AAAAAA , sqn_number = 0 
-str AAAAAA , <MS> = 0 
-str AAAAAA , <MS> = 0 
-here
-here
-str ABC , sqn_number = 3 
-str ABC , <MS> = 0 
-str ABC , sqn_number = 4 
-str ABC , <MS> = 0 
-here
-str ABC , sqn_number = 0 
-str ABC , <MS> = 0 
-here
-here
-str ABABA , sqn_number = 0 
-str ABABA , <MS> = 0 
-str ABABA , sqn_number = 1 
-str ABABA , <MS> = 0 
-here
-str ABABA , sqn_number = 2 
-str ABABA , <MS> = 0 
-corrupted double-linked list
+mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd877b6cf68.  Backtrace:
 
-mpiCudaOpenMP:98703 terminated with signal 6 at PC=7fb0b0a96a7c SP=7ffc3cd1e320.  Backtrace:
-/lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x7fb0b0a96a7c]
-/lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x7fb0b0a42476]
-/lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x7fb0b0a287f3]
-/lib/x86_64-linux-gnu/libc.so.6(+0x896f6)[0x7fb0b0a896f6]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa0d7c)[0x7fb0b0aa0d7c]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa184c)[0x7fb0b0aa184c]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa46ab)[0x7fb0b0aa46ab]
-/lib/x86_64-linux-gnu/libc.so.6(__libc_calloc+0xd9)[0x7fb0b0aa6679]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x22c87c)[0x7fb0a5c2c87c]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x35bb0d)[0x7fb0a5d5bb0d]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x35bc26)[0x7fb0a5d5bc26]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x2ce0c9)[0x7fb0a5cce0c9]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x44ad5a)[0x7fb0a5e4ad5a]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x1237e4)[0x7fb0a5b237e4]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x451ce5)[0x7fb0a5e51ce5]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x15b7ff)[0x7fb0a5b5b7ff]
-/lib/x86_64-linux-gnu/libcuda.so.1(+0x3184ea)[0x7fb0a5d184ea]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3b8c2)[0x7fb0b3a3b8c2]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3b9b3)[0x7fb0b3a3b9b3]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3babd)[0x7fb0b3a3babd]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3c5cc)[0x7fb0b3a3c5cc]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3215e)[0x7fb0b3a3215e]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x14fe8)[0x7fb0b3a14fe8]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(cudaMalloc+0x1a3)[0x7fb0b3a4f3c3]
-./mpiCudaOpenMP(+0x392d)[0x562dc1b0d92d]
-./mpiCudaOpenMP(+0x352e)[0x562dc1b0d52e]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fb0b3d60a16]
-./mpiCudaOpenMP(+0x336a)[0x562dc1b0d36a]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fb0b3d60a16]
-./mpiCudaOpenMP(+0x2f3a)[0x562dc1b0cf3a]
-/lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7fb0b0a29d90]
-/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7fb0b0a29e40]
-./mpiCudaOpenMP(+0x26a5)[0x562dc1b0c6a5]
-str ABABA , <MS> = 1 
-str ABABA , <MS> = 2 
-str ABABA , <MS> = 1 
-str ABABA , <MS> = 3 
-str ABABA , <MS> = 4 
-str ABABA , <MS> = 2 
-str ABABA , <MS> = 3 
-str ABABA , <MS> = 5 
-str ABABA , <MS> = 4 
-str ABABA , <MS> = 5 
-str ABABA , <MS> = 1 
-str ABABA , <MS> = 2 
-str ABABA , <MS> = 3 
-str ABABA , <MS> = 4 
-str ABABA , <MS> = 5 
+mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd87736bf68.  Backtrace:
 
-for the string (null) 
-, we found that the max score alignment 0 is from MS 0 and 0 sqn 
+mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd87836df68.  Backtrace:
 
-for the string (null) 
-, we found that the max score alignment 0 is from MS 0 and 0 sqn 
-free(): unaligned chunk detected in tcache 2
-
-mpiCudaOpenMP:98702 terminated with signal 6 at PC=7f55ac496a7c SP=7ffea91ea2a0.  Backtrace:
-/lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x7f55ac496a7c]
-/lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x7f55ac442476]
-/lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x7f55ac4287f3]
-/lib/x86_64-linux-gnu/libc.so.6(+0x896f6)[0x7f55ac4896f6]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa0d7c)[0x7f55ac4a0d7c]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa2ebf)[0x7f55ac4a2ebf]
-/lib/x86_64-linux-gnu/libc.so.6(free+0x73)[0x7f55ac4a54d3]
-./mpiCudaOpenMP(+0x2f8d)[0x565487dd0f8d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f55ac429d90]
-/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f55ac429e40]
-./mpiCudaOpenMP(+0x26a5)[0x565487dd06a5]
-str ABC , <MS> = 1 
-str ABC , <MS> = 2 
-str ABC , <MS> = 3 
-free(): invalid next size (fast)
-
-mpiCudaOpenMP:98702 terminated with signal 6 at PC=7f55ac496a7c SP=7ffea91e9580.  Backtrace:
-/lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x7f55ac496a7c]
-/lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x7f55ac442476]
-/lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x7f55ac4287f3]
-/lib/x86_64-linux-gnu/libc.so.6(+0x896f6)[0x7f55ac4896f6]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa0d7c)[0x7f55ac4a0d7c]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa2b1d)[0x7f55ac4a2b1d]
-/lib/x86_64-linux-gnu/libc.so.6(free+0x73)[0x7f55ac4a54d3]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3b4f0)[0x7f55af43b4f0]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3c711)[0x7f55af43c711]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x3cbc9)[0x7f55af43cbc9]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x23ec2)[0x7f55af423ec2]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0x24765)[0x7f55af424765]
-/lib/x86_64-linux-gnu/libc.so.6(__cxa_finalize+0xb6)[0x7f55ac445a56]
-/usr/local/cuda-11.7/lib64/libcudart.so.11.0(+0xf613)[0x7f55af40f613]
-str ABC , <MS> = 1 
-str ABC , <MS> = 2 
-str ABC , <MS> = 3 
-here
-str ABC , sqn_number = 1 
-str ABC , <MS> = 0 
-str ABC , <MS> = 1 
-str ABC , <MS> = 1 
-str ABC , <MS> = 2 
-str ABC , <MS> = 3 
-str ABC , <MS> = 2 
-str ABC , <MS> = 3 
-str ABC , <MS> = 1 
-str ABC , <MS> = 2 
-str ABC , <MS> = 3 
-
-for the string (null) 
-, we found that the max score alignment 0 is from MS 0 and 0 sqn 
-
-for the string (null) 
-, we found that the max score alignment 0 is from MS 0 and 0 sqn 
-free(): unaligned chunk detected in tcache 2
-
-mpiCudaOpenMP:98701 terminated with signal 6 at PC=7efea3c96a7c SP=7fff09d8e0a0.  Backtrace:
-/lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x12c)[0x7efea3c96a7c]
-/lib/x86_64-linux-gnu/libc.so.6(raise+0x16)[0x7efea3c42476]
-/lib/x86_64-linux-gnu/libc.so.6(abort+0xd3)[0x7efea3c287f3]
-/lib/x86_64-linux-gnu/libc.so.6(+0x896f6)[0x7efea3c896f6]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa0d7c)[0x7efea3ca0d7c]
-/lib/x86_64-linux-gnu/libc.so.6(+0xa2ebf)[0x7efea3ca2ebf]
-/lib/x86_64-linux-gnu/libc.so.6(free+0x73)[0x7efea3ca54d3]
-./mpiCudaOpenMP(+0x2f8d)[0x563223284f8d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7efea3c29d90]
-/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7efea3c29e40]
-./mpiCudaOpenMP(+0x26a5)[0x5632232846a5]
-
-===================================================================================
-=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 98703 RUNNING AT ParallelC23-14
-=   EXIT CODE: 9
-=   CLEANING UP REMAINING PROCESSES
-=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
-===================================================================================
-YOUR APPLICATION TERMINATED WITH THE EXIT STRING: Killed (signal 9)
-This typically refers to a problem with your application.
-Please see the FAQ page for debugging suggestions
-make: *** [Makefile:15: run] Error 9
+mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7ffd5c9e7088.  Backtrace:
+/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
+/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
+/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
+/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
+./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
+./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
+/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
+./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
+/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
+/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
+/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
+/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
+/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
+/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
+/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
+./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
+./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
+/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
+./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
+/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
+/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
+/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
+/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
+/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
+/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
+/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
+./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
+./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
+/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
+./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
+/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
+/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
+/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
+[0x0]
+./mpiCudaOpenMP(+0x26a5)[0x5637ca40f6a5]
+/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
+/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
+/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
+/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
+./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
+./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
+/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
+./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
+/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
+/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
+/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
+make: *** [Makefile:15: run] Error 1

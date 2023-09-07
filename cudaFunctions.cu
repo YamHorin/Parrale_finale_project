@@ -61,9 +61,8 @@ __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int 
      scan_plus(flags, BLOCK_DIM);
      __syncthreads();
      
-    r = r +flags[tid]; 
-    __syncthreads();
-    *result = r;
+     if (tid == BLOCK_DIM-1)
+        *result = r+flags[tid];
     __syncthreads();
 
 }
@@ -111,15 +110,25 @@ int computeOnGPU(const char  *s1, const char *s2) {
     int numOfBlocks = 1;
     //if strlen <1024
     caculate<<<numOfBlocks, threadsPerBlock>>>(dev_s1, n1, dev_s2, n2, dev_result);
- 
+    err1 = cudaGetLastError();
+    if (err1 != cudaSuccess)
+    {
+        perror("kernel lanch error ");
+        exit(1);
+    }
     // copy the result back from the GPU to the CPU
     int result;
-    cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
+    err1 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
+    if (err1 != cudaSuccess)
+    {
+        perror("kernel lanch error ");
+        exit(1);
+    }
     // free memory on the GPU side
     cudaFree(dev_s1);
     cudaFree(dev_s2);
     cudaFree(dev_result);
-
+    printf("result = %d",result);
     return result;
     
 }
