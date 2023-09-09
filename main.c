@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
                 
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char temp_first_str [size_str_to_check]  = {};
+                char temp_first_str [size_str_to_check];
                 #pragma omp parallel for reduction(AS_max_func : temp_Max)
                 for (int i = 0; i < sqn_taries; i++)
                 {

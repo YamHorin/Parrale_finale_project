@@ -129,7 +129,6 @@ int computeOnGPU(const char  *s1, const char *s2) {
     cudaFree(dev_s1);
     cudaFree(dev_s2);
     cudaFree(dev_result);
-    printf("result = %d",result);
     return result;
     
 }
