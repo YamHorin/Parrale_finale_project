@@ -29,6 +29,9 @@ void Mutanat_Squence(char* str , int k , int size_str)
 	}
 	
 }
+
+
+
 // int Sqn_Main_str(char** new_str, const char* first, int sqn, int length) {
 //     if (sqn + length >= strlen(first)) {
 //         return 0;  // Out-of-bounds
