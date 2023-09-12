@@ -5,6 +5,9 @@
 #include "cFunctions.h"
 #include <cstring>
 
+#define MATRIX_SIZE 26
+#define ROOT 0
+#define MAX_STRING_SIZE 1000
 enum matrix_score
 {
     THERE_IS_MATRIX_SCORE ,
@@ -19,15 +22,14 @@ enum tags
 };
 struct score_alignment
 {
-   char* str;
+   char str [MAX_STRING_SIZE];
    int sqn;
    int MS;
    int score;
 };
 
 
-#define MATRIX_SIZE 26
-#define ROOT 0
+
 
 int lenght_first_str;
 int number_strings;
@@ -50,7 +52,7 @@ int main(int argc, char *argv[])
     //making new type-struct score_alignment
     MPI_Datatype mpi_score_alignment_type;
     MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
-    int block_lengths[4] = {0}; // Initialized to zeros
+    int block_lengths[4] = { MAX_STRING_SIZE ,1 , 1,1}; // Initialized to zeros
     MPI_Aint displacements[4];
     struct score_alignment temp; // Used to calculate displacements
 
