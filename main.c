@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
                     
                     str_to_send = createDynStr();
                     str_length = strlen(str_to_send);
-                    MPI_Send(&str_length , 1 , MPI_CHAR , status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
+                    MPI_Send(&str_length , 1 , MPI_INT, status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
                     MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                     str_send++;
                 }
