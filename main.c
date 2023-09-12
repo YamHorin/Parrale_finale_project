@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
             MPI_Recv(&size_str_to_check , 1 , MPI_INT , 
             ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
             tag = status.MPI_TAG;
-            struct score_alignment temp_Max;
+            struct score_alignment temp_Max , AS_max;
             if (tag==WORK)
             {
                 str_to_check = (char*)malloc((size_str_to_check)*sizeof(char));
@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
                         initializer(omp_priv = omp_orig)
                 
-                temp_Max.score = -1;
+                AS_max.score = -1;
+                AS_max.str = (char*)malloc((size_str_to_check)*sizeof(char));
                 temp_Max.str  = (char*)malloc((size_str_to_check)*sizeof(char));
                 
                 if (!temp_Max.str)
@@ -176,7 +177,7 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                 char temp_first_str [size_str_to_check];
-                #pragma omp parallel for reduction(AS_max_func : temp_Max)
+                #pragma omp parallel for reduction(AS_max_func :  AS_max)
                 for (int i = 0; i < sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
@@ -186,34 +187,42 @@ int main(int argc, char *argv[])
                         if (j==size_str_to_check)
                             temp_first_str[j] ='\0';
                     }
-                    #ifdef DEBUG
-                        printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
-                    #endif
-                    #pragma omp parallel for reduction(AS_max_func : temp_Max)
+                    // #ifdef DEBUG
+                    //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
+                    // #endif
+
+                    #pragma omp parallel for reduction(AS_max_func :  AS_max)
                     for (int d = 0; d < size_str_to_check; d++)
                     {
-                        temp_Max.MS = i;
+                        temp_Max.MS = d;
 
                         strcpy(temp_Max.str , str_to_check);   
-                        Mutanat_Squence(temp_Max.str , i,size_str_to_check);
-                        #ifdef DEBUG
-                        printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , i);
+                        Mutanat_Squence(temp_Max.str , d,size_str_to_check);
+                        // #ifdef DEBUG
+                        // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
                         
-                        #endif
+                        // #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
                             temp_Max.score = computeOnGPU(temp_first_str , temp_Max.str);
                         else
                             temp_Max.score = computeOnGPUWithMatrix(temp_first_str , temp_Max.str , matrix);
                         printf("temp.result = %d\n",temp_Max.score);
+                        if (AS_max.score <temp_Max.score)
+                        {
+                            AS_max.MS = d;
+                            AS_max.sqn = i;
+                            AS_max.score = temp_Max.score;
+                        }
+
                     }    
                     temp_first_str[0] = '\0';
                 }
                 
             
-            strcpy(temp_Max.str , str_to_check);
-            printf("here\n");
-            MPI_Send(&temp_Max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
+            strcpy(AS_max.str , str_to_check);
+            printf("here AS_max -  %d\n",AS_max.score);
+            MPI_Send(&AS_max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             free(str_to_check);
             free(temp_Max.str);
             }
