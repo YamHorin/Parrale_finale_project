@@ -101,10 +101,11 @@ int main(int argc, char *argv[])
              struct  score_alignment localMax;
             MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
                             DONE, MPI_COMM_WORLD, &status);
-            printf("\nfor the string %s \n, we found that the max score alignment %d is from MS %d and %d sqn \n",
+            printf("\nfor the string %s \n, we found that the max score alignment %d is from MS  - %d and sqn - %d  \n",
             localMax.str , localMax.score , localMax.MS , localMax.sqn);
             int tasks_not_sent_yet = tasks - str_send;
             if (tasks_not_sent_yet > 0) {
+                    
                     str_to_send = createDynStr();
                     str_length = strlen(str_to_send);
                     MPI_Send(&str_length , 1 , MPI_CHAR , status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
@@ -146,6 +147,7 @@ int main(int argc, char *argv[])
             {
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+                printf("hereee\n");
                 #ifdef DEBUG
                     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
                     printf("got str:%s \n",str_to_check);
@@ -191,7 +193,9 @@ int main(int argc, char *argv[])
                             temp_Max.score = computeOnGPU(str_for_sqn , temp_Max.str);
                         else
                             temp_Max.score = computeOnGPUWithMatrix(str_for_sqn , temp_Max.str , matrix);
-                        printf("temp.result = %d\n",temp_Max.score);
+                        // #ifdef DEBUG
+                        // printf("temp.result = %d\n",temp_Max.score);
+                        // #endif
                         if (AS_max.score <temp_Max.score)
                         {
                             AS_max.MS = d;
