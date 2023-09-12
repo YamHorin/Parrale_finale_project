@@ -1,54 +1,51 @@
-mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd877b6cf68.  Backtrace:
+mpiexec -n 2 ./mpiCudaOpenMP <data.txt 
+send to rank 1 -ABC
+hereee
+rank = 1 tag = 0
+got str:ABC 
+here AS_max -  3
 
-mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd87736bf68.  Backtrace:
+for the string ABC 
+, we found that the max score alignment 3 is from MS  - 0 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:ABABA 
+here AS_max -  0
 
-mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7fd87836df68.  Backtrace:
+for the string ABABA 
+, we found that the max score alignment 0 is from MS  - 0 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:AAAAAA 
+here AS_max -  2
 
-mpiCudaOpenMP:13753 terminated with signal 11 at PC=7fd88559d97d SP=7ffd5c9e7088.  Backtrace:
-/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
-/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
-/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
-./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
-./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
-./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
-/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
-/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
-/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
-/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
-/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
-/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
-./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
-./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
-./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
-/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
-/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
-/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
-/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
-/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
-/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
-./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
-./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
-./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
-/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
-/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
-/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
-[0x0]
-./mpiCudaOpenMP(+0x26a5)[0x5637ca40f6a5]
-/lib/x86_64-linux-gnu/libc.so.6(+0x19d97d)[0x7fd88559d97d]
-/lib/x86_64-linux-gnu/libc.so.6(+0x76db1)[0x7fd885476db1]
-/lib/x86_64-linux-gnu/libc.so.6(+0x776e5)[0x7fd8854776e5]
-/lib/x86_64-linux-gnu/libc.so.6(_IO_printf+0xaf)[0x7fd88546081f]
-./mpiCudaOpenMP(+0x3a3a)[0x5637ca410a3a]
-./mpiCudaOpenMP(+0x36db)[0x5637ca4106db]
-/lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fd88877ca16]
-./mpiCudaOpenMP(+0x3468)[0x5637ca410468]
-/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e)[0x7fd888785b9e]
-/lib/x86_64-linux-gnu/libc.so.6(+0x94b43)[0x7fd885494b43]
-/lib/x86_64-linux-gnu/libc.so.6(+0x126a00)[0x7fd885526a00]
-make: *** [Makefile:15: run] Error 1
+for the string AAAAAA 
+, we found that the max score alignment 2 is from MS  - 1 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:GF 
+here AS_max -  0
+
+for the string GF 
+, we found that the max score alignment 0 is from MS  - 0 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:HKUIUIK 
+here AS_max -  0
+
+for the string HKUIUIK 
+, we found that the max score alignment 0 is from MS  - 0 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:ABCDEFGH 
+here AS_max -  -1
+
+for the string ABCDEFGH 
+, we found that the max score alignment -1 is from MS  - 0 and sqn - 0  
+hereee
+rank = 1 tag = 0
+got str:URGAY 
+here AS_max -  0
+
+for the string URGAY 
+, we found that the max score alignment 0 is from MS  - 0 and sqn - 0  
