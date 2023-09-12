@@ -28,14 +28,10 @@ struct score_alignment
    int score;
 };
 
-
-
-
 int lenght_first_str;
 int number_strings;
 char* first_str;
 int matrix [MATRIX_SIZE][MATRIX_SIZE];
-
 int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 void init(int argc, char **argv); 
 extern int computeOnGPU(const char  *s1, const char *s2);
@@ -112,7 +108,7 @@ int main(int argc, char *argv[])
                     str_to_send = createDynStr();
                     str_length = strlen(str_to_send);
                     MPI_Send(&str_length , 1 , MPI_CHAR , status.MPI_SOURCE  , WORK , MPI_COMM_WORLD);
-                    MPI_Send(str_to_send, strlen(str_to_send)*sizeof(char) , MPI_CHAR , status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+                    MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                     str_send++;
                 }
             else {
@@ -129,7 +125,7 @@ int main(int argc, char *argv[])
     else
     {
         int size_str_to_check ,enumGet;
-        char* str_to_check;
+        char str_to_check[MAX_STRING_SIZE];
         MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
         how_to_caculate = (enum matrix_score) enumGet;
         if (how_to_caculate==THERE_IS_MATRIX_SCORE)
@@ -148,12 +144,6 @@ int main(int argc, char *argv[])
             struct score_alignment temp_Max , AS_max;
             if (tag==WORK)
             {
-                str_to_check = (char*)malloc((size_str_to_check)*sizeof(char));
-                if (!str_to_check)
-                {
-                    perror("malloc");
-                    exit(1);
-                }
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
                 #ifdef DEBUG
@@ -167,27 +157,18 @@ int main(int argc, char *argv[])
                         initializer(omp_priv = omp_orig)
                 
                 AS_max.score = -1;
-                AS_max.str = (char*)malloc((size_str_to_check)*sizeof(char));
-                temp_Max.str  = (char*)malloc((size_str_to_check)*sizeof(char));
-                
-                if (!temp_Max.str)
-                {
-                    perror("malloc");
-                    exit(1);
-                }
-                
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char temp_first_str [size_str_to_check];
+                char str_for_sqn [size_str_to_check];
                 #pragma omp parallel for reduction(AS_max_func :  AS_max)
                 for (int i = 0; i < sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
                     for (int j = 0; j <=size_str_to_check; j++)
                     {
-                        temp_first_str[j] = *(first_str+j+i);
+                        str_for_sqn[j] = *(first_str+j+i);
                         if (j==size_str_to_check)
-                            temp_first_str[j] ='\0';
+                            str_for_sqn[j] ='\0';
                     }
                     // #ifdef DEBUG
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
@@ -198,7 +179,8 @@ int main(int argc, char *argv[])
                     {
                         temp_Max.MS = d;
 
-                        strcpy(temp_Max.str , str_to_check);   
+                        strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
+                        temp_Max.str[MAX_STRING_SIZE] = '\0';   
                         Mutanat_Squence(temp_Max.str , d,size_str_to_check);
                         // #ifdef DEBUG
                         // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
@@ -206,9 +188,9 @@ int main(int argc, char *argv[])
                         // #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp_Max.score = computeOnGPU(temp_first_str , temp_Max.str);
+                            temp_Max.score = computeOnGPU(str_for_sqn , temp_Max.str);
                         else
-                            temp_Max.score = computeOnGPUWithMatrix(temp_first_str , temp_Max.str , matrix);
+                            temp_Max.score = computeOnGPUWithMatrix(str_for_sqn , temp_Max.str , matrix);
                         printf("temp.result = %d\n",temp_Max.score);
                         if (AS_max.score <temp_Max.score)
                         {
@@ -218,15 +200,14 @@ int main(int argc, char *argv[])
                         }
 
                     }    
-                    temp_first_str[0] = '\0';
+                    str_for_sqn[0] = '\0';
                 }
                 
             
-            strcpy(AS_max.str , str_to_check);
+            strncpy(AS_max.str , str_to_check , MAX_STRING_SIZE-1);
+            AS_max.str [MAX_STRING_SIZE] = '\0';
             printf("here AS_max -  %d\n",AS_max.score);
             MPI_Send(&AS_max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
-            free(str_to_check);
-            free(temp_Max.str);
             }
 
         } while (tag != STOP);
