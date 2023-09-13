@@ -18,12 +18,12 @@ __device__ int getScoreFromMatrix(char a, char b) {
     //printf("%d\n",matrix_caculate[x * MATRIX_SIZE + y]);
     return matrix_caculate[x * MATRIX_SIZE + y]; // Assuming matrix_caculate is a 1D array representation of a 2D matrix.
 }
-__device__ char gpu_toupper(char c) {
-    if (c >= 'a' && c <= 'z') {
-        return c - ('a' - 'A');
-    }
-    return c;
-}
+// __device__ char gpu_toupper(char c) {
+//     if (c >= 'a' && c <= 'z') {
+//         return c - ('a' - 'A');
+//     }
+//     return c;
+// }
 
 __device__ void scan_plus(int *array, int size)
 {
@@ -54,7 +54,7 @@ __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int 
     if(tid == 0) r = 0;
     __syncthreads();
     if (tid < n1 && tid <n2)
-        flags[tid] = getScoreFromMatrix(gpu_toupper(s1[tid]) , gpu_toupper(s2[tid])); 
+        flags[tid] = getScoreFromMatrix(s1[tid] , s2[tid]); 
     else
         flags[tid] =0; 
      __syncthreads();
@@ -76,7 +76,7 @@ __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *
     if(tid == 0) r = 0;
     __syncthreads();
     if (tid < n1 && tid <n2)
-        flags[tid] = (gpu_toupper(s1[tid]) == gpu_toupper(s2[tid])); 
+        flags[tid] = (s1[tid] == s2[tid]); 
     else
         flags[tid] =0; 
      __syncthreads();

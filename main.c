@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
             printf("\nfor the string %s \n, we found that the max score alignment %d is from MS  - %d and sqn - %d  \n",
             localMax.str , localMax.score , localMax.MS , localMax.sqn);
             int tasks_not_sent_yet = tasks - str_send;
-            printf("tasks_not_sent_yet = %d\n",tasks_not_sent_yet);
             if (tasks_not_sent_yet > 0) {
                     
                     str_to_send = createDynStr();
@@ -157,16 +156,18 @@ int main(int argc, char *argv[])
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-                #ifdef DEBUG
-                    printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
-                    printf("got str:%s \n",str_to_check);
+                // #ifdef DEBUG
+                //     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
+                //     printf("got str:%s \n",str_to_check);
 
-                #endif
+                // #endif
 
                 #pragma omp declare reduction(AS_max_func : struct score_alignment : \
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
                         initializer(omp_priv = omp_orig)
                 
+                AS_max.sqn = 0;
+                AS_max.MS = 0;
                 AS_max.score = -1;
                 temp_Max.sqn =0;
                 temp_Max.MS =0;
@@ -174,11 +175,12 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                 char str_for_sqn [size_str_to_check];
-                
+                // char* str_for_sqn;
                 #pragma omp parallel firstprivate(temp_Max)
                 for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.sqn = off_set;
+
                     for (int j = 0; j <=size_str_to_check; j++)
                     {
                         str_for_sqn[j] = *(first_str+j+off_set);
@@ -188,7 +190,7 @@ int main(int argc, char *argv[])
                     // #ifdef DEBUG
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     // #endif
-
+                    //str_for_sqn = first_str+off_set;
                     #pragma omp for reduction(AS_max_func :  AS_max)
                     for (int k = 0; k < size_str_to_check; k++)
                     {

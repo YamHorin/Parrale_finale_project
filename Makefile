@@ -8,11 +8,11 @@ build:
 	
 clean:
 	rm -f *.o ./mpiCudaOpenMP
-	rm -f result.txt
+	rm -f result.txt	
 	rm -f *.btr
 
 run:
-	mpiexec -n 4 ./mpiCudaOpenMP matrix.txt <data.txt 
+	mpiexec -n 4 ./mpiCudaOpenMP <data.txt 
 
 
 

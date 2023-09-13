@@ -23,7 +23,7 @@ void Mutanat_Squence(char* str , int k , int size_str)
 		if (i==size_str)
 			*(str+i) = '\0';
 		else
-			*(str+i) = *((str+i))+1;
+			*(str+i) = toupper(*((str+i))+1);
 		
 
 	}
