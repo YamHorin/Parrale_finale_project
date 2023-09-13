@@ -6,7 +6,7 @@
 #define MATRIX_SIZE 26
 #define BLOCK_DIM 1024 // number of threads in a block
 
-__device__ int matrix_caculate[MATRIX_SIZE];
+__device__ int matrix_caculate[MATRIX_SIZE*MATRIX_SIZE];
 
 
 
@@ -15,6 +15,7 @@ __device__ int matrix_caculate[MATRIX_SIZE];
 __device__ int getScoreFromMatrix(char a, char b) {
     int x = a - 'A';
     int y = b - 'A';
+    //printf("%d\n",matrix_caculate[x * MATRIX_SIZE + y]);
     return matrix_caculate[x * MATRIX_SIZE + y]; // Assuming matrix_caculate is a 1D array representation of a 2D matrix.
 }
 __device__ char gpu_toupper(char c) {
@@ -139,11 +140,7 @@ int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MAT
     int *dev_result;
     int n1 = strlen(s1)+1; // null byte at the end is also counted
     int n2 = strlen(s2)+1;
-    if (n1 !=n2)
-    {
-        fprintf(stderr, "not equal strings ");
-        exit(1);
-    }
+
     // allocate the memory on the GPU
 
     cudaError_t err1 = cudaMalloc((void**)&dev_s1, n1);

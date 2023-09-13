@@ -83,6 +83,9 @@ int main(int argc, char *argv[])
       int str_length;
       for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
+            //MPI_Send(&int_enum , 1 , MPI_INT , ROOT , MPI_ANY_TAG,MPI_COMM_WORLD);
+            // MPI_Send(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_ANY_TAG,MPI_COMM_WORLD);
+            // MPI_Send(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT ,MPI_ANY_TAG , MPI_COMM_WORLD);
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
             #ifdef DEBUG
@@ -97,6 +100,10 @@ int main(int argc, char *argv[])
         for (int tasks_done = 0; tasks_done<number_strings; tasks_done++)
         {
              struct  score_alignment localMax;
+            localMax.MS =0;
+            localMax.score =0;
+            localMax.MS =0;
+            
             MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
                             DONE, MPI_COMM_WORLD, &status);
             printf("\nfor the string %s \n, we found that the max score alignment %d is from MS  - %d and sqn - %d  \n",
@@ -126,13 +133,16 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check ,enumGet;
         char str_to_check[MAX_STRING_SIZE];
+        //MPI_Recv(&enumGet , 1 , MPI_INT , ROOT ,MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
         how_to_caculate = (enum matrix_score) enumGet;
         if (how_to_caculate==THERE_IS_MATRIX_SCORE)
            MPI_Bcast(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
         MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        //MPI_Recv(&lenght_first_str , 1 , MPI_INT, ROOT ,MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         first_str = (char*)malloc(lenght_first_str*sizeof(char));
         MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
+        //MPI_Recv(first_str , lenght_first_str*sizeof(char) , MPI_CHAR  , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
         MPI_Status status;
         int tag,sqn_taries;
         do
@@ -165,7 +175,7 @@ int main(int argc, char *argv[])
                 : (size_str_to_check-lenght_first_str);
                 char str_for_sqn [size_str_to_check];
                 #pragma omp parallel for reduction(AS_max_func :  AS_max)
-                for (int i = 0; i < sqn_taries; i++)
+                for (int i = 0; i <= sqn_taries; i++)
                 {
                     temp_Max.sqn = i;
                     for (int j = 0; j <=size_str_to_check; j++)
