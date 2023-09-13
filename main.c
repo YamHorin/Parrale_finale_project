@@ -93,9 +93,7 @@ int main(int argc, char *argv[])
             MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
         }
         int str_send = num_procs-1; 
-        int tasks = number_strings/(num_procs-1);
-        if (number_strings%(num_procs-1))
-            tasks++;
+        int tasks = number_strings;
         for (int tasks_done = 0; tasks_done<number_strings; tasks_done++)
         {
              struct  score_alignment localMax;
@@ -104,6 +102,7 @@ int main(int argc, char *argv[])
             printf("\nfor the string %s \n, we found that the max score alignment %d is from MS  - %d and sqn - %d  \n",
             localMax.str , localMax.score , localMax.MS , localMax.sqn);
             int tasks_not_sent_yet = tasks - str_send;
+            printf("tasks_not_sent_yet = %d\n",tasks_not_sent_yet);
             if (tasks_not_sent_yet > 0) {
                     
                     str_to_send = createDynStr();
