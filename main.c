@@ -175,13 +175,13 @@ int main(int argc, char *argv[])
                 : (size_str_to_check-lenght_first_str);
                 char str_for_sqn [size_str_to_check];
                 
-                #pragma omp parallel for reduction(AS_max_func :  AS_max)
-                for (int i = 0; i <= sqn_taries; i++)
+                #pragma omp parallel firstprivate(temp_Max)
+                for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
-                    temp_Max.sqn = i;
+                    temp_Max.sqn = off_set;
                     for (int j = 0; j <=size_str_to_check; j++)
                     {
-                        str_for_sqn[j] = *(first_str+j+i);
+                        str_for_sqn[j] = *(first_str+j+off_set);
                         if (j==size_str_to_check)
                             str_for_sqn[j] ='\0';
                     }
@@ -189,14 +189,14 @@ int main(int argc, char *argv[])
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     // #endif
 
-                    #pragma omp parallel for reduction(AS_max_func :  AS_max)
-                    for (int d = 0; d < size_str_to_check; d++)
+                    #pragma omp for reduction(AS_max_func :  AS_max)
+                    for (int k = 0; k < size_str_to_check; k++)
                     {
-                        temp_Max.MS = d;
+                        temp_Max.MS = k;
 
                         strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
                         temp_Max.str[MAX_STRING_SIZE] = '\0';   
-                        Mutanat_Squence(temp_Max.str , d,size_str_to_check);
+                        Mutanat_Squence(temp_Max.str , k,size_str_to_check);
                         // #ifdef DEBUG
                         // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
                         // #endif
