@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
             {
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-                printf("hereee\n");
+
                 #ifdef DEBUG
                     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
                     printf("got str:%s \n",str_to_check);
@@ -159,6 +159,9 @@ int main(int argc, char *argv[])
                         initializer(omp_priv = omp_orig)
                 
                 AS_max.score = -1;
+                temp_Max.sqn =0;
+                temp_Max.MS =0;
+                temp_Max.score =0;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                 char str_for_sqn [size_str_to_check];
@@ -198,8 +201,8 @@ int main(int argc, char *argv[])
                         // #endif
                         if (AS_max.score <temp_Max.score)
                         {
-                            AS_max.MS = d;
-                            AS_max.sqn = i;
+                            AS_max.MS = temp_Max.MS;
+                            AS_max.sqn = temp_Max.sqn   ;
                             AS_max.score = temp_Max.score;
                         }
 
@@ -210,7 +213,6 @@ int main(int argc, char *argv[])
             
             strncpy(AS_max.str , str_to_check , MAX_STRING_SIZE-1);
             AS_max.str [MAX_STRING_SIZE] = '\0';
-            printf("here AS_max -  %d\n",AS_max.score);
             MPI_Send(&AS_max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             }
 
@@ -221,7 +223,7 @@ int main(int argc, char *argv[])
     free(first_str);
     MPI_Type_free(&mpi_score_alignment_type);
     MPI_Finalize();
-    return 0;
+    return EXIT_SUCCESS;
 
 }
 
