@@ -7,7 +7,7 @@
 
 #define MATRIX_SIZE 26
 #define ROOT 0
-#define MAX_STRING_SIZE 1000
+#define MAX_STRING_SIZE 3000
 enum matrix_score
 {
     THERE_IS_MATRIX_SCORE ,
@@ -23,8 +23,8 @@ enum tags
 struct score_alignment
 {
    char str [MAX_STRING_SIZE];
-   int sqn;
-   int MS;
+   int off_set;
+   int K;
    int score;
 };
 
@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 
     // Calculate displacements
     MPI_Get_address(&temp.str, &displacements[0]);
-    MPI_Get_address(&temp.sqn, &displacements[1]);
-    MPI_Get_address(&temp.MS, &displacements[2]);
+    MPI_Get_address(&temp.off_set, &displacements[1]);
+    MPI_Get_address(&temp.K, &displacements[2]);
     MPI_Get_address(&temp.score, &displacements[3]);
 
     for (int i = 3; i > 0; i--) {
@@ -100,14 +100,14 @@ int main(int argc, char *argv[])
         for (int tasks_done = 0; tasks_done<number_strings; tasks_done++)
         {
              struct  score_alignment localMax;
-            localMax.MS =0;
+
             localMax.score =0;
-            localMax.MS =0;
+            localMax.K =0;
             
             MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
                             DONE, MPI_COMM_WORLD, &status);
-            printf("\nfor the string %s \n, we found that the max score alignment %d is from MS  - %d and sqn - %d  \n",
-            localMax.str , localMax.score , localMax.MS , localMax.sqn);
+            printf("\nfor the string %s \n, we found that the max score alignment %d is from K  - %d and off set - %d  \n",
+            localMax.str , localMax.score , localMax.K , localMax.off_set);
             int tasks_not_sent_yet = tasks - str_send;
             if (tasks_not_sent_yet > 0) {
                     
@@ -166,36 +166,36 @@ int main(int argc, char *argv[])
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
                         initializer(omp_priv = omp_orig)
                 
-                AS_max.sqn = 0;
-                AS_max.MS = 0;
+                AS_max.off_set = 0;
+                AS_max.K = 0;
                 AS_max.score = -1;
-                temp_Max.sqn =0;
-                temp_Max.MS =0;
+                temp_Max.off_set =0;
+                temp_Max.K =0;
                 temp_Max.score =0;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char str_for_sqn [size_str_to_check];
-                // char* str_for_sqn;
+                //char str_for_offset [size_str_to_check];
+                char* str_for_offset;
                 #pragma omp parallel firstprivate(temp_Max)
                 for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
-                    temp_Max.sqn = off_set;
+                    temp_Max.off_set = off_set;
 
-                    for (int j = 0; j <=size_str_to_check; j++)
-                    {
-                        str_for_sqn[j] = *(first_str+j+off_set);
-                        if (j==size_str_to_check)
-                            str_for_sqn[j] ='\0';
-                    }
+                    // for (int j = 0; j <=size_str_to_check; j++)
+                    // {
+                    //     str_for_offset[j] = *(first_str+j+off_set);
+                    //     if (j==size_str_to_check)
+                    //         str_for_offset[j] ='\0';
+                    // }
                     // #ifdef DEBUG
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     // #endif
-                    //str_for_sqn = first_str+off_set;
+                    str_for_offset = first_str+off_set;
+                    printf("%s\n",str_for_offset);
                     #pragma omp for reduction(AS_max_func :  AS_max)
                     for (int k = 0; k < size_str_to_check; k++)
                     {
-                        temp_Max.MS = k;
-
+                        temp_Max.K = k;
                         strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
                         temp_Max.str[MAX_STRING_SIZE] = '\0';   
                         Mutanat_Squence(temp_Max.str , k,size_str_to_check);
@@ -204,21 +204,21 @@ int main(int argc, char *argv[])
                         // #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp_Max.score = computeOnGPU(str_for_sqn , temp_Max.str);
+                            temp_Max.score = computeOnGPU(str_for_offset , temp_Max.str);
                         else
-                            temp_Max.score = computeOnGPUWithMatrix(str_for_sqn , temp_Max.str , matrix);
+                            temp_Max.score = computeOnGPUWithMatrix(str_for_offset , temp_Max.str , matrix);
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
                         if (AS_max.score <temp_Max.score)
                         {
-                            AS_max.MS = temp_Max.MS;
-                            AS_max.sqn = temp_Max.sqn   ;
+                            AS_max.K = temp_Max.K;
+                            AS_max.off_set = temp_Max.off_set;
                             AS_max.score = temp_Max.score;
                         }
 
                     }    
-                    str_for_sqn[0] = '\0';
+                    str_for_offset[0] = '\0';
                 }
                 
             

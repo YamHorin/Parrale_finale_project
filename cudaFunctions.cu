@@ -48,46 +48,47 @@ __device__ void scan_plus(int *array, int size)
 
 __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int n2,  int *result)
 {
-     __shared__ int flags[BLOCK_DIM];
      __shared__ int r;
+     int value;
      int tid = threadIdx.x;
     if(tid == 0) r = 0;
     __syncthreads();
     if (tid < n1 && tid <n2)
-        flags[tid] = getScoreFromMatrix(s1[tid] , s2[tid]); 
-    else
-        flags[tid] =0; 
-     __syncthreads();
+    {
+        value = (getScoreFromMatrix (s1[tid] ,s2[tid])); 
+        atomicAdd(&r , value);
 
-     scan_plus(flags, BLOCK_DIM);
-     if (tid  == BLOCK_DIM-1)
-        atomicAdd(&r , flags[tid]);
+    }
+        
+
+     //scan_plus(flags, BLOCK_DIM);
+     //if (tid  == BLOCK_DIM-1; 
      __syncthreads();
      if (tid == 0)
         *result = r;
-    __syncthreads();
 
 }
 __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *result)
 {
-     __shared__ int flags[BLOCK_DIM];
+    // __shared__ int flags[BLOCK_DIM];
      __shared__ int r;
+     int value;
      int tid = threadIdx.x;
     if(tid == 0) r = 0;
     __syncthreads();
     if (tid < n1 && tid <n2)
-        flags[tid] = (s1[tid] == s2[tid]); 
-    else
-        flags[tid] =0; 
-     __syncthreads();
+    {
+        value = (s1[tid] == s2[tid]); 
+        atomicAdd(&r , value);
 
-     scan_plus(flags, BLOCK_DIM);
-     if (tid  == BLOCK_DIM-1)
-        atomicAdd(&r , flags[tid]);
+    }
+        
+
+     //scan_plus(flags, BLOCK_DIM);
+     //if (tid  == BLOCK_DIM-1; 
      __syncthreads();
      if (tid == 0)
         *result = r;
-    __syncthreads();
 
 }
 
