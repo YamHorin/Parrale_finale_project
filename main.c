@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                 char str_for_sqn [size_str_to_check];
+                
                 #pragma omp parallel for reduction(AS_max_func :  AS_max)
                 for (int i = 0; i <= sqn_taries; i++)
                 {
@@ -198,7 +199,6 @@ int main(int argc, char *argv[])
                         Mutanat_Squence(temp_Max.str , d,size_str_to_check);
                         // #ifdef DEBUG
                         // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
-                        
                         // #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)

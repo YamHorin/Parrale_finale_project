@@ -60,10 +60,11 @@ __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int 
      __syncthreads();
 
      scan_plus(flags, BLOCK_DIM);
+     if (tid  == BLOCK_DIM-1)
+        atomicAdd(&r , flags[tid]);
      __syncthreads();
-     
-     if (tid == BLOCK_DIM-1)
-        *result = r+flags[tid];
+     if (tid == 0)
+        *result = r;
     __syncthreads();
 
 }
@@ -159,7 +160,7 @@ int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MAT
     caculateWithMatrix<<<numOfBlocks, threadsPerBlock>>>(dev_s1, n1, dev_s2, n2, dev_result);
  
     // copy the result back from the GPU to the CPU
-    int result;
+    int result=0;
     cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);		
 	    
     // free memory on the GPU side
