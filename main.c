@@ -39,9 +39,8 @@ char* first_str;
 int matrix [MATRIX_SIZE][MATRIX_SIZE];
 
 //functions
-
-int caculate_result_without_matrix(const char  *s1, const char *s2);
-int calculate_result_with_matrix(const char* s1, const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
+int caculate_result_without_matrix(const char *s2 , int off_set);
+int calculate_result_with_matrix(const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE] , int off_set);
 
 int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 void init(int argc, char **argv);
@@ -181,20 +180,21 @@ int main(int argc, char *argv[])
                 
                 AS_max.off_set = 10;
                 AS_max.K = 0;
-                AS_max.score = -1;
+                AS_max.score = 0;
                 temp_Max.off_set =9;
                 temp_Max.K =0;
                 temp_Max.score =0;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-               // char str_for_offset [size_str_to_check];
-                char* str_for_offset;
-                int max_off_set = 0;
-                #pragma omp parallel firstprivate(temp_Max , str_for_offset )
-                for (int off_set = 0; off_set <= sqn_taries; off_set++)
+               char str_for_offset [size_str_to_check];
+                //char* str_for_offset;
+                int off_set;
+                int k;
+                int max_off_set;
+                for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
-                    str_for_offset = offsetFirstStr(off_set , lenght_first_str);
+                    //str_for_offset = offsetFirstStr(off_set , lenght_first_str);
 
                     // printf(" 199 temp_Max.off_set = %d\n" ,temp_Max.off_set);
                     // printf("200 str_for_offset = %s\n" ,str_for_offset );
@@ -207,9 +207,10 @@ int main(int argc, char *argv[])
 
                     // str_for_offset = first_str+off_set;
                     // printf("%s\n",str_for_offset);
-                    #pragma omp for reduction(AS_max_func :  AS_max)
-                    for (int k = 0; k < size_str_to_check; k++)
+                    for (k =0; k < size_str_to_check; k++)
                     {
+                        temp_Max.score = 0;
+                        
                         temp_Max.K = k;
                         strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
                         temp_Max.str[MAX_STRING_SIZE] = '\0';   
@@ -217,22 +218,23 @@ int main(int argc, char *argv[])
                         // #ifdef DEBUG
                         // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
                         // #endif
-                        //caculate result
                         // printf("220 temp_Max.off_set = %d\n" ,temp_Max.off_set);
                         // printf("221 str_for_offset = %s\n" ,str_for_offset );
                         if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp_Max.score = caculate_result_without_matrix(str_for_offset , temp_Max.str);
+                            temp_Max.score = caculate_result_without_matrix(temp_Max.str , off_set);
                         else
-                            temp_Max.score = calculate_result_with_matrix(str_for_offset , temp_Max.str , matrix);
+                            temp_Max.score = calculate_result_with_matrix(temp_Max.str , matrix,off_set);                        
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
                         if (AS_max.score <temp_Max.score)
                         {
-                            AS_max.K = temp_Max.K;
-                            AS_max.off_set = temp_Max.off_set;
+                            printf("K = %d ,off_set = %d score = %d \n\n",k,off_set,temp_Max.score);
+                            AS_max.K = k;
+                            AS_max.off_set = off_set;
+                            max_off_set = off_set;
                             AS_max.score = temp_Max.score;
-                            // printf("234 temp_Max.off_set = %d\n" ,temp_Max.off_set);
+                            printf("234 AS_Max.off_set = %d\n" ,AS_max.off_set);
                             
                         }
 
@@ -243,6 +245,7 @@ int main(int argc, char *argv[])
             
             strncpy(AS_max.str , str_to_check , MAX_STRING_SIZE-1);
             AS_max.str [MAX_STRING_SIZE] = '\0';
+            AS_max.off_set = max_off_set;
             MPI_Send(&AS_max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             }
 
@@ -307,30 +310,25 @@ int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
     fclose(file);
     return 0;  // Success
 }
-int caculate_result_without_matrix(const char  *s1, const char *s2)
+int caculate_result_without_matrix(const char *s2 , int off_set)
 {
-    int length= strlen(s1);
+    int length= strlen(s2);
     int result  = 0;
     for (int i = 0; i < length; i++)
     {
-        if (s1[i]==s2[i])
+        if (*((first_str+i)+off_set)==s2[i])
             result++;
     }
     return result;
 
 }
 
-int calculate_result_with_matrix(const char* s1, const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
-    if (s1 == NULL || s2 == NULL || strlen(s1) != strlen(s2)) {
-        // Handle invalid input arguments.
-        return -1; // or any appropriate error code
-    }
-
-    int length = strlen(s1);
+int calculate_result_with_matrix(const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE] , int off_set) {
+    int length = strlen(s2);
     int result = 0;
 
     for (int i = 0; i < length; i++) {
-        int x = s1[i] - 'A';
+        int x = *(first_str+i+off_set) - 'A';
         int y = s2[i] - 'A';
 
         if (x < 0 || x >= MATRIX_SIZE || y < 0 || y >= MATRIX_SIZE) {
