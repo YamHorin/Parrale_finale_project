@@ -41,13 +41,12 @@ int matrix [MATRIX_SIZE][MATRIX_SIZE];
 //functions
 
 int caculate_result_without_matrix(const char  *s1, const char *s2);
-int caculate_result_with_matrix(const char  *s1, const char *s2 , int matrix[MATRIX_SIZE][MATRIX_SIZE]);
-
+int calculate_result_with_matrix(const char* s1, const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
 int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 void init(int argc, char **argv);
-extern void getFirstStr(const char  *s1, int n1);
-extern char* offsetFirstStr(int offset);
+extern void getFirstStr(char  *s1, int n1);
+extern char* offsetFirstStr(int offset , int lenght);
 extern int computeOnGPU(const char  *s1, const char *s2);
 extern int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
@@ -171,11 +170,11 @@ int main(int argc, char *argv[])
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-                // #ifdef DEBUG
-                //     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
-                //     printf("got str:%s \n",str_to_check);
+                #ifdef DEBUG
+                    printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
+                    printf("got str:%s \n",str_to_check);
 
-                // #endif
+                #endif
 
                 #pragma omp declare reduction(AS_max_func : struct score_alignment : \
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
@@ -195,7 +194,7 @@ int main(int argc, char *argv[])
                 for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
-                    str_for_offset = offsetFirstStr(off_set);
+                    str_for_offset = offsetFirstStr(off_set , lenght_first_str);
 
 
                     // for (int j = 0; j <=size_str_to_check; j++)
@@ -223,7 +222,7 @@ int main(int argc, char *argv[])
                         if (how_to_caculate==NO_MATRIX_SCORE)
                             temp_Max.score = caculate_result_without_matrix(str_for_offset , temp_Max.str);
                         else
-                            temp_Max.score = caculate_result_with_matrix(str_for_offset , temp_Max.str , matrix);
+                            temp_Max.score = calculate_result_with_matrix(str_for_offset , temp_Max.str , matrix);
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
