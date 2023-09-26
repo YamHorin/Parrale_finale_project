@@ -174,24 +174,23 @@ int main(int argc, char *argv[])
                 temp_Max.score =0;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                //char str_for_offset [size_str_to_check];
-                char* str_for_offset;
+                char str_for_offset [size_str_to_check];
+                //char* str_for_offset;
                 #pragma omp parallel firstprivate(temp_Max)
                 for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
-
-                    // for (int j = 0; j <=size_str_to_check; j++)
-                    // {
-                    //     str_for_offset[j] = *(first_str+j+off_set);
-                    //     if (j==size_str_to_check)
-                    //         str_for_offset[j] ='\0';
-                    // }
+                    for (int j = 0; j <=size_str_to_check; j++)
+                    {
+                        str_for_offset[j] = *(first_str+j+off_set);
+                        if (j==size_str_to_check)
+                            str_for_offset[j] ='\0';
+                    }
                     // #ifdef DEBUG
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     // #endif
-                    str_for_offset = first_str+off_set;
-                    printf("%s\n",str_for_offset);
+                    // str_for_offset = first_str+off_set;
+                    // printf("%s\n",str_for_offset);
                     #pragma omp for reduction(AS_max_func :  AS_max)
                     for (int k = 0; k < size_str_to_check; k++)
                     {
