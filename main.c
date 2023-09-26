@@ -36,16 +36,18 @@ struct score_alignment
 int lenght_first_str;
 int number_strings;
 char* first_str;
+int matrix [MATRIX_SIZE][MATRIX_SIZE];
 
 //functions
 
 int caculate_result_without_matrix(const char  *s1, const char *s2);
-int caculate_result_with_matrix(const char  *s1, const char *s2 , int* matrix);
+int caculate_result_with_matrix(const char  *s1, const char *s2 , int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
-int matrix [MATRIX_SIZE][MATRIX_SIZE];
+
 int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 void init(int argc, char **argv);
-
+extern void getFirstStr(const char  *s1, int n1);
+extern char* offsetFirstStr(int offset);
 extern int computeOnGPU(const char  *s1, const char *s2);
 extern int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
@@ -153,6 +155,7 @@ int main(int argc, char *argv[])
         //MPI_Recv(&lenght_first_str , 1 , MPI_INT, ROOT ,MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         first_str = (char*)malloc(lenght_first_str*sizeof(char));
         MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
+        getFirstStr(first_str, lenght_first_str);
         //MPI_Recv(first_str , lenght_first_str*sizeof(char) , MPI_CHAR  , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
         MPI_Status status;
         int tag,sqn_taries;
@@ -186,18 +189,21 @@ int main(int argc, char *argv[])
                 temp_Max.score =0;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-                char str_for_offset [size_str_to_check];
-                //char* str_for_offset;
+               // char str_for_offset [size_str_to_check];
+                char* str_for_offset;
                 #pragma omp parallel firstprivate(temp_Max)
                 for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
-                    for (int j = 0; j <=size_str_to_check; j++)
-                    {
-                        str_for_offset[j] = *(first_str+j+off_set);
-                        if (j==size_str_to_check)
-                            str_for_offset[j] ='\0';
-                    }
+                    str_for_offset = offsetFirstStr(off_set);
+
+
+                    // for (int j = 0; j <=size_str_to_check; j++)
+                    // {
+                    //     str_for_offset[j] = *(first_str+j+off_set);
+                    //     if (j==size_str_to_check)
+                    //         str_for_offset[j] ='\0';
+                    // }
                     // #ifdef DEBUG
                     //     printf(" %s before -  %s , sqn_number = %d \n" ,temp_first_str, str_to_check  , i);
                     // #endif
@@ -215,9 +221,9 @@ int main(int argc, char *argv[])
                         // #endif
                         //caculate result
                         if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp_Max.score = computeOnGPU(str_for_offset , temp_Max.str);
+                            temp_Max.score = caculate_result_without_matrix(str_for_offset , temp_Max.str);
                         else
-                            temp_Max.score = computeOnGPUWithMatrix(str_for_offset , temp_Max.str , matrix);
+                            temp_Max.score = caculate_result_with_matrix(str_for_offset , temp_Max.str , matrix);
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
@@ -301,9 +307,9 @@ int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 }
 int caculate_result_without_matrix(const char  *s1, const char *s2)
 {
-    int lenght1 = strlen(s1)+1;
+    int length= strlen(s1)+1;
     int result  = 0;
-    for (int i = 0; i < lenght; i++)
+    for (int i = 0; i < length; i++)
     {
         if (s1[i]==s2[i])
             result++;
@@ -311,15 +317,15 @@ int caculate_result_without_matrix(const char  *s1, const char *s2)
     return result;
 
 }
-int caculate_result_with_matrix(const char  *s1, const char *s2 , int* matrix)
+int caculate_result_with_matrix(const char  *s1, const char *s2 , int matrix[MATRIX_SIZE][MATRIX_SIZE])
 {
-    int lenght1 = strlen(s1)+1;
+    int length = strlen(s1)+1;
     int result  = 0;
-    for (int i = 0; i < lenght; i++)
+    for (int i = 0; i < length; i++)
     {
             int x = s1[i] - 'A';
             int y = s2[i] - 'A';
-            result = result+ matrix[x * 26 + y];
+            result = result + *(matrix+ x*26 + y);
     }
     return result;
 

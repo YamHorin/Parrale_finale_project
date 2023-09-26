@@ -40,34 +40,8 @@ __device__ void scan_plus(int *array, int size)
 } // scan_plus
 
 
-__global__ void getFirstStr(const char  *s1, int n1)
-{   
-   cudaError_t err1 = cudaMemcpyToSymbol(first_str , s1 , n1*sizeof(char));
-    if (err1 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA 1 error\n");
-        exit(1);
-    } 
-    cudaError_t err2 = cudaMemcpyToSymbol(lenght_first_str , n1 , 1*sizeof(char));
-    if (err2 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA 2 error\n");
-        exit(1);
-    } 
 
 
-}
-__global__ char* offsetFirstStr(int offset)
-{
-    char* result;
-    cudaError_t err2 = cudaMalloc((void**)&result, lenght_first_str);
-    if (err2 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA  2 error\n");
-        exit(1);
-    }
-
-}
 __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int n2,  int *result)
 {
      __shared__ int r;
@@ -194,6 +168,51 @@ int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MAT
 
     return result;
 }
+__global__ void change_offset(char* str ,int offset)
+{
+        int tid = threadIdx.x;
+        if (tid<lenght_first_str)
+        {
+            str[i] = *(first_str+tid+off_set);
+        }
+        if (tid== lenght_first_str)
+        {
+            str[i] = '\0';
+        }
+
+}
+__global__ char* offsetFirstStr(int offset)
+{
+    char* result , returnStr;
+    cudaError_t err2 = cudaMalloc((void**)&result, lenght_first_str);
+    if (err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  2 error\n");
+        exit(1);
+    }
+    int threadsPerBlock = BLOCK_DIM;
+    int numOfBlocks = 1;
+    change_offset <<<numOfBlocks, threadsPerBlock>>>(result , offset);
+    cudaMemcpy(&returnStr, result, lenght_first_str*sizeof(char), cudaMemcpyDeviceToHost);
+    cudaFree(result);
+    return returnStr;	
+    
+}
+
+__global__ void getFirstStr(const char  *s1, int n1)
+{   
+   cudaError_t err1 = cudaMemcpyToSymbol(first_str , s1 , n1*sizeof(char));
+    if (err1 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 1 error\n");
+        exit(1);
+    } 
+    cudaError_t err2 = cudaMemcpyToSymbol(lenght_first_str , n1 , 1*sizeof(char));
+    if (err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 2 error\n");
+        exit(1);
+    } 
 
 
-
+}
