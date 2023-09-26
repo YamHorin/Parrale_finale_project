@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <cuda_runtime.h>
 
 #define MATRIX_SIZE 26
 #define BLOCK_DIM 1024 // number of threads in a block
@@ -117,7 +116,7 @@ int computeOnGPU(const char  *s1, const char *s2) {
     err1 = cudaGetLastError();
     if (err1 != cudaSuccess)
     {
-        fprintf(stderr , "kerner lanch error");
+        fprintf(stderr , "kerner lanch error\n");
         exit(1);
     }
     // copy the result back from the GPU to the CPU
@@ -144,7 +143,6 @@ int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MAT
     int n2 = strlen(s2)+1;
 
     // allocate the memory on the GPU
-
     cudaError_t err1 = cudaMalloc((void**)&dev_s1, n1);
     cudaError_t err2 = cudaMalloc((void**)&dev_s2, n2);
     cudaError_t err3 =  cudaMalloc((void**)&dev_result, sizeof(int));
