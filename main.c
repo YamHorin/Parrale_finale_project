@@ -8,6 +8,9 @@
 #define MATRIX_SIZE 26
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
+
+//enums
+
 enum matrix_score
 {
     THERE_IS_MATRIX_SCORE ,
@@ -28,12 +31,21 @@ struct score_alignment
    int score;
 };
 
+//static values
+
 int lenght_first_str;
 int number_strings;
 char* first_str;
+
+//functions
+
+int caculate_result_without_matrix(const char  *s1, const char *s2);
+int caculate_result_with_matrix(const char  *s1, const char *s2 , int* matrix);
+
 int matrix [MATRIX_SIZE][MATRIX_SIZE];
 int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
-void init(int argc, char **argv); 
+void init(int argc, char **argv);
+
 extern int computeOnGPU(const char  *s1, const char *s2);
 extern int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
@@ -286,4 +298,29 @@ int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 
     fclose(file);
     return 0;  // Success
+}
+int caculate_result_without_matrix(const char  *s1, const char *s2)
+{
+    int lenght1 = strlen(s1)+1;
+    int result  = 0;
+    for (int i = 0; i < lenght; i++)
+    {
+        if (s1[i]==s2[i])
+            result++;
+    }
+    return result;
+
+}
+int caculate_result_with_matrix(const char  *s1, const char *s2 , int* matrix)
+{
+    int lenght1 = strlen(s1)+1;
+    int result  = 0;
+    for (int i = 0; i < lenght; i++)
+    {
+            int x = s1[i] - 'A';
+            int y = s2[i] - 'A';
+            result = result+ matrix[x * 26 + y];
+    }
+    return result;
+
 }
