@@ -1,28 +1,24 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <cudaFunctions.o>
+#include <cudarunTime.o>
 
 #define MATRIX_SIZE 26
 #define BLOCK_DIM 1024 // number of threads in a block
 
 __device__ int matrix_caculate[MATRIX_SIZE*MATRIX_SIZE];
-
-
+__device__ char first_str[BLOCK_DIM];
+__device__ int lenght_first_str;
 
 
 
 __device__ int getScoreFromMatrix(char a, char b) {
     int x = a - 'A';
     int y = b - 'A';
-    //printf("%d\n",matrix_caculate[x * MATRIX_SIZE + y]);
     return matrix_caculate[x * MATRIX_SIZE + y]; // Assuming matrix_caculate is a 1D array representation of a 2D matrix.
 }
-// __device__ char gpu_toupper(char c) {
-//     if (c >= 'a' && c <= 'z') {
-//         return c - ('a' - 'A');
-//     }
-//     return c;
-// }
+
 
 __device__ void scan_plus(int *array, int size)
 {
@@ -43,7 +39,23 @@ __device__ void scan_plus(int *array, int size)
      
 } // scan_plus
 
+__global__void getFirstStr(const char  *s1, int n1)
+{   
+   cudaError_t err1 = cudaMemcpyToSymbol(first_str , s1 , n1*sizeof(char));
+    if (err1 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 1 error\n");
+        exit(1);
+    } 
+    cudaError_t err2 = cudaMemcpyToSymbol(lenght_first_str , n1 , 1*sizeof(char));
+    if (err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 2 error\n");
+        exit(1);
+    } 
 
+
+}
 
 __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int n2,  int *result)
 {
@@ -92,20 +104,12 @@ __global__ void caculate(const char  *s1, int n1, const char *s2, int n2,  int *
 }
 
 // returns 0 if successful, otherwise returns 1
-int computeOnGPU(const char  *s1, const char *s2) {
-    char *dev_s1, *dev_s2;
+int computeOnGPU(const char *s2) {
+    char *dev_s2;
     int *dev_result;
-    
-    int n1 = strlen(s1); // null byte at the end is also counted
-    int n2 = strlen(s2);
+     // null byte at the end is also counted
+    int n2 = strlen(s2)+1;
     // allocate the memory on the GPU
-
-    cudaError_t err1 = cudaMalloc((void**)&dev_s1, n1);
-    if (err1 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA 1 error\n");
-        exit(1);
-    }
     cudaError_t err2 = cudaMalloc((void**)&dev_s2, n2);
     if (err2 != cudaSuccess)
     {
@@ -118,12 +122,11 @@ int computeOnGPU(const char  *s1, const char *s2) {
         fprintf(stderr, "CUDA 3 error\n");
         exit(1);
     }
-    cudaMemcpy(dev_s1, s1, n1, cudaMemcpyHostToDevice);
     cudaMemcpy(dev_s2, s2, n2, cudaMemcpyHostToDevice);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
     //if strlen <1024
-    caculate<<<numOfBlocks, threadsPerBlock>>>(dev_s1, n1, dev_s2, n2, dev_result);
+    caculate<<<numOfBlocks, threadsPerBlock>>>(first_str,lenght_first_str,dev_s2, n2, dev_result);
     err1 = cudaGetLastError();
     if (err1 != cudaSuccess)
     {
