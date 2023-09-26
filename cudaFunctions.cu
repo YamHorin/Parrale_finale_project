@@ -1,16 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <cudaFunctions.o>
-#include <cudarunTime.o>
+#include <cuda_runtime.h> // Include CUDA runtime header
 
 #define MATRIX_SIZE 26
 #define BLOCK_DIM 1024 // number of threads in a block
 
-__device__ int matrix_caculate[MATRIX_SIZE*MATRIX_SIZE];
+__device__ int matrix_caculate[MATRIX_SIZE * MATRIX_SIZE];
 __device__ char first_str[BLOCK_DIM];
-__device__ int lenght_first_str;
-
+__device__ int length_first_str;
 
 
 __device__ int getScoreFromMatrix(char a, char b) {
@@ -168,51 +166,35 @@ int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MAT
 
     return result;
 }
-__global__ void change_offset(char* str ,int offset)
-{
-        int tid = threadIdx.x;
-        if (tid<lenght_first_str)
-        {
-            str[i] = *(first_str+tid+off_set);
-        }
-        if (tid== lenght_first_str)
-        {
-            str[i] = '\0';
-        }
 
-}
-__global__ char* offsetFirstStr(int offset)
+__global__ void change_offset(char *str, int offset)
 {
-    char* result , returnStr;
-    cudaError_t err2 = cudaMalloc((void**)&result, lenght_first_str);
-    if (err2 != cudaSuccess)
+    int tid = threadIdx.x;
+    if (tid < length_first_str)
     {
-        fprintf(stderr, "CUDA  2 error\n");
-        exit(1);
+        str[tid] = first_str[tid + offset];
     }
+    if (tid == length_first_str)
+    {
+        str[tid] = '\0';
+    }
+}
+
+char *offsetFirstStr(int offset)
+{
+    char *result, *returnStr;
+    cudaMalloc((void **)&result, length_first_str);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
-    change_offset <<<numOfBlocks, threadsPerBlock>>>(result , offset);
-    cudaMemcpy(&returnStr, result, lenght_first_str*sizeof(char), cudaMemcpyDeviceToHost);
+    change_offset<<<numOfBlocks, threadsPerBlock>>>(result, offset);
+    returnStr = (char *)malloc(length_first_str * sizeof(char));
+    cudaMemcpy(returnStr, result, length_first_str * sizeof(char), cudaMemcpyDeviceToHost);
     cudaFree(result);
-    return returnStr;	
-    
+    return returnStr;
 }
 
-__global__ void getFirstStr(const char  *s1, int n1)
-{   
-   cudaError_t err1 = cudaMemcpyToSymbol(first_str , s1 , n1*sizeof(char));
-    if (err1 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA 1 error\n");
-        exit(1);
-    } 
-    cudaError_t err2 = cudaMemcpyToSymbol(lenght_first_str , n1 , 1*sizeof(char));
-    if (err2 != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA 2 error\n");
-        exit(1);
-    } 
-
-
+__global__ void getFirstStr(const char *s1, int n1)
+{
+    cudaMemcpyToSymbol(first_str, s1, n1 * sizeof(char));
+    cudaMemcpyToSymbol(length_first_str, &n1, sizeof(int));
 }
