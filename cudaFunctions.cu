@@ -101,10 +101,21 @@ int computeOnGPU(const char  *s1, const char *s2) {
     // allocate the memory on the GPU
 
     cudaError_t err1 = cudaMalloc((void**)&dev_s1, n1);
+    if (err1 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 1 error\n");
+        exit(1);
+    }
     cudaError_t err2 = cudaMalloc((void**)&dev_s2, n2);
+    if (err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  2 error\n");
+        exit(1);
+    }
     cudaError_t err3 =  cudaMalloc((void**)&dev_result, sizeof(int));
-    if(err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess) {
-        fprintf(stderr, "CUDA error\n");
+    if (err3 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA 3 error\n");
         exit(1);
     }
     cudaMemcpy(dev_s1, s1, n1, cudaMemcpyHostToDevice);
