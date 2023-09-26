@@ -39,7 +39,8 @@ __device__ void scan_plus(int *array, int size)
      
 } // scan_plus
 
-__global__void getFirstStr(const char  *s1, int n1)
+
+__global__ void getFirstStr(const char  *s1, int n1)
 {   
    cudaError_t err1 = cudaMemcpyToSymbol(first_str , s1 , n1*sizeof(char));
     if (err1 != cudaSuccess)
@@ -56,7 +57,17 @@ __global__void getFirstStr(const char  *s1, int n1)
 
 
 }
+__global__ char* offsetFirstStr(int offset)
+{
+    char* result;
+    cudaError_t err2 = cudaMalloc((void**)&result, lenght_first_str);
+    if (err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  2 error\n");
+        exit(1);
+    }
 
+}
 __global__ void caculateWithMatrix(const char  *s1, int n1, const char *s2, int n2,  int *result)
 {
      __shared__ int r;
