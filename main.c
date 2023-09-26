@@ -317,16 +317,27 @@ int caculate_result_without_matrix(const char  *s1, const char *s2)
     return result;
 
 }
-int caculate_result_with_matrix(const char  *s1, const char *s2 , int matrix[MATRIX_SIZE][MATRIX_SIZE])
-{
-    int length = strlen(s1)+1;
-    int result  = 0;
-    for (int i = 0; i < length; i++)
-    {
-            int x = s1[i] - 'A';
-            int y = s2[i] - 'A';
-            result = result + *(matrix+ x*26 + y);
-    }
-    return result;
 
+int calculate_result_with_matrix(const char* s1, const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+    if (s1 == NULL || s2 == NULL || strlen(s1) != strlen(s2)) {
+        // Handle invalid input arguments.
+        return -1; // or any appropriate error code
+    }
+
+    int length = strlen(s1);
+    int result = 0;
+
+    for (int i = 0; i < length; i++) {
+        int x = s1[i] - 'A';
+        int y = s2[i] - 'A';
+
+        if (x < 0 || x >= MATRIX_SIZE || y < 0 || y >= MATRIX_SIZE) {
+            // Handle out-of-bounds characters.
+            return -1; // or any appropriate error code
+        }
+
+        result += matrix[x][y];
+    }
+
+    return result;
 }
