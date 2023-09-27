@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include <cuda_runtime.h> // Include CUDA runtime header
 
-#define MATRIX_SIZE 26
 #define BLOCK_DIM 1024 // number of threads in a block
 #define MAX_STRING_SIZE 3000
+#define MATRIX_SIZE 26
 
 __device__ int matrix_caculate[MATRIX_SIZE * MATRIX_SIZE];
 __device__ char Str_to_check[MAX_STRING_SIZE];
@@ -203,7 +203,7 @@ char *offsetFirstStr(int offset , int lenght)
     return returnStr;
 }
 
-__global__ void change_offset(char *str, int k , int size_str)
+__global__ void change_mutant_squence(char *str, int k , int size_str)
 {
     int tid = threadIdx.x;
     if (tid<=size_str && tid >= k)
@@ -220,12 +220,12 @@ __global__ void change_offset(char *str, int k , int size_str)
 char* Mutanat_Squence_cuda(int k , int size_str)
 {
     char *result, *returnStr;
-    cudaMalloc((void **)&result, lenght);
+    cudaMalloc((void **)&result, size_str);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
-    change_mutant_squence<<numOfBlocks , threadsPerBlock>> (result , k , size_str);
-    returnStr = (char *)malloc(lenght * sizeof(char));
-    cudaMemcpy(returnStr, result, lenght * sizeof(char), cudaMemcpyDeviceToHost);
+    change_mutant_squence<<numOfBlocks , threadsPerBlock>>(result , k , size_str);
+    returnStr = (char *)malloc(size_str * sizeof(char));
+    cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
     cudaFree(result);
     return returnStr;
 
