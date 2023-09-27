@@ -8,10 +8,16 @@
 #define MAX_STRING_SIZE 3000
 
 __device__ int matrix_caculate[MATRIX_SIZE * MATRIX_SIZE];
+__device__ char Str_to_check[MAX_STRING_SIZE];
 __device__ char first_str[MAX_STRING_SIZE];
 __device__ int length_first_str;
 
-
+__device__ char gpu_toupper(char c)
+{
+    if (c>='a' && c<='A')
+        return c-('a'-'A');
+    return c;
+}
 __device__ int getScoreFromMatrix(char a, char b) {
     int x = a - 'A';
     int y = b - 'A';
@@ -160,6 +166,11 @@ int computeOnGPUWithMatrix( const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX
 
     return result;
 }
+void getStrToCheck(char *s1, int n1)
+{
+    cudaMemcpyToSymbol(Str_to_check, s1, n1 * sizeof(char));
+}
+
 void getFirstStr(char *s1, int n1)
 {
     cudaMemcpyToSymbol(first_str, s1, n1 * sizeof(char));
@@ -169,7 +180,7 @@ void getFirstStr(char *s1, int n1)
 __global__ void change_offset(char *str, int offset)
 {
     int tid = threadIdx.x;
-    if (tid < length_first_str)
+    if ((tid + offset) < length_first_str)
     {
         str[tid] = first_str[tid + offset];
     }
@@ -192,3 +203,30 @@ char *offsetFirstStr(int offset , int lenght)
     return returnStr;
 }
 
+__global__ void change_offset(char *str, int k , int size_str)
+{
+    int tid = threadIdx.x;
+    if (tid<=size_str && tid >= k)
+    {
+        if (gpu_toupper(str[tid])>='Z')
+            str[tid] = 'A';
+        if (tid==size_str)
+            str[tid] = '\0';
+        else
+            str[tid] = gpu_toupper(Str_to_check[tid]+1);
+    }
+}
+
+char* Mutanat_Squence_cuda(int k , int size_str)
+{
+    char *result, *returnStr;
+    cudaMalloc((void **)&result, lenght);
+    int threadsPerBlock = BLOCK_DIM;
+    int numOfBlocks = 1;
+    change_mutant_squence<<numOfBlocks , threadsPerBlock>> (result , k , size_str);
+    returnStr = (char *)malloc(lenght * sizeof(char));
+    cudaMemcpy(returnStr, result, lenght * sizeof(char), cudaMemcpyDeviceToHost);
+    cudaFree(result);
+    return returnStr;
+
+}
