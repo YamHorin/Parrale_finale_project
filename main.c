@@ -8,7 +8,7 @@
 #define MATRIX_SIZE 26
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
-
+#define VERY_LONG 500
 //enums
 
 enum matrix_score
@@ -46,8 +46,9 @@ int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 void init(int argc, char **argv);
 extern void getFirstStr(char  *s1, int n1);
 extern char* offsetFirstStr(int offset , int lenght);
-extern int computeOnGPU(const char  *s1, const char *s2);
-extern int computeOnGPUWithMatrix(const char  *s1, const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX_SIZE]);
+extern int computeOnGPU( const char *s2,int off_set);
+extern int computeOnGPUWithMatrix( const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX_SIZE] , int off_set);
+
 
 int main(int argc, char *argv[]) 
 {
@@ -220,10 +221,21 @@ int main(int argc, char *argv[])
                         // #endif
                         // printf("220 temp_Max.off_set = %d\n" ,temp_Max.off_set);
                         // printf("221 str_for_offset = %s\n" ,str_for_offset );
-                        if (how_to_caculate==NO_MATRIX_SCORE)
-                            temp_Max.score = caculate_result_without_matrix(temp_Max.str , off_set);
+                        if (lenght_first_str>=VERY_LONG)
+                        {
+                            if (how_to_caculate==NO_MATRIX_SCORE)
+                                temp_Max.score = computeOnGPU(temp_Max.str , off_set);
+                            else
+                                temp_Max.score = computeOnGPUWithMatrix(temp_Max.str , matrix , off_set); 
+                        }
                         else
-                            temp_Max.score = calculate_result_with_matrix(temp_Max.str , matrix,off_set);                        
+                        {
+                            if (how_to_caculate==NO_MATRIX_SCORE)
+                                temp_Max.score = caculate_result_without_matrix(temp_Max.str , off_set);
+                            else
+                                temp_Max.score = calculate_result_with_matrix(temp_Max.str , matrix,off_set); 
+                        }
+                                               
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
