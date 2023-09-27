@@ -223,7 +223,7 @@ char* Mutanat_Squence_cuda(int k , int size_str)
     cudaMalloc((void **)&result, size_str);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
-    change_mutant_squence<<numOfBlocks , threadsPerBlock>>(result , k , size_str);
+    change_mutant_squence<<<numOfBlocks , threadsPerBlock>>>(result , k , size_str);
     returnStr = (char *)malloc(size_str * sizeof(char));
     cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
     cudaFree(result);
