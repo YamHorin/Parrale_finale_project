@@ -5,12 +5,9 @@
 #define MAX_STRING_SIZE 3000
 #define MATRIX_SIZE 26
 
- char gpu_toupper(char c);
-
- int getScoreFromMatrix(char a, char b);
-
- void scan_plus(int *array, int size);
-
+char gpu_toupper(char c);
+int getScoreFromMatrix(char a, char b);
+void scan_plus(int *array, int size);
 void change_offset(char *str, int k , int size_str);
 void change_offset(char *str, int offset);
 void caculate(const char  *s1, const char *s2, int n2,  int *result , int off_set);

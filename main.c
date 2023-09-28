@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
             {
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-
+                getStrToCheck(str_to_check , size_str_to_check);
                 // #ifdef DEBUG
                 //     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
                 //     printf("got str:%s \n",str_to_check);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
                 
                 AS_max.off_set = 10;
                 AS_max.K = 0;
-                AS_max.score = 0;
+                AS_max.score = -1;
                 temp_Max.off_set =9;
                 temp_Max.K =0;
                 temp_Max.score =0;
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
                 int off_set , score;
                 int k;
                 int max_off_set;
-                #pragma omp parallel private(off_set , k)
+                #pragma omp parallel for reduction(AS_max_func : AS_max) firstprivate(temp_Max)
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
@@ -205,51 +205,54 @@ int main(int argc, char *argv[])
 
                     // str_for_offset = first_str+off_set;
                     // printf("%s\n",str_for_offset);
-                #pragma omp for reduction(AS_max_func :  AS_max)
                     for (k =0; k < size_str_to_check; k++)
                     {
                         temp_Max.score = 0;
-                        str_k = Mutanat_Squence_cuda(k , size_str_to_check);
-                        // temp_Max.K = k;
-                        // strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
-                        // temp_Max.str[MAX_STRING_SIZE] = '\0';   
-                        // Mutanat_Squence(temp_Max.str , k,size_str_to_check);
+                        
+                        // str_k = Mutanat_Squence_cuda(k , size_str_to_check);
+
+                        temp_Max.K = k;
+                        strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
+                        temp_Max.str[MAX_STRING_SIZE] = '\0';   
+                        Mutanat_Squence(temp_Max.str , k,size_str_to_check);
+
+                        
                         // #ifdef DEBUG
-                        // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str  , d);
+                        // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str ,k);
                         // #endif
                         // printf("220 temp_Max.off_set = %d\n" ,temp_Max.off_set);
                         // printf("221 str_for_offset = %s\n" ,str_for_offset );
-                        if (lenght_first_str>=VERY_LONG)
-                        {
+                        // if (lenght_first_str>=VERY_LONG)
+                        // {
+                        //     if (how_to_caculate==NO_MATRIX_SCORE)
+                        //          temp_Max.score = computeOnGPU(str_k , off_set);
+                        //     else
+                        //          temp_Max.score = computeOnGPUWithMatrix(str_k , matrix , off_set); 
+                        // }
+                        // else
+                        // {
                             if (how_to_caculate==NO_MATRIX_SCORE)
-                                score = computeOnGPU(str_k , off_set);
+                                 temp_Max.score = caculate_result_without_matrix(temp_Max.str , off_set);
                             else
-                                score = computeOnGPUWithMatrix(temp_Max.str , matrix , off_set); 
-                        }
-                        else
-                        {
-                            if (how_to_caculate==NO_MATRIX_SCORE)
-                                score = caculate_result_without_matrix(temp_Max.str , off_set);
-                            else
-                                score = calculate_result_with_matrix(temp_Max.str , matrix,off_set); 
-                        }
-                                               
+                                 temp_Max.score = calculate_result_with_matrix(temp_Max.str , matrix,off_set); 
+                        //}
+                         
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
                         // #endif
-                        if (AS_max.score <score)
-                        {
-                            AS_max.K = k;
-                            AS_max.off_set = off_set;
-                            max_off_set = off_set;
-                            AS_max.score = score;                            
+                        if (AS_max.score < temp_Max.score)
+                        {                   
+
+                            AS_max.K =  temp_Max.K;
+                            AS_max.off_set =  temp_Max.off_set;
+                            max_off_set =  off_set;
+                            AS_max.score =  temp_Max.score;                            
                         }
 
                     }    
                     //str_for_offset[0] = '\0';
                 }
                 
-            
             strncpy(AS_max.str , str_to_check , MAX_STRING_SIZE-1);
             AS_max.str [MAX_STRING_SIZE] = '\0';
             AS_max.off_set = max_off_set;
