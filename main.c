@@ -209,12 +209,12 @@ int main(int argc, char *argv[])
                     {
                         temp_Max.score = 0;
                         
-                        // str_k = Mutanat_Squence_cuda(k , size_str_to_check);
-
-                        temp_Max.K = k;
-                        strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
-                        temp_Max.str[MAX_STRING_SIZE] = '\0';   
-                        Mutanat_Squence(temp_Max.str , k,size_str_to_check);
+                        temp_Max.str = Mutanat_Squence_cuda(k , size_str_to_check);
+                        temp_Max.str[MAX_STRING_SIZE] = '\0';
+                        // temp_Max.K = k;
+                        // strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
+                        // temp_Max.str[MAX_STRING_SIZE] = '\0';   
+                        // Mutanat_Squence(temp_Max.str , k,size_str_to_check);
 
                         
                         // #ifdef DEBUG
