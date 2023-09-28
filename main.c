@@ -186,9 +186,9 @@ int main(int argc, char *argv[])
                 char* str_for_offset;
                 char* str_k;
                 int off_set , score;
-                int k;
+                int k , max_k;
                 int max_off_set;
-                #pragma omp parallel for reduction(AS_max_func : AS_max) firstprivate(temp_Max)
+                #pragma omp for reduction(AS_max_func : AS_max)
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     temp_Max.off_set = off_set;
@@ -205,11 +205,12 @@ int main(int argc, char *argv[])
 
                     // str_for_offset = first_str+off_set;
                     // printf("%s\n",str_for_offset);
+                    #pragma omp 
                     for (k =0; k < size_str_to_check; k++)
                     {
                         temp_Max.score = 0;
-                        
-                        temp_Max.str = Mutanat_Squence_cuda(k , size_str_to_check);
+                        str_k = Mutanat_Squence_cuda(k , size_str_to_check);
+                        strncpy(temp_Max.str , str_k ,MAX_STRING_SIZE-1);
                         temp_Max.str[MAX_STRING_SIZE] = '\0';
                         // temp_Max.K = k;
                         // strncpy(temp_Max.str , str_to_check ,MAX_STRING_SIZE-1);
@@ -222,20 +223,20 @@ int main(int argc, char *argv[])
                         // #endif
                         // printf("220 temp_Max.off_set = %d\n" ,temp_Max.off_set);
                         // printf("221 str_for_offset = %s\n" ,str_for_offset );
-                        // if (lenght_first_str>=VERY_LONG)
-                        // {
-                        //     if (how_to_caculate==NO_MATRIX_SCORE)
-                        //          temp_Max.score = computeOnGPU(str_k , off_set);
-                        //     else
-                        //          temp_Max.score = computeOnGPUWithMatrix(str_k , matrix , off_set); 
-                        // }
-                        // else
-                        // {
+                    if (lenght_first_str>=VERY_LONG)
+                        {
+                            if (how_to_caculate==NO_MATRIX_SCORE)
+                                 temp_Max.score = computeOnGPU(str_k , off_set);
+                            else
+                                 temp_Max.score = computeOnGPUWithMatrix(str_k , matrix , off_set); 
+                        }
+                    else
+                        {
                             if (how_to_caculate==NO_MATRIX_SCORE)
                                  temp_Max.score = caculate_result_without_matrix(temp_Max.str , off_set);
                             else
                                  temp_Max.score = calculate_result_with_matrix(temp_Max.str , matrix,off_set); 
-                        //}
+                        }
                          
                         // #ifdef DEBUG
                         // printf("temp.result = %d\n",temp_Max.score);
@@ -246,6 +247,7 @@ int main(int argc, char *argv[])
                             AS_max.K =  temp_Max.K;
                             AS_max.off_set =  temp_Max.off_set;
                             max_off_set =  off_set;
+                            max_k = k;
                             AS_max.score =  temp_Max.score;                            
                         }
 
@@ -255,7 +257,8 @@ int main(int argc, char *argv[])
                 
             strncpy(AS_max.str , str_to_check , MAX_STRING_SIZE-1);
             AS_max.str [MAX_STRING_SIZE] = '\0';
-            AS_max.off_set = max_off_set;
+            // AS_max.off_set = max_off_set;
+            // AS_max.K = max_k;
             MPI_Send(&AS_max , 1  , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             }
 
