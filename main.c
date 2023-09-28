@@ -39,16 +39,9 @@ int number_strings;
 char* first_str;
 int matrix [MATRIX_SIZE][MATRIX_SIZE];
 
-
-
-
-//functions
+void init(int argc, char **argv );
 int caculate_result_without_matrix(const char *s2 , int off_set);
 int calculate_result_with_matrix(const char* s2, int matrix[MATRIX_SIZE][MATRIX_SIZE] , int off_set);
-
-int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
-void init(int argc, char **argv);
-
 
 
 int main(int argc, char *argv[]) 
@@ -303,27 +296,6 @@ void init(int argc, char **argv )
     
 }
 
-
-int readMatrixFromFile(const char* filename, int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
-    FILE* file = fopen(filename, "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return -1; // Indicate failure
-    }
-
-    for (int i = 0; i < MATRIX_SIZE; i++) {
-        for (int j = 0; j < MATRIX_SIZE; j++) {
-            if (fscanf(file, "%d", &matrix[i][j]) != 1) {  // assuming integers in the matrix
-                perror("Error reading matrix values");
-                fclose(file);
-                return -2;  // Indicate reading error
-            }
-        }
-    }
-
-    fclose(file);
-    return 0;  // Success
-}
 int caculate_result_without_matrix(const char *s2 , int off_set)
 {
     int length= strlen(s2);
