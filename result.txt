@@ -1,22 +1,162 @@
 Matrix read successfully!
+k =0 , BCD , 9
+
+k =1 , ACD , 8
+k =2 , ABD , 7
+k =0 , BCD , 12
+
+k =1 , ACD , 11
+k =2 , ABD , 10
+k =0 , BCD , 15
+
+k =1 , ACD , 14
+k =2 , ABD , 13
+k =0 , BCD , 18
+
+k =1 , ACD , 17
+k =2 , ABD , 16
+k =0 , BCD , 21
+
+k =1 , ACD , 20
+k =2 , ABD , 19
+k =0 , BCD , 24
+
+k =1 , ACD , 23
+k =2 , ABD , 22
 
 for the string ABC 
-, we found that the max score alignment 57 is from K  - 2 and off set - 5  
+, we found that the max score alignment 24 is from K  - 0 and off set - 5  
+k =0 , BCBCB , 17
+
+k =1 , ACBCB , 16
+k =2 , ABBCB , 15
+k =3 , ABACB , 14
+k =4 , ABABB , 13
+k =0 , BCBCB , 22
+
+k =1 , ACBCB , 21
+k =2 , ABBCB , 20
+k =3 , ABACB , 19
+k =4 , ABABB , 18
+k =0 , BCBCB , 27
+
+k =1 , ACBCB , 26
+k =2 , ABBCB , 25
+k =3 , ABACB , 24
+k =4 , ABABB , 23
+k =0 , BCBCB , 32
+
+k =1 , ACBCB , 31
+k =2 , ABBCB , 30
+k =3 , ABACB , 29
+k =4 , ABABB , 28
 
 for the string ABABA 
-, we found that the max score alignment 87 is from K  - 4 and off set - 3  
+, we found that the max score alignment 32 is from K  - 0 and off set - 3  
+k =0 , BBBBBB , 21
+
+k =1 , ABBBBB , 20
+k =2 , AABBBB , 19
+k =3 , AAABBB , 18
+k =4 , AAAABB , 17
+k =5 , AAAAAB , 16
+k =0 , BBBBBB , 27
+
+k =1 , ABBBBB , 26
+k =2 , AABBBB , 25
+k =3 , AAABBB , 24
+k =4 , AAAABB , 23
+k =5 , AAAAAB , 22
+k =0 , BBBBBB , 33
+
+k =1 , ABBBBB , 32
+k =2 , AABBBB , 31
+k =3 , AAABBB , 30
+k =4 , AAAABB , 29
+k =5 , AAAAAB , 28
 
 for the string AAAAAA 
-, we found that the max score alignment 90 is from K  - 5 and off set - 2  
+, we found that the max score alignment 33 is from K  - 0 and off set - 2  
+k =0 , HG , 14
+
+k =1 , GG , 13
+k =0 , HG , 16
+
+k =1 , GG , 15
+k =0 , HG , 18
+
+k =1 , GG , 17
+k =0 , HG , 20
+
+k =1 , GG , 19
+k =0 , HG , 22
+
+k =1 , GG , 21
+k =0 , HG , 24
+
+k =1 , GG , 23
+k =0 , HG , 26
+
+k =1 , GG , 25
 
 for the string GF 
-, we found that the max score alignment 45 is from K  - 1 and off set - 6  
+, we found that the max score alignment 26 is from K  - 0 and off set - 6  
+k =0 , ILVJVJL , 111
+
+k =1 , HLVJVJL , 110
+k =2 , HKVJVJL , 109
+k =3 , HKUJVJL , 108
+k =4 , HKUIVJL , 107
+k =5 , HKUIUJL , 106
+k =6 , HKUIUIL , 105
+k =0 , ILVJVJL , 118
+
+k =1 , HLVJVJL , 117
+k =2 , HKVJVJL , 116
+k =3 , HKUJVJL , 115
+k =4 , HKUIVJL , 114
+k =5 , HKUIUJL , 113
+k =6 , HKUIUIL , 112
 
 for the string HKUIUIK 
-, we found that the max score alignment 132 is from K  - 6 and off set - 0  
+, we found that the max score alignment 118 is from K  - 0 and off set - 1  
+k =0 , BCDEFGHI , 64
+
+k =1 , ACDEFGHI , 63
+k =2 , ABDEFGHI , 62
+k =3 , ABCEFGHI , 61
+k =4 , ABCDFGHI , 60
+k =5 , ABCDEGHI , 59
+k =6 , ABCDEFHI , 58
+k =7 , ABCDEFGI , 57
 
 for the string ABCDEFGH 
-, we found that the max score alignment 92 is from K  - 7 and off set - 0  
+, we found that the max score alignment 64 is from K  - 0 and off set - 0  
+k =0 , VSHZ , 77
+
+k =1 , USHZ , 76
+k =2 , URHZ , 75
+k =3 , URGZ , 74
+k =0 , VSHZ , 81
+
+k =1 , USHZ , 80
+k =2 , URHZ , 79
+k =3 , URGZ , 78
+k =0 , VSHZ , 85
+
+k =1 , USHZ , 84
+k =2 , URHZ , 83
+k =3 , URGZ , 82
+k =0 , VSHZ , 89
+
+k =1 , USHZ , 88
+k =2 , URHZ , 87
+k =3 , URGZ , 86
+k =0 , VSHZ , 93
+
+k =1 , USHZ , 92
+k =2 , URHZ , 91
+k =3 , URGZ , 90
 
 for the string URGY 
-, we found that the max score alignment 100 is from K  - 3 and off set - 3  
+, we found that the max score alignment 93 is from K  - 0 and off set - 4  

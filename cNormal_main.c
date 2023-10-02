@@ -80,11 +80,14 @@ int main(int argc, char *argv[])
                 {
                     for (int k =0; k < size_str_to_check; k++)
                     { 
-                          Mutanat_Squence(str_to_check , k,size_str_to_check);
+                        strcpy(str_to_check ,localMax.str);
+                          Mutanat_Squence(str_to_check ,k,size_str_to_check);
+                          
                             if (how_to_caculate==NO_MATRIX_SCORE)
                                  score = caculate_result_without_matrix(str_to_check , off_set);
                             else
                                  score = calculate_result_with_matrix(str_to_check , matrix,off_set);
+
                             if (localMax.score<score)
                             {
                                 localMax.K = k;
@@ -158,7 +161,6 @@ int calculate_result_with_matrix(const char* s2, int matrix[MATRIX_SIZE][MATRIX_
             // Handle out-of-bounds characters.
             return -1; // or any appropriate error code
         }
-
         result += matrix[x][y];
     }
 
