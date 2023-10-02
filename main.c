@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
       char* str_to_send;
       int str_length;
       int worker_rank;
-      #pragma omp parallel for private(str_to_send ,worker_rank)
       for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             str_to_send = createDynStr();

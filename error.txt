@@ -2,3 +2,23 @@ Abort(268061189) on node 0 (rank 0 in comm 0): Fatal error in internal_Send: Inv
 internal_Send(120): MPI_Send(buf=0x7ffe488ce920, count=1, MPI_INT, 1, 1, MPI_COMM_WORLD) failed
 internal_Send(57).: Invalid communicator
 make: *** [Makefile:15: run] Error 5
+
+
+ssertion failed in file ./src/include/mpir_request.h at line 508: ((req))->ref_count >= 0
+
+
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x223cdf) [0x7f5b3c023cdf]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0xd3680) [0x7f5b3bed3680]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x253d46) [0x7f5b3c053d46]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x254136) [0x7f5b3c054136]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x212897c) [0x7f5b3df2897c]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x23fb85) [0x7f5b3c03fb85]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x23fc7f) [0x7f5b3c03fc7f]
+/lib/x86_64-linux-gnu/libmpich.so.12(+0x215a7e6) [0x7f5b3df5a7e6]
+/lib/x86_64-linux-gnu/libmpich.so.12(MPI_Recv+0x4f8) [0x7f5b3bf124e8]
+./mpiCudaOpenMP(+0x3258) [0x555613d28258]
+/lib/x86_64-linux-gnu/libgomp.so.1(+0x1db9e) [0x7f5b3ea32b9e]
+/lib/x86_64-linux-gnu/libc.so.6(+0x94b43) [0x7f5b3b694b43]
+/lib/x86_64-linux-gnu/libc.so.6(+0x126a00) [0x7f5b3b726a00]
+Abort(1) on node 0: Internal error
+make: *** [Makefile:15: run] Error 1
