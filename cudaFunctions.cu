@@ -162,29 +162,8 @@ int computeOnGPUWithMatrix( const char *s2 ,const int matrix[MATRIX_SIZE][MATRIX
 
     return result;
 }
-void getStrToCheck(char *s1, int n1)
-{
-    cudaMemcpyToSymbol(Str_to_check, s1, n1 * sizeof(char));
-}
 
-void getFirstStr(char *s1, int n1)
-{
-    cudaMemcpyToSymbol(first_str, s1, n1 * sizeof(char));
-    cudaMemcpyToSymbol(length_first_str, &n1, sizeof(int));
-}
 
-__global__ void change_offset(char *str, int offset)
-{
-    int tid = threadIdx.x;
-    if ((tid + offset) < length_first_str)
-    {
-        str[tid] = first_str[tid + offset];
-    }
-    if (tid == length_first_str)
-    {
-        str[tid] = '\0';
-    }
-}
 
 char *offsetFirstStr(int offset , int lenght)
 {
