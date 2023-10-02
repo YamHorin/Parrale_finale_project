@@ -3,7 +3,7 @@
 
 
 #define MATRIX_SIZE 26
-
+#define MAX_STRING_SIZE 3000
 // char *offsetFirstStr(int offset , int lenght);
 
 // int getScoreFromMatrix(char a, char b);
@@ -15,7 +15,7 @@
 
 char gpu_toupper(char c);
 
-int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **returnStr);
+int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char returnStr[MAX_STRING_SIZE]);
 
 void change_mutant_squence(char *str, int k , int size_str);
 
