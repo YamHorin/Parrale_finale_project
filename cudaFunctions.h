@@ -15,7 +15,7 @@
 
 char gpu_toupper(char c);
 
-int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char returnStr[MAX_STRING_SIZE]);
+int Mutanat_Squence(char* str, int k, int size_str);
 
 void change_mutant_squence(char *str, int k , int size_str);
 
