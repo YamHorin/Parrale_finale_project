@@ -182,19 +182,19 @@ __device__ char gpu_toupper(char c)
 __global__ void Mutanat_SquenceKernel(char* str, int k, int size_str) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid >= k && tid <= size_str) {
-        if (toupper(str[tid]) >= 'Z') {
+        if (gpu_toupper(str[tid]) >= 'Z') {
             str[tid] = 'A';
         }
         if (tid == size_str) {
             str[tid] = '\0';
         }
         else {
-            str[tid] = toupper(str[tid + 1]);
+            str[tid] = gpu_toupper(str[tid]+1);
         }
     }
 }
 
-int Mutanat_Squence(char* str, int k, int size_str) {
+int Mutanat_Squence_cuda(char* str, int k, int size_str) {
     char* d_str;
     int strSize = size_str + 1; // Include space for '\0'
 
