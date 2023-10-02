@@ -88,7 +88,9 @@ int main(int argc, char *argv[])
       MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
       char* str_to_send;
       int str_length;
-      for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
+      int worker_rank;
+      #pragma omp parallel for private(str_to_send ,worker_rank)
+      for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
@@ -100,9 +102,11 @@ int main(int argc, char *argv[])
         }
         int str_send = num_procs-1; 
         int tasks = number_strings;
-        for (int tasks_done = 0; tasks_done<number_strings; tasks_done++)
+        int tasks_done;
+        struct  score_alignment localMax;
+         #pragma omp parallel for private(tasks_done ,localMax)
+        for (tasks_done = 0; tasks_done<number_strings; tasks_done++)
         {
-            struct  score_alignment localMax;
             localMax.score =0;
             localMax.K =0;
             localMax.off_set = 9;
@@ -179,9 +183,6 @@ int main(int argc, char *argv[])
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     //str_for_offset = offsetFirstStr(off_set , lenght_first_str);
-
-                    // printf(" 199 temp_Max.off_set = %d\n" ,temp_Max.off_set);
-                    // printf("200 str_for_offset = %s\n" ,str_for_offset );
                     // for (int j = 0; j <=size_str_to_check; j++)
                     // {
                     //     str_for_offset[j] = *(first_str+j+off_set);
