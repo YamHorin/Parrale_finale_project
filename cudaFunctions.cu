@@ -178,6 +178,7 @@ __device__ char gpu_toupper(char c)
 //     return returnStr;
 // }
 
+
 __global__ void change_mutant_sequence(char *str, const char *str_to_change, int k, int size_str)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
@@ -202,18 +203,61 @@ __global__ void change_mutant_sequence(char *str, const char *str_to_change, int
     }
 }
 
-int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change , char** return_pointer)
+int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **returnStr)
 {
-    char *result, *returnStr;
-    cudaMalloc((void **)&result, size_str * sizeof(char));
-    cudaMalloc()
-    int threadsPerBlock = BLOCK_DIM;
-    int numOfBlocks = (size_str + threadsPerBlock - 1) / threadsPerBlock; // Calculate the number of blocks
+    char *result;
+    char *d_str_to_change;  // Device memory for str_to_change
 
-    change_mutant_sequence<<<numOfBlocks, threadsPerBlock>>>(result, str_to_change, k, size_str);
+    // Allocate device memory for result and str_to_change
+    cudaError_t cudaStatus;
+    cudaStatus = cudaMalloc((void **)&result, size_str * sizeof(char));
+    if (cudaStatus != cudaSuccess)
+    {
+        return cudaStatus;  // Return error code
+    }
 
-    returnStr = (char *)malloc(size_str * sizeof(char));
-    cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
+    cudaStatus = cudaMalloc((void **)&d_str_to_change, size_str * sizeof(char));
+    if (cudaStatus != cudaSuccess)
+    {
+        cudaFree(result);
+        return cudaStatus;  // Return error code
+    }
+
+    // Copy str_to_change to device memory
+    cudaStatus = cudaMemcpy(d_str_to_change, str_to_change, size_str * sizeof(char), cudaMemcpyHostToDevice);
+    if (cudaStatus != cudaSuccess)
+    {
+        cudaFree(result);
+        cudaFree(d_str_to_change);
+        return cudaStatus;  // Return error code
+    }
+
+    int threadsPerBlock = 256;  // Adjust the block size as needed
+    int numOfBlocks = (size_str + threadsPerBlock - 1) / threadsPerBlock;
+
+    change_mutant_sequence<<<numOfBlocks, threadsPerBlock>>>(result, d_str_to_change, k, size_str);
+
+    // Allocate host memory for returnStr
+    *returnStr = (char *)malloc(size_str * sizeof(char));
+    if (*returnStr == NULL)
+    {
+        cudaFree(result);
+        cudaFree(d_str_to_change);
+        return -1;  // Return error code for memory allocation failure
+    }
+
+    // Copy the result from device to host
+    cudaStatus = cudaMemcpy(*returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
+
+    // Free device memory
     cudaFree(result);
-    return returnStr;
+    cudaFree(d_str_to_change);
+
+    if (cudaStatus != cudaSuccess)
+    {
+        free(*returnStr);
+        return cudaStatus;  // Return error code
+    }
+
+    return 0;  // Success
 }
