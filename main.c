@@ -176,15 +176,15 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                //char str_for_offset [size_str_to_check];
-                //char str_k [MAX_STRING_SIZE];
+                char str_k [MAX_STRING_SIZE];
                 int off_set , max_off_set;
                 int k ,max_k ,score;
-                char* str_k;
+                //char* str_k;
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     for (k =0; k < size_str_to_check; k++)
                     {
-                       int r =  Mutant_Sequence_cuda(k , size_str_to_check , (str_to_check), &str_k) ;
+                       int r =  Mutant_Sequence_cuda(k , size_str_to_check , (str_to_check), str_k) ;
                         if (r!=0)
                         {
                             printf("error in cuda");
