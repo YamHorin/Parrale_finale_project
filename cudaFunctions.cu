@@ -185,7 +185,7 @@ __global__ void change_mutant_sequence(char *str, const char *str_to_change, int
 
     if (tid < size_str)
     {
-        char c = gpu_toupper(str[tid]);
+        char c = gpu_toupper(str_to_change[tid]);
         if (c >= 'A' && c < 'Z')
         {
             if (tid >= k)
@@ -199,8 +199,10 @@ __global__ void change_mutant_sequence(char *str, const char *str_to_change, int
         }
 
         // Use str_to_change for mutation
-        str[tid] = str_to_change[tid];
+        str[tid] = c;
     }
+    if (tid == size_str)
+        str[tid] ='\0';
 }
 
 int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **returnStr)

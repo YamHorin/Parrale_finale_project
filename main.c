@@ -176,16 +176,22 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
                //char str_for_offset [size_str_to_check];
-                char str_k [MAX_STRING_SIZE];
+                //char str_k [MAX_STRING_SIZE];
                 int off_set , max_off_set;
                 int k ,max_k ,score;
-                
+                char* str_k;
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
                     for (k =0; k < size_str_to_check; k++)
                     {
-                       char* r =  Mutanat_Squence_cuda(k , size_str_to_check , str_to_check) ;
-                        strncpy( str_k, r, MAX_STRING_SIZE-1);
+                       int r =  Mutant_Sequence_cuda(k , size_str_to_check , (str_to_check), &str_k) ;
+                        if (r!=0)
+                        {
+                            printf("error in cuda");
+                            MPI_Abort(MPI_COMM_WORLD , -1);
+                        }
+                        
+                        //strncpy( str_k, r, MAX_STRING_SIZE-1);
                          
                         // strncpy(temp_Max.str , str_k ,MAX_STRING_SIZE-1);
                         // temp_Max.str[MAX_STRING_SIZE] = '\0';
@@ -193,11 +199,7 @@ int main(int argc, char *argv[])
                         // Mutanat_Squence(str_k , k,size_str_to_check);
 
                         
-                        // #ifdef DEBUG
-                        // printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, temp_Max.str ,k);
-                        // #endif
-                        // printf("220 temp_Max.off_set = %d\n" ,temp_Max.off_set);
-                        // printf("221 str_for_offset = %s\n" ,str_for_offset );
+                        printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, str_k ,k);
                         if (how_to_caculate==NO_MATRIX_SCORE)
                                 score = caculate_result_without_matrix(str_k , off_set);
                         else
