@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
       char* str_to_send;
       int str_length;
       int worker_rank;
+      #pragma omp parallel for private(str_to_send ,worker_rank)
       for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             str_to_send = createDynStr();
@@ -98,13 +99,11 @@ int main(int argc, char *argv[])
             #endif
             MPI_Send(&str_length , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
-            free(str_to_send);
         }
         int str_send = num_procs-1; 
         int tasks = number_strings;
         int tasks_done;
         struct  score_alignment localMax;
-         #pragma omp parallel for private(tasks_done ,localMax)
         for (tasks_done = 0; tasks_done<number_strings; tasks_done++)
         {
             localMax.score =0;
@@ -125,7 +124,7 @@ int main(int argc, char *argv[])
                 }
             else {
                     /* send STOP message. message has no data */
-                    int dummy=0;
+                    int dummy=9;
                     MPI_Send(&dummy,1, MPI_INT, status.MPI_SOURCE,
                             STOP, MPI_COMM_WORLD);
                 }
@@ -273,7 +272,6 @@ int caculate_result_without_matrix(const char *s2 , int off_set)
 {
     int length= strlen(s2);
     int result  = 0;
-
     #pragma omp parallel for reduction(+:result)
     for (int i = 0; i < length; i++)
     {
