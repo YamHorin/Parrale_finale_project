@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
             #endif
             MPI_Send(&str_length , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
+            free(str_to_send);
         }
         int str_send = num_procs-1; 
         int tasks = number_strings;
@@ -125,7 +126,7 @@ int main(int argc, char *argv[])
                 }
             else {
                     /* send STOP message. message has no data */
-                    int dummy;
+                    int dummy=0;
                     MPI_Send(&dummy,1, MPI_INT, status.MPI_SOURCE,
                             STOP, MPI_COMM_WORLD);
                 }
@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
                         // Mutanat_Squence(str_k , k,size_str_to_check);
 
                         
-                        printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, str_k ,k);
+                        //printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, str_k ,k);
                         if (how_to_caculate==NO_MATRIX_SCORE)
                                 score = caculate_result_without_matrix(str_k , off_set);
                         else
@@ -274,6 +275,7 @@ int caculate_result_without_matrix(const char *s2 , int off_set)
     int length= strlen(s2);
     int result  = 0;
 
+    #pragma omp parallel for reduction(+:result)
     for (int i = 0; i < length; i++)
     {
         if (*((first_str+i)+off_set)==s2[i])
