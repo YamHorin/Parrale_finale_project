@@ -182,23 +182,15 @@ int main(int argc, char *argv[])
                 
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
                 {
-                    //str_for_offset = offsetFirstStr(off_set , lenght_first_str);
-                    // for (int j = 0; j <=size_str_to_check; j++)
-                    // {
-                    //     str_for_offset[j] = *(first_str+j+off_set);
-                    //     if (j==size_str_to_check)
-                    //         str_for_offset[j] ='\0';
-                    // }
-
-                    // str_for_offset = first_str+off_set;
-                    // printf("%s\n",str_for_offset);
                     for (k =0; k < size_str_to_check; k++)
                     {
-                        // str_k = Mutanat_Squence_cuda(k , size_str_to_check);
+                       char* r =  Mutanat_Squence_cuda(k , size_str_to_check , str_to_check) ;
+                        strncpy( str_k, r, MAX_STRING_SIZE-1);
+                         
                         // strncpy(temp_Max.str , str_k ,MAX_STRING_SIZE-1);
                         // temp_Max.str[MAX_STRING_SIZE] = '\0';
-                        strncpy(str_k , str_to_check ,MAX_STRING_SIZE-1); 
-                        Mutanat_Squence(str_k , k,size_str_to_check);
+                        // strncpy(str_k , str_to_check ,MAX_STRING_SIZE-1); 
+                        // Mutanat_Squence(str_k , k,size_str_to_check);
 
                         
                         // #ifdef DEBUG
