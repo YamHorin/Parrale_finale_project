@@ -179,77 +179,64 @@ __device__ char gpu_toupper(char c)
 // }
 
 
-__global__ void change_mutant_sequence(char *str, const char *str_to_change, int k, int size_str)
-{
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (tid < size_str)
-    {
-        char c = gpu_toupper(str_to_change[tid]);
-        if (c >= 'A' && c < 'Z')
-        {
-            if (tid >= k)
-            {
-                str[tid] = c + 1;
-            }
-        }
-        else if (c == 'Z')
-        {
+__global__ void Mutanat_SquenceKernel(char* str, int k, int size_str) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid >= k && tid <= size_str) {
+        if (toupper(str[tid]) >= 'Z') {
             str[tid] = 'A';
         }
-
-        // Use str_to_change for mutation
-        str[tid] = c;
+        if (tid == size_str) {
+            str[tid] = '\0';
+        }
+        else {
+            str[tid] = toupper(str[tid + 1]);
+        }
     }
-    if (tid == size_str)
-        str[tid] ='\0';
 }
 
-int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char returnStr[MAX_STRING_SIZE])
-{
-    char *result;
-    char *d_str_to_change;  // Device memory for str_to_change
+int Mutanat_Squence(char* str, int k, int size_str) {
+    char* d_str;
+    int strSize = size_str + 1; // Include space for '\0'
 
-    // Allocate device memory for result and str_to_change
-    cudaError_t cudaStatus;
-    cudaStatus = cudaMalloc((void **)&result, size_str * sizeof(char));
-    if (cudaStatus != cudaSuccess)
-    {
-        return cudaStatus;  // Return error code
+    // Allocate memory on the GPU
+    cudaError_t cudaStatus = cudaMalloc((void**)&d_str, strSize * sizeof(char));
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMalloc failed: %s\n", cudaGetErrorString(cudaStatus));
+        return -1;
     }
 
-    cudaStatus = cudaMalloc((void **)&d_str_to_change, size_str * sizeof(char));
-    if (cudaStatus != cudaSuccess)
-    {
-        cudaFree(result);
-        return cudaStatus;  // Return error code
+    // Copy the input string to the GPU
+    cudaStatus = cudaMemcpy(d_str, str, strSize * sizeof(char), cudaMemcpyHostToDevice);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy failed: %s\n", cudaGetErrorString(cudaStatus));
+        cudaFree(d_str);
+        return -1;
     }
 
-    // Copy str_to_change to device memory
-    cudaStatus = cudaMemcpy(d_str_to_change, str_to_change, size_str * sizeof(char), cudaMemcpyHostToDevice);
-    if (cudaStatus != cudaSuccess)
-    {
-        cudaFree(result);
-        cudaFree(d_str_to_change);
-        return cudaStatus;  // Return error code
+    // Calculate the number of threads per block and the number of blocks
+    int threadsPerBlock = 256;
+    int numBlocks = (strSize + threadsPerBlock - 1) / threadsPerBlock;
+
+    // Launch the kernel
+    Mutanat_SquenceKernel<<<numBlocks, threadsPerBlock>>>(d_str, k, size_str);
+
+    cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "kernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
+        cudaFree(d_str);
+        return -1;
     }
 
-    int threadsPerBlock = 256;  // Adjust the block size as needed
-    int numOfBlocks = (size_str + threadsPerBlock - 1) / threadsPerBlock;
-
-    change_mutant_sequence<<<numOfBlocks, threadsPerBlock>>>(result, d_str_to_change, k, size_str);
-
-    // Copy the result from device to host
-    cudaStatus = cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
-
-    // Free device memory
-    cudaFree(result);
-    cudaFree(d_str_to_change);
-
-    if (cudaStatus != cudaSuccess)
-    {
-        return cudaStatus;  // Return error code
+    // Copy the result back from the GPU to the CPU
+    cudaStatus = cudaMemcpy(str, d_str, strSize * sizeof(char), cudaMemcpyDeviceToHost);
+    if (cudaStatus != cudaSuccess) {
+        fprintf(stderr, "cudaMemcpy (device to host) failed: %s\n", cudaGetErrorString(cudaStatus));
+        cudaFree(d_str);
+        return -1;
     }
 
-    return 0;  // Success
+    // Free the GPU memory
+    cudaFree(d_str);
+
+    return 0; // Return 0 on success
 }
