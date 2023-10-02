@@ -18,6 +18,7 @@ char* createDynStr()
 	strcpy(str, temp);
 	return str;
 }
+
 void Mutanat_Squence(char* str , int k , int size_str)
 {
 	for (int i = k; i <=size_str; i++)
