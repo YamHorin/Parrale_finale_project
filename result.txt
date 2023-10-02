@@ -1,0 +1,22 @@
+Matrix read successfully!
+
+for the string ABC 
+, we found that the max score alignment 57 is from K  - 2 and off set - 5  
+
+for the string ABABA 
+, we found that the max score alignment 87 is from K  - 4 and off set - 3  
+
+for the string AAAAAA 
+, we found that the max score alignment 90 is from K  - 5 and off set - 2  
+
+for the string GF 
+, we found that the max score alignment 45 is from K  - 1 and off set - 6  
+
+for the string HKUIUIK 
+, we found that the max score alignment 132 is from K  - 6 and off set - 0  
+
+for the string ABCDEFGH 
+, we found that the max score alignment 92 is from K  - 7 and off set - 0  
+
+for the string URGY 
+, we found that the max score alignment 100 is from K  - 3 and off set - 3  

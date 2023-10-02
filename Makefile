@@ -8,7 +8,6 @@ build:
 	
 clean:
 	rm -f *.o ./mpiCudaOpenMP
-	rm -f result.txt	
 	rm -f *.btr
 	rm -f MP
 
@@ -22,4 +21,4 @@ normal:
 	mpicxx  -fopenmp -o MP  main.o cFunctions.o
 
 normal_run:
-	mpiexec -n 1 ./MP matrix.txt <data.txt 
+	mpiexec -n 1 ./MP matrix.txt <data.txt >result.txt
