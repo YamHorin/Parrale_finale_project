@@ -1,44 +1,4 @@
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - ABABA  str ABABA , <MS> = 0 
-old str  - ABABA  str ABABA , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABABA  str ABABA , <MS> = 2 
-old str  - AAAAAA  str AAAAAA , <MS> = 1 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 2 
-old str  - ABABA  str ABABA , <MS> = 3 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - AAAAAA  str AAAAAA , <MS> = 3 
-old str  - AAAAAA  str AAAAAA , <MS> = 4 
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABABA  str ABABA , <MS> = 4 
-old str  - AAAAAA  str AAAAAA , <MS> = 5 
-old str  - ABABA  str ABABA , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - ABABA  str ABABA , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 1 
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABABA  str ABABA , <MS> = 2 
-old str  - AAAAAA  str AAAAAA , <MS> = 2 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 3 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - ABABA  str ABABA , <MS> = 3 
-old str  - ABABA  str ABABA , <MS> = 4 
-old str  - ABC  str ABC�� , <MS> = 0 
-old str  - ABC  str ABC�� , <MS> = 1 
-old str  - AAAAAA  str AAAAAA , <MS> = 4 
-old str  - ABABA  str ABABA , <MS> = 0 
-old str  - ABABA  str ABABA , <MS> = 1 
-old str  - ABC  str ABC�� , <MS> = 2 
-old str  - AAAAAA  str AAAAAA , <MS> = 5 
-old str  - ABABA  str ABABA , <MS> = 2 
-old str  - AAAAAA  str AAAAAA , <MS> = 0 
+Abort(268061189) on node 0 (rank 0 in comm 0): Fatal error in internal_Send: Invalid communicator, error stack:
+internal_Send(120): MPI_Send(buf=0x7ffe488ce920, count=1, MPI_INT, 1, 1, MPI_COMM_WORLD) failed
+internal_Send(57).: Invalid communicator
+make: *** [Makefile:15: run] Error 5
