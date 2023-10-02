@@ -199,37 +199,41 @@ char *offsetFirstStr(int offset , int lenght)
     return returnStr;
 }
 
-__global__ void change_mutant_squence(char *Str_to_check ,char *str, int k , int size_str)
+__global__ void change_mutant_sequence(char *str, const char *str_to_change, int k, int size_str)
 {
-    int tid = threadIdx.x;
-    if (tid<=size_str && tid >= k)
+    int tid = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (tid < size_str)
     {
-        if (gpu_toupper(str[tid])>='Z')
+        char c = str[tid];
+        if (c >= 'A' && c < 'Z')
+        {
+            if (tid >= k)
+            {
+                str[tid] = c + 1;
+            }
+        }
+        else if (c == 'Z')
+        {
             str[tid] = 'A';
-        if (tid==size_str)
-            str[tid] = '\0';
-        else
-            str[tid] = gpu_toupper(Str_to_check[tid]+1);
+        }
+
+        // Use str_to_change for mutation
+        str[tid] = str_to_change[tid];
     }
-    else
-        str[tid] = gpu_toupper(Str_to_check[tid]);
-    __syncthreads();
-    
 }
 
-char* Mutanat_Squence_cuda(char *Str_to_check ,int k , int size_str)
+char *Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change)
 {
-    char *result, *returnStr ,devStr_to_check;
-    cudaMalloc((void **)&result, size_str);
-    cudaMalloc((void **)&devStr_to_check, size_str);
+    char *result, *returnStr;
+    cudaMalloc((void **)&result, size_str * sizeof(char));
     int threadsPerBlock = BLOCK_DIM;
-    int numOfBlocks = 1;
-    if (size_str>BLOCK_DIM)
-        numOfBlocks  = size_str/BLOCK_DIM;
-    change_mutant_squence<<<numOfBlocks , threadsPerBlock>>>(Str_to_check ,result , k , size_str);
+    int numOfBlocks = (size_str + threadsPerBlock - 1) / threadsPerBlock; // Calculate the number of blocks
+
+    change_mutant_sequence<<<numOfBlocks, threadsPerBlock>>>(result, str_to_change, k, size_str);
+
     returnStr = (char *)malloc(size_str * sizeof(char));
     cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
     cudaFree(result);
     return returnStr;
-
 }
