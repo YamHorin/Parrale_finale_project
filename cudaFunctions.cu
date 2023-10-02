@@ -205,7 +205,7 @@ __global__ void change_mutant_sequence(char *str, const char *str_to_change, int
         str[tid] ='\0';
 }
 
-int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **returnStr)
+int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char returnStr[MAX_STRING_SIZE])
 {
     char *result;
     char *d_str_to_change;  // Device memory for str_to_change
@@ -239,17 +239,8 @@ int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **
 
     change_mutant_sequence<<<numOfBlocks, threadsPerBlock>>>(result, d_str_to_change, k, size_str);
 
-    // Allocate host memory for returnStr
-    *returnStr = (char *)malloc(size_str * sizeof(char));
-    if (*returnStr == NULL)
-    {
-        cudaFree(result);
-        cudaFree(d_str_to_change);
-        return -1;  // Return error code for memory allocation failure
-    }
-
     // Copy the result from device to host
-    cudaStatus = cudaMemcpy(*returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
+    cudaStatus = cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);
 
     // Free device memory
     cudaFree(result);
@@ -257,7 +248,6 @@ int Mutant_Sequence_cuda(int k, int size_str, const char *str_to_change, char **
 
     if (cudaStatus != cudaSuccess)
     {
-        free(*returnStr);
         return cudaStatus;  // Return error code
     }
 
