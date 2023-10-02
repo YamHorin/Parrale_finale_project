@@ -215,6 +215,10 @@ __global__ void change_mutant_squence(char *str, int k , int size_str)
         else
             str[tid] = gpu_toupper(Str_to_check[tid]+1);
     }
+    else
+        str[tid] = gpu_toupper(Str_to_check[tid]);
+    __syncthreads();
+    
 }
 
 char* Mutanat_Squence_cuda(int k , int size_str)
@@ -223,6 +227,8 @@ char* Mutanat_Squence_cuda(int k , int size_str)
     cudaMalloc((void **)&result, size_str);
     int threadsPerBlock = BLOCK_DIM;
     int numOfBlocks = 1;
+    if (size_str>BLOCK_DIM)
+        numOfBlocks  = size_str/BLOCK_DIM;
     change_mutant_squence<<<numOfBlocks , threadsPerBlock>>>(result , k , size_str);
     returnStr = (char *)malloc(size_str * sizeof(char));
     cudaMemcpy(returnStr, result, size_str * sizeof(char), cudaMemcpyDeviceToHost);

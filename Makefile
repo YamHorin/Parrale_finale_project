@@ -1,6 +1,6 @@
 
 build:
-	mpicxx -fopenmp -c  -DDEBUG main.c -o main.o
+	mpicxx -fopenmp -c  main.c -o main.o
 	mpicxx -fopenmp -c cFunctions.c -o cFunctions.o
 	nvcc -gencode arch=compute_61,code=sm_61 -c cudaFunctions.cu -o cudaFunctions.o
 	#linking:
@@ -12,7 +12,7 @@ clean:
 	rm -f MP
 
 run:
-	mpiexec -n 4 ./mpiCudaOpenMP <data.txt 
+	mpiexec -n 4 ./mpiCudaOpenMP matrix.txt <data.txt 
 
 
 normal:
