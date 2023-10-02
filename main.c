@@ -134,18 +134,14 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check ,enumGet;
         char str_to_check[MAX_STRING_SIZE];
-        //MPI_Recv(&enumGet , 1 , MPI_INT , ROOT ,MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
         how_to_caculate = (enum matrix_score) enumGet;
         if (how_to_caculate==THERE_IS_MATRIX_SCORE)
            MPI_Bcast(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
         MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-        //MPI_Recv(&lenght_first_str , 1 , MPI_INT, ROOT ,MPI_ANY_TAG, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         first_str = (char*)malloc(lenght_first_str*sizeof(char));
         MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
         //copy to cuda memory
-        getFirstStr(first_str, lenght_first_str);
-        //MPI_Recv(first_str , lenght_first_str*sizeof(char) , MPI_CHAR  , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
         MPI_Status status;
         int tag,sqn_taries;
         do
@@ -159,7 +155,7 @@ int main(int argc, char *argv[])
             {
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-                getStrToCheck(str_to_check , size_str_to_check);
+                //getStrToCheck(str_to_check , size_str_to_check);
                 // #ifdef DEBUG
                 //     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
                 //     printf("got str:%s \n",str_to_check);
