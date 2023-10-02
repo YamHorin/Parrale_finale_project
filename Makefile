@@ -10,10 +10,16 @@ clean:
 	rm -f *.o ./mpiCudaOpenMP
 	rm -f result.txt	
 	rm -f *.btr
+	rm -f MP
 
 run:
 	mpiexec -n 4 ./mpiCudaOpenMP <data.txt 
 
 
+normal:
+	mpicxx -fopenmp -c   cNormal_main.c -o main.o
+	mpicxx -fopenmp -c cFunctions.c -o cFunctions.o
+	mpicxx  -fopenmp -o MP  main.o cFunctions.o
 
-
+normal_run:
+	mpiexec -n 1 ./MP matrix.txt <data.txt 
