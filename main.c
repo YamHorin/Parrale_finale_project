@@ -5,7 +5,7 @@
 #include "mpi.h"
 #include "cFunctions.h"
 #include "cudaFunctions.h"
-#include "cudaFunctions2.h"//test
+#include "cudaFunctions2.h" //test
 
 #define MATRIX_SIZE 26
 #define ROOT 0
@@ -25,7 +25,6 @@ enum tags
     STOP,
     DONE
 };
-
 
 // static values
 
@@ -73,12 +72,12 @@ int main(int argc, char *argv[])
     {
         init(argc, argv);
         int int_enum = (int)how_to_caculate;
-        MPI_Bcast(&int_enum , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-        if (how_to_caculate==THERE_IS_MATRIX_SCORE)
-           MPI_Bcast(matrix , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
-        MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-      MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
-        
+        MPI_Bcast(&int_enum, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
+        if (how_to_caculate == THERE_IS_MATRIX_SCORE)
+            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);
+        MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
+        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);
+
         MPI_Status status;
         char *str_to_send;
         int str_length;
@@ -96,20 +95,21 @@ int main(int argc, char *argv[])
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
         }
         double t_start = MPI_Wtime();
-        //test
-            char* str_to_check= createDynStr();
-            printf("%s\n",str_to_check);
-            int score = caculate_cuda(str_to_check, first_str,matrix);
+        // test
+        char *str_to_check = createDynStr();
+        printf("%s\n", str_to_check);
+        int score = caculate_cuda(str_to_check, first_str, matrix);
+        if (score != 0)
+        {
+            printf("error in cuda");
+            MPI_Abort(MPI_COMM_WORLD, -1);
+        }
 
-        
-        
-        
-        
         int str_send = num_procs;
         int tasks = number_strings;
         int tasks_done;
         struct score_alignment localMax;
-        for (tasks_done = 0; tasks_done < number_strings-1 ;tasks_done++)
+        for (tasks_done = 0; tasks_done < number_strings - 1; tasks_done++)
         {
             localMax.score = 0;
             localMax.K = 0;
@@ -124,7 +124,6 @@ int main(int argc, char *argv[])
 
                 str_to_send = createDynStr();
                 str_length = strlen(str_to_send);
-                printf("send to rank %d -%s\n", status.MPI_SOURCE, str_to_send);
                 MPI_Send(&str_length, 1, MPI_INT, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                 MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                 str_send++;
@@ -143,17 +142,17 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check, enumGet;
         char str_to_check[MAX_STRING_SIZE];
-        MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        MPI_Bcast(&enumGet, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
 
         how_to_caculate = (enum matrix_score)enumGet;
-          if (how_to_caculate==THERE_IS_MATRIX_SCORE)
-           MPI_Bcast(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
+        if (how_to_caculate == THERE_IS_MATRIX_SCORE)
+            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);
 
-        MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
 
         first_str = (char *)malloc(lenght_first_str * sizeof(char));
 
-        MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
+        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);
 
         MPI_Status status;
         int tag, sqn_taries;
@@ -181,10 +180,9 @@ int main(int argc, char *argv[])
                     {
                         strncpy(str_k, str_to_check, MAX_STRING_SIZE);
 
-                        //test
+                        // test
 
-                        
-                        Mutanat_Squence(str_k ,k , size_str_to_check);
+                        Mutanat_Squence(str_k, k, size_str_to_check);
                         // int r = Mutanat_Squence_cuda(str_k, k, size_str_to_check);
                         // if (r != 0)
                         // {
