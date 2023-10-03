@@ -5,6 +5,7 @@
 #include "mpi.h"
 #include "cFunctions.h"
 #include "cudaFunctions.h"
+#include "cudaFunctions2.h"//test
 
 #define MATRIX_SIZE 26
 #define ROOT 0
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 #pragma omp parallel for private(str_to_send, worker_rank)
-        for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
+        for (worker_rank = 1; worker_rank < num_procs-1; worker_rank++)
         {
             MPI_Send(&int_enum, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD); // 1
             if (how_to_caculate == THERE_IS_MATRIX_SCORE)
@@ -99,6 +100,14 @@ int main(int argc, char *argv[])
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
         }
         double t_start = MPI_Wtime();
+        //test
+            str_to_send = createDynStr();
+            int score = caculate_cuda(str_to_send, first_str,matrix);
+
+        
+        
+        
+        
         int str_send = num_procs - 1;
         int tasks = number_strings;
         int tasks_done;
