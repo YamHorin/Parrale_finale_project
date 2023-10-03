@@ -119,8 +119,8 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     int how_to_caculate = 0; // Set to 0 for NO_MATRIX_SCORE or 1 for MATRIX_SCORE
 
     // Calculate the lengths of the strings
-    int size_str_to_check = device_strlen(str_to_check);
-    int size_first_str = device_strlen(first_str);
+    int size_str_to_check = strlen(str_to_check);
+    int size_first_str = strlen(first_str);
 
     // Check if the lengths exceed the maximum allowed size
     if (size_str_to_check >= MAX_STRING_SIZE || size_first_str >= MAX_STRING_SIZE) {
@@ -132,59 +132,15 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     char *d_str_to_check, *d_first_str;
     int *d_matrix;
     score_alignment *d_localMax;
-
-        cudaError_t cudaMallocStatus;
-
-    cudaMallocStatus = cudaMalloc((void**)&d_str_to_check, MAX_STRING_SIZE);
-    if (cudaMallocStatus != cudaSuccess) {
-        printf("Error: cudaMalloc for d_str_to_check failed: %s\n", cudaGetErrorString(cudaMallocStatus));
-        return -1; // or any appropriate error code
-    }
-
-    cudaMallocStatus = cudaMalloc((void**)&d_first_str, MAX_STRING_SIZE);
-    if (cudaMallocStatus != cudaSuccess) {
-        printf("Error: cudaMalloc for d_first_str failed: %s\n", cudaGetErrorString(cudaMallocStatus));
-        cudaFree(d_str_to_check); // Free the previously allocated memory
-        return -1; // or any appropriate error code
-    }
-
-    cudaMallocStatus = cudaMalloc((void**)&d_matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int));
-    if (cudaMallocStatus != cudaSuccess) {
-        printf("Error: cudaMalloc for d_matrix failed: %s\n", cudaGetErrorString(cudaMallocStatus));
-        cudaFree(d_str_to_check);    // Free the previously allocated memory
-        cudaFree(d_first_str);       // Free the previously allocated memory
-        return -1; // or any appropriate error code
-    }
-
-    cudaMallocStatus = cudaMalloc((void**)&d_localMax, sizeof(score_alignment));
-    if (cudaMallocStatus != cudaSuccess) {
-        printf("Error: cudaMalloc for d_localMax failed: %s\n", cudaGetErrorString(cudaMallocStatus));
-        cudaFree(d_str_to_check);    // Free the previously allocated memory
-        cudaFree(d_first_str);       // Free the previously allocated memory
-        cudaFree(d_matrix);          // Free the previously allocated memory
-        return -1; // or any appropriate error code
-    }
+    cudaMalloc((void**)&d_str_to_check, MAX_STRING_SIZE);
+    cudaMalloc((void**)&d_first_str, MAX_STRING_SIZE);
+    cudaMalloc((void**)&d_matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int));
+    cudaMalloc((void**)&d_localMax, sizeof(score_alignment));
 
     // Copy data from host to device
-    cudaError_t cudaMemcpyStatus;
-
-    cudaMemcpyStatus = cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
-    if (cudaMemcpyStatus != cudaSuccess) {
-        printf("Error: cudaMemcpy for d_str_to_check failed: %s\n", cudaGetErrorString(cudaMemcpyStatus));
-        return -1; // or any appropriate error code
-    }
-
-    cudaMemcpyStatus = cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
-    if (cudaMemcpyStatus != cudaSuccess) {
-        printf("Error: cudaMemcpy for d_first_str failed: %s\n", cudaGetErrorString(cudaMemcpyStatus));
-        return -1; // or any appropriate error code
-    }
-
-    cudaMemcpyStatus = cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
-    if (cudaMemcpyStatus != cudaSuccess) {
-        printf("Error: cudaMemcpy for d_matrix failed: %s\n", cudaGetErrorString(cudaMemcpyStatus));
-        return -1; // or any appropriate error code
-    }
+    cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
     
     // Initialize localMax on the host and copy it to the device
     score_alignment localMax;
@@ -213,7 +169,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     printf("\nFor the string %s,\n", str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
-    return 0;
+    return localMax.score;
 }
 
 /*
