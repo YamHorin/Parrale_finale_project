@@ -77,21 +77,20 @@ int main(int argc, char *argv[])
     if (my_rank==0)
     {
       init(argc, argv);
-
       int int_enum = (int)how_to_caculate;
-      MPI_Bcast(&int_enum , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-      if (how_to_caculate==THERE_IS_MATRIX_SCORE)
-           MPI_Bcast(matrix , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
       MPI_Status status;
-      double t_start = MPI_Wtime();
-      MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-      MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
       char* str_to_send;
       int str_length;
       int worker_rank;
+      
       #pragma omp parallel for private(str_to_send ,worker_rank)
       for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
+            MPI_Send(&int_enum , 1 , MPI_INT ,worker_rank , WORK, MPI_COMM_WORLD);//1
+            if (how_to_caculate==THERE_IS_MATRIX_SCORE)
+                MPI_Send(matrix , MATRIX_SIZE*MATRIX_SIZE , MPI_INT ,worker_rank , WORK , MPI_COMM_WORLD);//2
+            MPI_Send(&lenght_first_str , 1 , MPI_INT,worker_rank , WORK , MPI_COMM_WORLD);//3
+            MPI_Send(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR ,worker_rank , WORK , MPI_COMM_WORLD);
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
             #ifdef DEBUG
@@ -100,6 +99,7 @@ int main(int argc, char *argv[])
             MPI_Send(&str_length , 1 , MPI_INT , worker_rank  , WORK , MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length+1)*sizeof(char) , MPI_CHAR , worker_rank, WORK, MPI_COMM_WORLD);
         }
+        double t_start = MPI_Wtime();
         int str_send = num_procs-1; 
         int tasks = number_strings;
         int tasks_done;
@@ -137,14 +137,16 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check ,enumGet;
         char str_to_check[MAX_STRING_SIZE];
-        MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        MPI_Recv(&enumGet,1,MPI_INT , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);//1
         how_to_caculate = (enum matrix_score) enumGet;
         if (how_to_caculate==THERE_IS_MATRIX_SCORE)
-           MPI_Bcast(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
-        MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+           MPI_Recv(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT ,MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);//2
+
+        MPI_Recv(&lenght_first_str , 1 , MPI_INT, ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);//3
         first_str = (char*)malloc(lenght_first_str*sizeof(char));
-        MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
-        //copy to cuda memory
+        
+        MPI_Recv(first_str , lenght_first_str*sizeof(char) , MPI_CHAR, ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , MPI_STATUS_IGNORE);//4
+        
         MPI_Status status;
         int tag,sqn_taries;
         do
@@ -158,23 +160,12 @@ int main(int argc, char *argv[])
             {
                 MPI_Recv(str_to_check, (size_str_to_check+1) * sizeof(char), 
                 MPI_CHAR , ROOT,MPI_ANY_TAG,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-                //getStrToCheck(str_to_check , size_str_to_check);
-                // #ifdef DEBUG
-                //     printf("rank = %d tag = %d\n",my_rank,status.MPI_TAG);
-                //     printf("got str:%s \n",str_to_check);
-
-                // #endif
-
-                // #pragma omp declare reduction(AS_max_func : struct score_alignment : \
-                //         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
-                //         initializer(omp_priv = omp_orig)
                 
                 AS_max.off_set = 10;
                 AS_max.K = 0;
                 AS_max.score = -1;
                 sqn_taries = (size_str_to_check<lenght_first_str)? (lenght_first_str-size_str_to_check)
                 : (size_str_to_check-lenght_first_str);
-               //char str_for_offset [size_str_to_check];
                 char str_k [MAX_STRING_SIZE];
                 int off_set , max_off_set;
                 int k ,max_k ,score;
@@ -190,15 +181,7 @@ int main(int argc, char *argv[])
                             printf("error in cuda");
                             MPI_Abort(MPI_COMM_WORLD , -1);
                         }
-                        
-                        //strncpy( str_k, r, MAX_STRING_SIZE-1);
-                         
-                        // strncpy(temp_Max.str , str_k ,MAX_STRING_SIZE-1);
-                        // temp_Max.str[MAX_STRING_SIZE] = '\0';
-                        // strncpy(str_k , str_to_check ,MAX_STRING_SIZE-1); 
-                        // Mutanat_Squence(str_k , k,size_str_to_check);
-
-                        
+     
                         //printf("old str  - %s  str %s , <MS> = %d \n", str_to_check, str_k ,k);
                         if (how_to_caculate==NO_MATRIX_SCORE)
                                 score = caculate_result_without_matrix(str_k , off_set);
