@@ -3,9 +3,14 @@
 #include <ctype.h>
 #include <cuda_runtime.h> 
 const int MAX_STRING_SIZE = 3000; // Define MAX_STRING_SIZE as needed
-const int MATRIX_SIZE = 26;     // Define MATRIX_SIZE as needed
+const int MATRIX_SIZE = 26;       // Define MATRIX_SIZE as needed
 
-
+struct score_alignment {
+    int score;
+    int K;
+    int off_set;
+    char str[MAX_STRING_SIZE];
+};
 
 __device__ int caculate_result_without_matrix(const char *s2, int off_set, const char *first_str) {
     int length = strlen(s2);
@@ -51,10 +56,8 @@ __device__ void Mutanat_Squence(char *str, int k, int size_str) {
     }
 }
 
-
-
 __global__ void cuda_caculate_max_score(char *str_to_check, char *first_str, int how_to_caculate,
-                                        int *matrix, score_alignment2 *localMax) {
+                                        int *matrix, score_alignment *localMax) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     int size_str_to_check = strlen(str_to_check);
     int length_first_str = strlen(first_str);
@@ -89,29 +92,14 @@ __global__ void cuda_caculate_max_score(char *str_to_check, char *first_str, int
     }
 }
 
-/*
-cudaFunctions2.cu(57): error: identifier "score_alignment2" is undefined
-
-cudaFunctions2.cu(105): error: identifier "score_alignment" is undefined
-
-cudaFunctions2.cu(113): error: incomplete type is not allowed
-
-cudaFunctions2.cu(117): error: incomplete type is not allowed
-
-
-
-*/
-
-
-
-int caculate_cuda(char *str_to_check, char *first_str ,int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
+int caculate_cuda(char *str_to_check, char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE]) {
     // Initialize data and matrices here
     int how_to_caculate = 0; // Set to 0 for NO_MATRIX_SCORE or 1 for MATRIX_SCORE
 
     // Allocate memory on the GPU
     char *d_str_to_check, *d_first_str;
     int *d_matrix;
-    struct cscore_alignment2 *d_localMax;
+    score_alignment *d_localMax;
     cudaMalloc((void**)&d_str_to_check, MAX_STRING_SIZE);
     cudaMalloc((void**)&d_first_str, MAX_STRING_SIZE);
     cudaMalloc((void**)&d_matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int));
@@ -123,11 +111,11 @@ int caculate_cuda(char *str_to_check, char *first_str ,int matrix[MATRIX_SIZE][M
     cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
     
     // Initialize localMax on the host and copy it to the device
-    struct score_alignment2 localMax;
+    score_alignment localMax;
     localMax.score = 0;
     localMax.K = 0;
     localMax.off_set = 0;
-    cudaMemcpy(d_localMax, &localMax, sizeof(score_alignment2), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_localMax, &localMax, sizeof(score_alignment), cudaMemcpyHostToDevice);
 
     // Define block and grid dimensions
     int threadsPerBlock = 256;
@@ -149,5 +137,4 @@ int caculate_cuda(char *str_to_check, char *first_str ,int matrix[MATRIX_SIZE][M
     printf("\nFor the string %s,\n", str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
-    return localMax.score;
-}
+   
