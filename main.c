@@ -180,12 +180,17 @@ int main(int argc, char *argv[])
                     for (k = 0; k < size_str_to_check; k++)
                     {
                         strncpy(str_k, str_to_check, MAX_STRING_SIZE);
-                        int r = Mutanat_Squence_cuda(str_k, k, size_str_to_check);
-                        if (r != 0)
-                        {
-                            printf("error in cuda");
-                            MPI_Abort(MPI_COMM_WORLD, -1);
-                        }
+
+                        //test
+
+                        
+                        Mutanat_Squence(str_k ,k , size_str_to_check);
+                        // int r = Mutanat_Squence_cuda(str_k, k, size_str_to_check);
+                        // if (r != 0)
+                        // {
+                        //     printf("error in cuda");
+                        //     MPI_Abort(MPI_COMM_WORLD, -1);
+                        // }
 
                         if (how_to_caculate == NO_MATRIX_SCORE)
                             score = caculate_result_without_matrix(str_k, off_set);

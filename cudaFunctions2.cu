@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
+#include <cuda_runtime.h> 
 const int MAX_STRING_SIZE = 3000; // Define MAX_STRING_SIZE as needed
 const int MATRIX_SIZE = 26;     // Define MATRIX_SIZE as needed
 
