@@ -254,7 +254,6 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
 {
     int length = strlen(s2);
     int result = 0;
-    // test
 #pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
