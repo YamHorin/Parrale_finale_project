@@ -97,18 +97,19 @@ int main(int argc, char *argv[])
         }
         double t_start = MPI_Wtime();
         //test
-            str_to_send = createDynStr();
-            int score = caculate_cuda(str_to_send, first_str,matrix);
+            char* str_to_check= createDynStr();
+            printf("%s\n",str_to_check);
+            int score = caculate_cuda(str_to_check, first_str,matrix);
 
         
         
         
         
-        int str_send = num_procs - 1;
+        int str_send = num_procs;
         int tasks = number_strings;
         int tasks_done;
         struct score_alignment localMax;
-        for (tasks_done = 0; tasks_done < number_strings; tasks_done++)
+        for (tasks_done = 0; tasks_done < number_strings-1 ;tasks_done++)
         {
             localMax.score = 0;
             localMax.K = 0;
@@ -123,6 +124,7 @@ int main(int argc, char *argv[])
 
                 str_to_send = createDynStr();
                 str_length = strlen(str_to_send);
+                printf("send to rank %d -%s\n", status.MPI_SOURCE, str_to_send);
                 MPI_Send(&str_length, 1, MPI_INT, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                 MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                 str_send++;
