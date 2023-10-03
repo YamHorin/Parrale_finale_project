@@ -65,7 +65,7 @@ __device__ int calculate_result_with_matrix(const char *s2, int *matrix, int off
     return result;
 }
 
-__device__ void Mutanat_Squence(char *str, int k, int size_str) {
+__device__ void Mutanat_Squence2(char *str, int k, int size_str) {
     for (int i = k; i <= size_str; i++) {
         if (gpu_toupper(str[i]) >= 'Z') {
             str[i] = 'A';
@@ -95,7 +95,7 @@ __global__ void cuda_caculate_max_score(char *str_to_check, char *first_str, int
         mutated_str[MAX_STRING_SIZE - 1] = '\0';
 
         // Mutate the sequence
-        Mutanat_Squence(mutated_str, k, size_str_to_check);
+        Mutanat_Squence2(mutated_str, k, size_str_to_check);
 
         int score = 0;
 
@@ -158,27 +158,11 @@ int caculate_cuda(char *str_to_check, char *first_str, int matrix[MATRIX_SIZE][M
     // Print the result
     printf("\nFor the string %s,\n", str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
-
+    return 0;
 }
+
 /*
-cudaFunctions2.cu(23): error: calling a __host__ function("strlen") from a __device__ function("caculate_result_without_matrix") is not allowed
-
-cudaFunctions2.cu(23): error: identifier "strlen" is undefined in device code
-
-cudaFunctions2.cu(36): error: calling a __host__ function("strlen") from a __device__ function("calculate_result_with_matrix") is not allowed
-
-cudaFunctions2.cu(36): error: identifier "strlen" is undefined in device code
-
-cudaFunctions2.cu(69): error: calling a __host__ function("strlen") from a __global__ function("cuda_caculate_max_score") is not allowed
-
-cudaFunctions2.cu(69): error: identifier "strlen" is undefined in device code
-
-cudaFunctions2.cu(70): error: calling a __host__ function("strlen") from a __global__ function("cuda_caculate_max_score") is not allowed
-
-cudaFunctions2.cu(70): error: identifier "strlen" is undefined in device code
-
-cudaFunctions2.cu(79): error: calling a __host__ function("strncpy") from a __global__ function("cuda_caculate_max_score") is not allowed
-
-cudaFunctions2.cu(79): error: identifier "strncpy" is undefined in device code
+for the string �Ss[� 
+, we found that the max score alignment 22069 is from K  - 5 and off set - 0 
 
 */

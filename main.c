@@ -25,13 +25,7 @@ enum tags
     STOP,
     DONE
 };
-struct score_alignment
-{
-    char str[MAX_STRING_SIZE];
-    int off_set;
-    int K;
-    int score;
-};
+
 
 // static values
 
@@ -84,7 +78,7 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 #pragma omp parallel for private(str_to_send, worker_rank)
-        for (worker_rank = 1; worker_rank < num_procs-1; worker_rank++)
+        for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             MPI_Send(&int_enum, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD); // 1
             if (how_to_caculate == THERE_IS_MATRIX_SCORE)
