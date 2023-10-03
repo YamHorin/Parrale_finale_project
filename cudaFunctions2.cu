@@ -149,6 +149,20 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     localMax.off_set = 0;
     cudaMemcpy(d_localMax, &localMax, sizeof(score_alignment), cudaMemcpyHostToDevice);
 
+
+
+
+    /*
+    to do 
+    two for loops
+    one for k 
+    the other on for off set
+
+    global caculate that will get str 1 , str2 , k, off_set 
+    caculation is simular to before 
+    max chaeck in this func , not the global 
+
+    */
     // Define block and grid dimensions
     int threadsPerBlock = 256;
     int blocksPerGrid = (size_str_to_check * (size_first_str - size_str_to_check) + threadsPerBlock - 1) / threadsPerBlock;
