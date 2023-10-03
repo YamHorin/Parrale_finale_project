@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
+#include <string.h>
 #include <cuda_runtime.h> 
 const int MAX_STRING_SIZE = 3000; // Define MAX_STRING_SIZE as needed
 const int MATRIX_SIZE = 26;       // Define MATRIX_SIZE as needed
@@ -11,6 +12,12 @@ struct score_alignment {
     int off_set;
     char str[MAX_STRING_SIZE];
 };
+__device__ char gpu_toupper(char c)
+{
+    if (c >= 'a' && c <= 'A')
+        return c - ('a' - 'A');
+    return c;
+}
 
 __device__ int caculate_result_without_matrix(const char *s2, int off_set, const char *first_str) {
     int length = strlen(s2);
@@ -45,13 +52,13 @@ __device__ int calculate_result_with_matrix(const char *s2, int *matrix, int off
 
 __device__ void Mutanat_Squence(char *str, int k, int size_str) {
     for (int i = k; i <= size_str; i++) {
-        if (toupper(str[i]) >= 'Z') {
+        if (gpu_toupper(str[i]) >= 'Z') {
             str[i] = 'A';
         }
         if (i == size_str) {
             str[i] = '\0';
         } else {
-            str[i] = toupper(str[i] + 1);
+            str[i] = gpu_toupper(str[i] + 1);
         }
     }
 }
@@ -137,4 +144,26 @@ int caculate_cuda(char *str_to_check, char *first_str, int matrix[MATRIX_SIZE][M
     printf("\nFor the string %s,\n", str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
-   
+}
+/*
+cudaFunctions2.cu(23): error: calling a __host__ function("strlen") from a __device__ function("caculate_result_without_matrix") is not allowed
+
+cudaFunctions2.cu(23): error: identifier "strlen" is undefined in device code
+
+cudaFunctions2.cu(36): error: calling a __host__ function("strlen") from a __device__ function("calculate_result_with_matrix") is not allowed
+
+cudaFunctions2.cu(36): error: identifier "strlen" is undefined in device code
+
+cudaFunctions2.cu(69): error: calling a __host__ function("strlen") from a __global__ function("cuda_caculate_max_score") is not allowed
+
+cudaFunctions2.cu(69): error: identifier "strlen" is undefined in device code
+
+cudaFunctions2.cu(70): error: calling a __host__ function("strlen") from a __global__ function("cuda_caculate_max_score") is not allowed
+
+cudaFunctions2.cu(70): error: identifier "strlen" is undefined in device code
+
+cudaFunctions2.cu(79): error: calling a __host__ function("strncpy") from a __global__ function("cuda_caculate_max_score") is not allowed
+
+cudaFunctions2.cu(79): error: identifier "strncpy" is undefined in device code
+
+*/
