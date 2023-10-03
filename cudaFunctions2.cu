@@ -12,6 +12,21 @@ struct score_alignment {
     int off_set;
     char str[MAX_STRING_SIZE];
 };
+__device__ int device_strlen(const char* str) {
+    int length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+    return length;
+}
+
+__device__ void device_strncpy(char* dest, const char* src, int n) {
+    for (int i = 0; i < n; i++) {
+        dest[i] = src[i];
+    }
+    dest[n] = '\0';
+}
+
 __device__ char gpu_toupper(char c)
 {
     if (c >= 'a' && c <= 'A')
@@ -20,7 +35,7 @@ __device__ char gpu_toupper(char c)
 }
 
 __device__ int caculate_result_without_matrix(const char *s2, int off_set, const char *first_str) {
-    int length = strlen(s2);
+    int length = device_strlen(s2);
     int result = 0;
     
     for (int i = 0; i < length; i++) {
@@ -33,7 +48,7 @@ __device__ int caculate_result_without_matrix(const char *s2, int off_set, const
 }
 
 __device__ int calculate_result_with_matrix(const char *s2, int *matrix, int off_set, const char *first_str) {
-    int length = strlen(s2);
+    int length = device_strlen(s2);
     int result = 0;
     
     for (int i = 0; i < length; i++) {
@@ -66,8 +81,8 @@ __device__ void Mutanat_Squence(char *str, int k, int size_str) {
 __global__ void cuda_caculate_max_score(char *str_to_check, char *first_str, int how_to_caculate,
                                         int *matrix, score_alignment *localMax) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int size_str_to_check = strlen(str_to_check);
-    int length_first_str = strlen(first_str);
+    int size_str_to_check = device_strlen(str_to_check);
+    int length_first_str = device_strlen(first_str);
     int sqn_taries = (size_str_to_check < length_first_str) ? (length_first_str - size_str_to_check) : (size_str_to_check - length_first_str);
     
     if (tid < sqn_taries * size_str_to_check) {
@@ -76,7 +91,7 @@ __global__ void cuda_caculate_max_score(char *str_to_check, char *first_str, int
 
         // Create a copy of str_to_check
         char mutated_str[MAX_STRING_SIZE];
-        strncpy(mutated_str, str_to_check, MAX_STRING_SIZE - 1);
+        device_strncpy(mutated_str, str_to_check, MAX_STRING_SIZE - 1);
         mutated_str[MAX_STRING_SIZE - 1] = '\0';
 
         // Mutate the sequence

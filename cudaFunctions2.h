@@ -9,7 +9,8 @@ struct score_alignment {
     int off_set;
     char str[MAX_STRING_SIZE];
 };
-
+int device_strlen(const char* str);
+void device_strncpy(char* dest, const char* src, int n);
 char gpu_toupper(char c);
 int caculate_result_without_matrix(const char *s2, int off_set, const char *first_str) ;
 int calculate_result_with_matrix(const char *s2, int *matrix, int off_set, const char *first_str);
