@@ -12,7 +12,7 @@ clean:
 	rm -f MP
 
 run:
-	mpiexec -n 3 ./mpiCudaOpenMP <data.txt 
+	mpiexec -n 5 ./mpiCudaOpenMP matrix.txt <data.txt 
 
 
 normal:

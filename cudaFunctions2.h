@@ -17,7 +17,7 @@ int calculate_result_with_matrix(const char *s2, int *matrix, int off_set, const
 void Mutanat_Squence2(char *str, int k, int size_str);
 void cuda_caculate_max_score(char *str_to_check, char *first_str, int how_to_caculate,
                                         int *matrix,  score_alignment *localMax);
-int caculate_cuda(char *str_to_check, char *first_str ,int matrix[MATRIX_SIZE][MATRIX_SIZE]);
+int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
 
 #endif

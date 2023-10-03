@@ -73,6 +73,12 @@ int main(int argc, char *argv[])
     {
         init(argc, argv);
         int int_enum = (int)how_to_caculate;
+        MPI_Bcast(&int_enum , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        if (how_to_caculate==THERE_IS_MATRIX_SCORE)
+           MPI_Bcast(matrix , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
+        MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+      MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
+        
         MPI_Status status;
         char *str_to_send;
         int str_length;
@@ -80,11 +86,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel for private(str_to_send, worker_rank)
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-            MPI_Send(&int_enum, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD); // 1
-            if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-                MPI_Send(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD); // 2
-            MPI_Send(&lenght_first_str, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);                  // 3
-            MPI_Send(first_str, lenght_first_str * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
+
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
 #ifdef DEBUG
@@ -139,15 +141,17 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check, enumGet;
         char str_to_check[MAX_STRING_SIZE];
-        MPI_Recv(&enumGet, 1, MPI_INT, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // 1
-        how_to_caculate = (enum matrix_score)enumGet;
-        if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-            MPI_Recv(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // 2
+        MPI_Bcast(&enumGet , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
 
-        MPI_Recv(&lenght_first_str, 1, MPI_INT, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // 3
+        how_to_caculate = (enum matrix_score)enumGet;
+          if (how_to_caculate==THERE_IS_MATRIX_SCORE)
+           MPI_Bcast(matrix  , MATRIX_SIZE*MATRIX_SIZE , MPI_INT , ROOT , MPI_COMM_WORLD);
+
+        MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
+
         first_str = (char *)malloc(lenght_first_str * sizeof(char));
 
-        MPI_Recv(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE); // 4
+        MPI_Bcast(first_str , lenght_first_str*sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
 
         MPI_Status status;
         int tag, sqn_taries;
