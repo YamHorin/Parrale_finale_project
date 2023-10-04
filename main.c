@@ -69,8 +69,12 @@ int main(int argc, char *argv[])
         double t_start = MPI_Wtime();
         // test
         char *str_to_check = createDynStr();
+        int score;
+        if (how_to_caculate == NO_MATRIX_SCORE)
+            score = caculate_cuda_without_matrix(str_to_check, first_str);
+        else
+            score = caculate_cuda(str_to_check, first_str, matrix);
 
-        int score = caculate_cuda(str_to_check, first_str, matrix);
         if (score != 0)
         {
             printf("error in cuda");
@@ -156,7 +160,7 @@ int main(int argc, char *argv[])
                             score = caculate_result_without_matrix(str_k, off_set);
                         else
                             score = calculate_result_with_matrix(str_k, matrix, off_set);
-                        if (AS_max.score < score)
+                        if (AS_max.score <= score)
                         {
 
                             max_k = k;

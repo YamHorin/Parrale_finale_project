@@ -12,7 +12,7 @@ clean:
 	rm -f MP
 
 run:
-	mpiexec -n 5 ./mpiCudaOpenMP grade_table <data.txt 
+	mpiexec -n 5 ./mpiCudaOpenMP  <data.txt 
 
 
 normal:
