@@ -38,7 +38,7 @@ int readMatrixFromFile(const char *filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 	if (file == NULL)
 	{
 		perror("Error opening file");
-		return -1; // Indicate failure
+		return -1;
 	}
 
 	for (int i = 0; i < MATRIX_SIZE; i++)
@@ -46,14 +46,14 @@ int readMatrixFromFile(const char *filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 		for (int j = 0; j < MATRIX_SIZE; j++)
 		{
 			if (fscanf(file, "%d", &matrix[i][j]) != 1)
-			{ // assuming integers in the matrix
+			{
 				perror("Error reading matrix values");
 				fclose(file);
-				return -2; // Indicate reading error
+				return -2; 
 			}
 		}
 	}
 
 	fclose(file);
-	return 0; // Success
+	return 0; 
 }

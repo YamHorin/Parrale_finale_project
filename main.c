@@ -4,38 +4,13 @@
 #include <cstring>
 #include "mpi.h"
 #include "cFunctions.h"
-#include "cudaFunctions2.h"
-#define MATRIX_SIZE 26
-#define ROOT 0
-#define MAX_STRING_SIZE 3000
-
-
-enum tags
-{
-    WORK,
-    STOP,
-    DONE
-};
-
-enum matrix_score 
-{
-    THERE_IS_MATRIX_SCORE,
-    NO_MATRIX_SCORE
-};
-// static values
-
-
-enum matrix_score how_to_caculate;
-
+#include "cudaFunctions.h"
+#include "main.h"
 
 int lenght_first_str;
 int number_strings;
 char *first_str;
 int matrix[MATRIX_SIZE][MATRIX_SIZE];
-
-void init(int argc, char **argv);
-int caculate_result_without_matrix(const char *s2, int off_set);
-int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_SIZE], int off_set);
 
 int main(int argc, char *argv[])
 {
@@ -88,16 +63,13 @@ int main(int argc, char *argv[])
 
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
-            #ifdef DEBUG
-                        printf("send to rank %d -%s\n", worker_rank, str_to_send);
-            #endif
             MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
         }
         double t_start = MPI_Wtime();
         // test
         char *str_to_check = createDynStr();
-        printf("%s\n", str_to_check);
+
         int score = caculate_cuda(str_to_check, first_str, matrix);
         if (score != 0)
         {
@@ -116,8 +88,8 @@ int main(int argc, char *argv[])
             localMax.off_set = 9;
             MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
                      DONE, MPI_COMM_WORLD, &status);
-            printf("\nfor the string %s \n, we found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                   localMax.str, localMax.score, localMax.K, localMax.off_set);
+            printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
+                status.MPI_SOURCE, localMax.str, localMax.score, localMax.K, localMax.off_set);
             int tasks_not_sent_yet = tasks - str_send;
             if (tasks_not_sent_yet > 0)
             {
@@ -136,7 +108,7 @@ int main(int argc, char *argv[])
                          STOP, MPI_COMM_WORLD);
             }
         }
-        fprintf(stderr, "sequential time: %f secs\n", MPI_Wtime() - t_start);
+        fprintf(stderr, "\nsequential time: %f secs\n", MPI_Wtime() - t_start);
     }
     else
     {
@@ -179,24 +151,11 @@ int main(int argc, char *argv[])
                     for (k = 0; k < size_str_to_check; k++)
                     {
                         strncpy(str_k, str_to_check, MAX_STRING_SIZE);
-
-                        // test
-
                         Mutanat_Squence(str_k, k, size_str_to_check);
-                        // int r = Mutanat_Squence_cuda(str_k, k, size_str_to_check);
-                        // if (r != 0)
-                        // {
-                        //     printf("error in cuda");
-                        //     MPI_Abort(MPI_COMM_WORLD, -1);
-                        // }
-
                         if (how_to_caculate == NO_MATRIX_SCORE)
                             score = caculate_result_without_matrix(str_k, off_set);
                         else
                             score = calculate_result_with_matrix(str_k, matrix, off_set);
-
-                        // printf("old str  - %s  str %s , <MS> = %d \nscore = %d\n", str_to_check, str_k ,k,score);
-
                         if (AS_max.score < score)
                         {
 
