@@ -210,11 +210,6 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     printf("\nFor the string %s,\n", str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
-    return localMax.score;
+    return 0;
 }
 
-/*
-for the string �Ss[� 
-, we found that the max score alignment 22069 is from K  - 5 and off set - 0 
-
-*/

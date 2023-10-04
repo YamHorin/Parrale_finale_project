@@ -10,7 +10,6 @@
 #define MAX_STRING_SIZE 3000
 
 
-
 enum tags
 {
     WORK,
