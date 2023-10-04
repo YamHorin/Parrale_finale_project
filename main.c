@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
 
         char *str_to_check = createDynStr();
         int score;
+        
         //caculate_cuda
         if (how_to_caculate == NO_MATRIX_SCORE)
             score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);

@@ -10,6 +10,8 @@ clean:
 	rm -f *.o ./mpiCudaOpenMP
 	rm -f *.btr
 	rm -f MP
+	rm -f result_noraml.txt
+	rm -f result_seq.txt
 
 run:
 	mpiexec -n 5 ./mpiCudaOpenMP grade_table.txt <data.txt >result_seq.txt
