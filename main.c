@@ -13,11 +13,11 @@
 
 // enums
 
-enum matrix_score
+enum matrix_score 
 {
     THERE_IS_MATRIX_SCORE,
     NO_MATRIX_SCORE
-} how_to_caculate;
+};
 
 enum tags
 {
@@ -28,6 +28,7 @@ enum tags
 
 // static values
 
+enum matrix_score how_to_caculate;
 int lenght_first_str;
 int number_strings;
 char *first_str;
