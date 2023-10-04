@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <cstring>
+
 #define MATRIX_SIZE 26
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
 #define VERY_LONG 500
+
 char *createDynStr()
 {
 	char *str;

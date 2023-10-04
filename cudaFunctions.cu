@@ -39,7 +39,7 @@ __device__ char gpu_toupper(char c)
         return c - ('a' - 'A');
     return c;
 }
-__global__ void caculate_result_without_matrix(char *str_to_check, char *first_str, int size_second_str, int *result, int off_set,int k)
+__global__ void caculate_result_without_matrix(char *str_to_check, char *first_str, int size_second_str, int *result, int off_set, int k)
 {
     __shared__ int r;
     int value;
@@ -55,13 +55,13 @@ __global__ void caculate_result_without_matrix(char *str_to_check, char *first_s
 
             int x = gpu_toupper(first_str[i + off_set]) - 'A';
             int y = (gpu_toupper(str_to_check[i]) + 1) - 'A';
-            value = (x==y);
+            value = (x == y);
         }
         else
         {
             int x = gpu_toupper(first_str[i + off_set]) - 'A';
             int y = (gpu_toupper(str_to_check[i])) - 'A';
-            value = (x==y);
+            value = (x == y);
         }
         atomicAdd(&r, value);
     }
@@ -118,14 +118,32 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     struct score_alignment localMax;
     char *d_str_to_check, *d_first_str;
     int *d_matrix, *dev_result;
-    cudaMalloc((void **)&d_str_to_check, MAX_STRING_SIZE);
-    cudaMalloc((void **)&d_first_str, MAX_STRING_SIZE);
-    cudaMalloc((void **)&d_matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int));
-    cudaMalloc((void **)&dev_result, sizeof(int));
+
+    cudaError_t err1 = cudaMalloc((void **)&d_str_to_check, MAX_STRING_SIZE);
+
+    cudaError_t err2 = cudaMalloc((void **)&d_first_str, MAX_STRING_SIZE);
+
+    cudaError_t err3 = cudaMalloc((void **)&d_matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int));
+
+    cudaError_t err4 = cudaMalloc((void **)&dev_result, sizeof(int));
+
+    if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess || err4 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  malloc 4 error\n");
+        exit(1);
+    }
     // Copy data from host to device
-    cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
+    err1 = cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
+
+    err2 = cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
+
+    err3 = cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
+    if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  malloc 4 error\n");
+        exit(1);
+    }
+
     int threadsPerBlock = 256;
     int result = 0;
     int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
@@ -139,7 +157,12 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
             caculate_result<<<blocksPerGrid, threadsPerBlock>>>(
                 d_str_to_check, d_first_str, size_str_to_check,
                 dev_result, off_set, d_matrix, k);
-            cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
+            err4 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
+            if (err4 != cudaSuccess)
+            {
+                fprintf(stderr, "CUDA  memcpy 4 error\n");
+                exit(1);
+            }
             if (result >= max_score)
             {
                 max_score = result;
@@ -163,7 +186,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
 
 int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str)
 {
-        // Calculate the lengths of the strings
+    // Calculate the lengths of the strings
     int size_str_to_check = strlen(str_to_check);
     int size_first_str = strlen(first_str);
 
@@ -178,12 +201,27 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
     struct score_alignment localMax;
     char *d_str_to_check, *d_first_str;
     int *dev_result;
-    cudaMalloc((void **)&d_str_to_check, MAX_STRING_SIZE);
-    cudaMalloc((void **)&d_first_str, MAX_STRING_SIZE);
-    cudaMalloc((void **)&dev_result, sizeof(int));
+    cudaError_t err1 = cudaMalloc((void **)&d_str_to_check, MAX_STRING_SIZE);
+
+    cudaError_t err2 = cudaMalloc((void **)&d_first_str, MAX_STRING_SIZE);
+
+    cudaError_t err3 = cudaMalloc((void **)&dev_result, sizeof(int));
+
+    if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  malloc 4 error\n");
+        exit(1);
+    }
     // Copy data from host to device
-    cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
+    err1 = cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
+
+    err2 = cudaMemcpy(d_first_str, first_str, size_first_str + 1, cudaMemcpyHostToDevice);
+
+    if (err1 != cudaSuccess || err2 != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA  malloc 4 error\n");
+        exit(1);
+    }
     int threadsPerBlock = 256;
     int result = 0;
     int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
@@ -196,8 +234,13 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
         {
             caculate_result_without_matrix<<<blocksPerGrid, threadsPerBlock>>>(
                 d_str_to_check, d_first_str, size_str_to_check,
-                dev_result, off_set , k);
-            cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
+                dev_result, off_set, k);
+            err3 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
+            if (err3 != cudaSuccess)
+            {
+                fprintf(stderr, "CUDA  memcpy 3 error\n");
+                exit(1);
+            }
             if (result >= max_score)
             {
                 max_score = result;
