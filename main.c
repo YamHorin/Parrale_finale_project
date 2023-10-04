@@ -157,12 +157,10 @@ int main(int argc, char *argv[])
                 {
                     for (k = 0; k < size_str_to_check; k++)
                     {
-                        strncpy(str_k, str_to_check, MAX_STRING_SIZE);
-                        Mutanat_Squence(str_k, k, size_str_to_check);
                         if (how_to_caculate == NO_MATRIX_SCORE)
-                            score = caculate_result_without_matrix(str_k, off_set);
+                            score = caculate_result_without_matrix(str_k, off_set ,k);
                         else
-                            score = calculate_result_with_matrix(str_k, matrix, off_set);
+                            score = calculate_result_with_matrix(str_k, matrix, off_set ,k);
                         if (AS_max.score <= score)
                         {
 
@@ -215,20 +213,26 @@ void init(int argc, char **argv)
     }
 }
 
-int caculate_result_without_matrix(const char *s2, int off_set)
+int caculate_result_without_matrix(const char *s2, int off_set , int k)
 {
     int length = strlen(s2);
     int result = 0;
 #pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
-        if (*((first_str + i) + off_set) == s2[i])
-            result++;
+        if (i>=k)
+           result =  *((first_str + i) + off_set) == toupper(*((s2 + i)) + 1);
+        else 
+        {
+            if (*((first_str + i) + off_set) == s2[i])
+                result++;
+        }
+        
     }
     return result;
 }
 
-int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_SIZE], int off_set)
+int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_SIZE], int off_set, int k)
 {
     int length = strlen(s2);
     int result = 0;
@@ -236,7 +240,9 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
     for (int i = 0; i < length; i++)
     {
         int x = *(first_str + i + off_set) - 'A';
-        int y = s2[i] - 'A';
+        int y = toupper(s2[i]) - 'A';
+        if (i>=k)
+            int y = toupper(*((s2 + i)) + 1) - 'A';
         result += matrix[x][y];
     }
 

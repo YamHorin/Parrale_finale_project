@@ -12,7 +12,7 @@
 char *createDynStr()
 {
 	char *str;
-	char temp[1000];
+	char temp[MAX_STRING_SIZE];
 	scanf("%s", temp);
 	str = (char *)malloc((strlen(temp)) * sizeof(char));
 	if (!str)
