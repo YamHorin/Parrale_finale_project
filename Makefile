@@ -12,7 +12,7 @@ clean:
 	rm -f MP
 
 run:
-	mpiexec -n 5 ./mpiCudaOpenMP matrix.txt <data.txt 
+	mpiexec -n 5 ./mpiCudaOpenMP grade_table <data.txt 
 
 
 normal:
@@ -21,4 +21,4 @@ normal:
 	mpicxx  -fopenmp -o MP  main.o cFunctions.o
 
 normal_run:
-	mpiexec -n 1 ./MP matrix.txt <data.txt >result.txt
+	mpiexec -n 1 ./MP grade_table.txt <data.txt >result.txt
