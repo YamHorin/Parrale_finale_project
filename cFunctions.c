@@ -49,11 +49,11 @@ int readMatrixFromFile(const char *filename, int matrix[MATRIX_SIZE][MATRIX_SIZE
 			{
 				perror("Error reading matrix values");
 				fclose(file);
-				return -2; 
+				return -2;
 			}
 		}
 	}
 
 	fclose(file);
-	return 0; 
+	return 0;
 }
