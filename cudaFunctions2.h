@@ -19,5 +19,7 @@ void cuda_caculate_max_score(char *str_to_check, char *first_str, int how_to_cac
                                         int *matrix,  score_alignment *localMax);
 int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
+void caculate_result(char *str_to_check, char *first_str, int size_second_str,  int *result , int off_set
+                                , int* matrix ,int k)
 
 #endif
