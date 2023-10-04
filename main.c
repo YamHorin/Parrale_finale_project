@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 
     if (my_rank == 0)
     {
+        printf("this is a sequential run\n");
         init(argc, argv);
         int int_enum = (int)how_to_caculate;
         MPI_Bcast(&int_enum, 1, MPI_INT, ROOT, MPI_COMM_WORLD);

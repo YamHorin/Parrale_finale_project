@@ -129,7 +129,6 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     int threadsPerBlock = 256;
     int result = 0;
     int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
-
     int max_score = 0;
     int sqn_taries = (size_str_to_check < size_first_str) ? (size_first_str - size_str_to_check) : (size_str_to_check - size_first_str);
 
@@ -188,7 +187,6 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
     int threadsPerBlock = 256;
     int result = 0;
     int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
-    int max_off_set=0;
     int max_score = 0;
     int sqn_taries = (size_str_to_check < size_first_str) ? (size_first_str - size_str_to_check) : (size_str_to_check - size_first_str);
 

@@ -4,7 +4,7 @@
 #include "mpi.h"
 #include "cFunctions.h"
 #include <cstring>
-#include "cudaFunctions.h"
+
 
 #define MATRIX_SIZE 26
 #define ROOT 0
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         MPI_Finalize();
         return 1;
     }
-
+    printf("this is a normal run\n");
       init(argc, argv);
       double t_start = MPI_Wtime();
       MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
                             else
                                  score = calculate_result_with_matrix(str_to_check , matrix,off_set);
 
-                            if (localMax.score<score)
+                            if (localMax.score<=score)
                             {
                                 localMax.K = k;
                                 localMax.off_set = off_set;
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-            printf("\nfor the string %s \n, we found that the max score alignment %d is from K  - %d and off set - %d  \n",
+            printf("\nmy_rank [0] for the string %s \nI found that the max score alignment %d is from K  - %d and off set - %d  \n",
             localMax.str, localMax.score , localMax.K , localMax.off_set);
         }
         fprintf(stderr,"sequential time: %f secs\n", MPI_Wtime() - t_start);
