@@ -4,20 +4,12 @@
 #include <cstring>
 #include "mpi.h"
 #include "cFunctions.h"
-#include "cudaFunctions.h"
-#include "cudaFunctions2.h" //test
-
+#include "cudaFunctions2.h"
 #define MATRIX_SIZE 26
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
 
-// enums
 
-enum matrix_score 
-{
-    THERE_IS_MATRIX_SCORE,
-    NO_MATRIX_SCORE
-};
 
 enum tags
 {
@@ -26,9 +18,17 @@ enum tags
     DONE
 };
 
+enum matrix_score 
+{
+    THERE_IS_MATRIX_SCORE,
+    NO_MATRIX_SCORE
+};
 // static values
 
+
 enum matrix_score how_to_caculate;
+
+
 int lenght_first_str;
 int number_strings;
 char *first_str;
@@ -83,15 +83,15 @@ int main(int argc, char *argv[])
         char *str_to_send;
         int str_length;
         int worker_rank;
-#pragma omp parallel for private(str_to_send, worker_rank)
+        #pragma omp parallel for private(str_to_send, worker_rank)
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
             str_to_send = createDynStr();
             str_length = strlen(str_to_send);
-#ifdef DEBUG
-            printf("send to rank %d -%s\n", worker_rank, str_to_send);
-#endif
+            #ifdef DEBUG
+                        printf("send to rank %d -%s\n", worker_rank, str_to_send);
+            #endif
             MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
         }
