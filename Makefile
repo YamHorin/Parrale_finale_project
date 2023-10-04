@@ -1,6 +1,6 @@
 
 build:
-	mpicxx -fopenmp -c  main.c -o main.o
+	mpicxx -fopenmp -c main.c -o main.o
 	mpicxx -fopenmp -c cFunctions.c -o cFunctions.o
 	nvcc -gencode arch=compute_61,code=sm_61 -c cudaFunctions2.cu -o cudaFunctions.o
 	#linking:

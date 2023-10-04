@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "cfunctions.h": "c"
+        "cfunctions.h": "c",
+        "cudafunctions2.h": "c",
+        "cudafunctions.h": "c"
     }
 }
