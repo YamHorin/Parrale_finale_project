@@ -68,13 +68,14 @@ int main(int argc, char *argv[])
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
         }
         double t_start = MPI_Wtime();
-        // test
+
         char *str_to_check = createDynStr();
         int score;
+        //caculate_cuda
         if (how_to_caculate == NO_MATRIX_SCORE)
-            score = caculate_cuda_without_matrix(str_to_check, first_str);
+            score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
         else
-            score = caculate_cuda(str_to_check, first_str, matrix);
+            score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
 
         if (score != 0)
         {

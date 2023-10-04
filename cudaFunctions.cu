@@ -100,7 +100,7 @@ __global__ void caculate_result(char *str_to_check, char *first_str, int size_se
         *result = r;
 }
 
-int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE])
+int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE] , int my_rank)
 {
 
     // Calculate the lengths of the strings
@@ -178,13 +178,13 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     cudaFree(d_matrix);
     cudaFree(dev_result);
     // Print the result
-    printf("\nmy_rank [0] For the string %s,\n", str_to_check);
+    printf("\nmy_rank [%d] For the string %s,\n",my_rank, str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
     return 0;
 }
 
-int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str)
+int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str , int my_rank)
 {
     // Calculate the lengths of the strings
     int size_str_to_check = strlen(str_to_check);
@@ -255,7 +255,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
     cudaFree(d_first_str);
     cudaFree(dev_result);
     // Print the result
-    printf("\nmy_rank [0] For the string %s,\n", str_to_check);
+    printf("\nmy_rank [%d] For the string %s,\n",my_rank, str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
     return 0;
