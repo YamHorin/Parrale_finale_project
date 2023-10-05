@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <cstring>
-#include "struct.h"
 #include "mpi.h"
+#include "struct.h"
 
 #define MATRIX_SIZE 26
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
+
+
+
 int caculate_result_without_matrix(const char* first_str, const char *s2, int off_set, int k)
 {
     int length = strlen(s2);
@@ -90,6 +93,8 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_off_set, max_score = 0;
     int k, max_k, score;
+
+    
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {
         for (k = 0; k < size_str_to_check; k++)
@@ -110,7 +115,6 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
 void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 {
     // making new type-struct score_alignment
-    MPI_Datatype mpi_score_alignment_type;
     MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
     int block_lengths[4] = {MAX_STRING_SIZE, 1, 1, 1}; // Initialized to zeros
     MPI_Aint displacements[4];

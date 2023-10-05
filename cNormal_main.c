@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
             localMax.str[MAX_STRING_SIZE] = '\0';   
             for (int off_set = 0; off_set <= sqn_taries; off_set++)
                 {
+                    
                     for (int k =0; k < size_str_to_check; k++)
                     { 
                         strcpy(str_to_check ,localMax.str);
