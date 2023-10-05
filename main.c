@@ -36,16 +36,15 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 
-        int chunk_size = number_strings / num_procs;
+        int chunk_size = number_strings > num_procs? number_strings/num_procs : num_procs/number_strings;
         if (number_strings % num_procs)
-            chunk_size += number_strings % num_procs;
+            chunk_size += number_strings > num_procs? number_strings%num_procs : num_procs%number_strings;
         char *strings_to_check[chunk_size];
-
         for (int i = 0; i < chunk_size; i++)
         {
             strings_to_check[i] = createDynStr();
         }
-        chunk_size = number_strings / num_procs;
+        chunk_size = number_strings > num_procs? number_strings/num_procs : num_procs/number_strings;
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
@@ -71,6 +70,7 @@ int main(int argc, char *argv[])
             else
                 score = caculate_cuda(str_to_check, first_str, matrix, my_rank);
         }
+        fprintf(stderr, "\ncuda time: %f secs\n", MPI_Wtime() - t_start);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
@@ -154,7 +154,6 @@ int main(int argc, char *argv[])
                                 score = calculate_result_with_matrix(strings[i], matrix, off_set, k);
                             if (max_score <= score)
                             {
-
                                 max_k = k;
                                 max_off_set = off_set;
                                 scores[i].score = score;
