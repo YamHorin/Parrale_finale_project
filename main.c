@@ -58,6 +58,9 @@ int main(int argc, char *argv[])
         char *str_to_send;
         int str_length;
         int worker_rank;
+
+        //fix 5/10
+        int str_num = 0;
         #pragma omp parallel for private(str_to_send, worker_rank)
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
@@ -66,6 +69,7 @@ int main(int argc, char *argv[])
             str_length = strlen(str_to_send);
             MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
             MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
+            
         }
         double t_start = MPI_Wtime();
 
@@ -150,7 +154,7 @@ int main(int argc, char *argv[])
                 sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
                                                                     : (size_str_to_check - lenght_first_str);
                 char str_k[MAX_STRING_SIZE];
-                int off_set, max_off_set;
+                int off_set, max_off_set , max_score=0;
                 int k, max_k, score;
 
                 for (off_set = 0; off_set <= sqn_taries; off_set++)
@@ -161,18 +165,20 @@ int main(int argc, char *argv[])
                             score = caculate_result_without_matrix(str_k, off_set ,k);
                         else
                             score = calculate_result_with_matrix(str_k, matrix, off_set ,k);
-                        if (AS_max.score <= score)
+                        if (max_score <= score)
                         {
 
                             max_k = k;
                             max_off_set = off_set;
                             AS_max.score = score;
+                            max_score = score;
                         }
                     }
                     str_k[0] = '\0';
                 }
 
                 strncpy(AS_max.str, str_to_check, MAX_STRING_SIZE - 1);
+                AS_max.score = max_score;
                 AS_max.str[MAX_STRING_SIZE] = '\0';
                 AS_max.off_set = max_off_set;
                 AS_max.K = max_k;
@@ -236,15 +242,16 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
 {
     int length = strlen(s2);
     int result = 0;
-#pragma omp parallel for reduction(+ : result)
+#pragma omp parallel for reduction(+:result)
     for (int i = 0; i < length; i++)
     {
         int x = *(first_str + i + off_set) - 'A';
-        int y = toupper(s2[i]) - 'A';
+        int y = toupper(*((s2 + i))) - 'A';
         if (i>=k)
-            int y = toupper(*((s2 + i)) + 1) - 'A';
+            int y = toupper(*((s2 + i)))+1 - 'A';
+        printf("\n%d , %d\n",x,y);
         result += matrix[x][y];
-    }
 
+    }
     return result;
 }
