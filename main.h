@@ -7,7 +7,9 @@ enum tags
 {
     WORK,
     STOP,
-    DONE
+    DONE,
+    PRINT,
+    GET
 };
 
 enum matrix_score 

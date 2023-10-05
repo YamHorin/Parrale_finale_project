@@ -60,71 +60,90 @@ int main(int argc, char *argv[])
         int worker_rank;
 
         //fix 5/10
-        int str_num = 0;
-        #pragma omp parallel for private(str_to_send, worker_rank)
+        int chunk_size = number_strings/num_procs;
+        if (number_strings%num_procs)
+            chunk_size +=number_strings%num_procs;
+        char* strings_to_check[chunk_size];
+        //for procs 0
+        for (int i = 0; i < chunk_size; i++)
+        {
+            strings_to_check[i]  = createDynStr();
+        }
+        chunk_size = number_strings/num_procs;
+        //#pragma omp parallel for private(str_to_send, worker_rank) to change or delet
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-
-            str_to_send = createDynStr();
-            str_length = strlen(str_to_send);
-            MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
-            MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
+            
+            MPI_Send(&chunk_size , 1 , MPI_INT , worker_rank , GET , MPI_COMM_WORLD);
+            int start = (chunk_size*worker_rank);
+            int finish = (chunk_size*worker_rank)+ chunk_size;
+            for (int i = start; i < finish; i++)
+            {
+                str_to_send = createDynStr();
+                str_length = strlen(str_to_send);
+                MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
+                MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
+            }
             
         }
         double t_start = MPI_Wtime();
-
-        // char *str_to_check = createDynStr();
-        // int score;
-        
-        // //caculate_cuda
-        // if (how_to_caculate == NO_MATRIX_SCORE)
-        //     score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
-        // else
-        //     score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
-
-        // if (score != 0)
-        // {
-        //     printf("error in cuda");
-        //     MPI_Abort(MPI_COMM_WORLD, -1);
-        // }
-
-        int str_send = num_procs;
-        int tasks = number_strings;
-        int tasks_done;
-        struct score_alignment localMax;
-        for (tasks_done = 0; tasks_done < number_strings - 1; tasks_done++)
+        for (int i = 0; i < chunk_size; i++)
         {
-            localMax.score = 0;
-            localMax.K = 0;
-            localMax.off_set = 9;
-            MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
-                     DONE, MPI_COMM_WORLD, &status);
-            printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                status.MPI_SOURCE, localMax.str, localMax.score, localMax.K, localMax.off_set);
-            int tasks_not_sent_yet = tasks - str_send;
-            if (tasks_not_sent_yet > 0)
-            {
-
-                str_to_send = createDynStr();
-                str_length = strlen(str_to_send);
-                MPI_Send(&str_length, 1, MPI_INT, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
-                MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
-                str_send++;
-            }
+            //caculate_cuda
+            char *str_to_check = strings_to_check[i];
+            int score;
+            if (how_to_caculate == NO_MATRIX_SCORE)
+                score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
             else
-            {
-                /* send STOP message. message has no data */
-                int dummy = 9;
-                MPI_Send(&dummy, 1, MPI_INT, status.MPI_SOURCE,
-                         STOP, MPI_COMM_WORLD);
-            }
+                score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
         }
+        for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
+        {
+            int dummy =0;
+            MPI_Sendrecv(&dummy , 1 , MPI_INT , worker_rank , PRINT , &dummy , 1 , MPI_INT , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
+            /* send STOP message. message has no data */
+            MPI_Send(&dummy, 1, MPI_INT, status.MPI_SOURCE,
+                         STOP, MPI_COMM_WORLD);
+        }
+
+        // int str_send = num_procs;
+        // int tasks = number_strings;
+        // int tasks_done;
+        // struct score_alignment localMax;
+        // for (tasks_done = 0; tasks_done < number_strings - 1; tasks_done++)
+        // {
+        //     localMax.score = 0;
+        //     localMax.K = 0;
+        //     localMax.off_set = 9;
+        //     MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
+        //              DONE, MPI_COMM_WORLD, &status);
+        //     printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
+        //         status.MPI_SOURCE, localMax.str, localMax.score, localMax.K, localMax.off_set);
+        //     int tasks_not_sent_yet = tasks - str_send;
+        //     if (tasks_not_sent_yet > 0)
+        //     {
+
+        //         str_to_send = createDynStr();
+        //         str_length = strlen(str_to_send);
+        //         MPI_Send(&str_length, 1, MPI_INT, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+        //         MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+        //         str_send++;
+        //     }
+        //     else
+        //     {
+        //         /* send STOP message. message has no data */
+        //         int dummy = 9;
+        //         MPI_Send(&dummy, 1, MPI_INT, status.MPI_SOURCE,
+        //                  STOP, MPI_COMM_WORLD);
+        //     }
+        // }
         fprintf(stderr, "\nsequential time: %f secs\n", MPI_Wtime() - t_start);
     }
     else
     {
         int size_str_to_check, enumGet;
         char str_to_check[MAX_STRING_SIZE];
+
         MPI_Bcast(&enumGet, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
 
         how_to_caculate = (enum matrix_score)enumGet;
@@ -139,21 +158,48 @@ int main(int argc, char *argv[])
 
         MPI_Status status;
         int tag, sqn_taries;
+        int chunk_size;
+        MPI_Recv(&chunk_size, 1, MPI_INT,
+                    ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        char strings[chunk_size][MAX_STRING_SIZE];
+        tag = status.MPI_TAG;
+        struct score_alignment AS_max;
+        struct score_alignment scores [chunk_size];
         do
         {
+            if (tag==PRINT)
+            {
+                for (int  i = 0; i < chunk_size; i++)
+                {
+                    printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
+                            my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
+                }
+                int dummy;
+                MPI_Send(&dummy, 1, MPI_INT, ROOT, DONE, MPI_COMM_WORLD);
+                
+            }
 
-            MPI_Recv(&size_str_to_check, 1, MPI_INT,
+            if (tag== GET)
+            {
+                for (int  i = 0; i < chunk_size; i++)
+                {
+                    MPI_Recv(&size_str_to_check, 1, MPI_INT,
                      ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-            tag = status.MPI_TAG;
-            struct score_alignment AS_max;
+                    MPI_Recv(strings[i], (size_str_to_check + 1) * sizeof(char),
+                         MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                }
+                tag = status.MPI_TAG;
+                
+            }
             if (tag == WORK)
             {
-                MPI_Recv(str_to_check, (size_str_to_check + 1) * sizeof(char),
-                         MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                for (int  i = 0; i < chunk_size; i++)
+                {
+                
+                size_str_to_check = strlen(strings[i]);
                 AS_max.score = -1;
                 sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
                                                                     : (size_str_to_check - lenght_first_str);
-                char str_k[MAX_STRING_SIZE];
                 int off_set, max_off_set , max_score=0;
                 int k, max_k, score;
 
@@ -162,28 +208,32 @@ int main(int argc, char *argv[])
                     for (k = 0; k < size_str_to_check; k++)
                     {
                         if (how_to_caculate == NO_MATRIX_SCORE)
-                            score = caculate_result_without_matrix(str_to_check, off_set ,k);
+                            score = caculate_result_without_matrix(strings[i], off_set ,k);
                         else
-                            score = calculate_result_with_matrix(str_to_check, matrix, off_set ,k);
+                            score = calculate_result_with_matrix(strings[i], matrix, off_set ,k);
                         if (max_score <= score)
                         {
 
                             max_k = k;
                             max_off_set = off_set;
-                            AS_max.score = score;
+                            scores[i].score = score;
                             max_score = score;
                         }
                     }
-                    str_k[0] = '\0';
                 }
 
-                strncpy(AS_max.str, str_to_check, MAX_STRING_SIZE - 1);
-                AS_max.score = max_score;
-                AS_max.str[MAX_STRING_SIZE] = '\0';
-                AS_max.off_set = max_off_set;
-                AS_max.K = max_k;
-                MPI_Send(&AS_max, 1, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
+                strncpy(scores[i].str, strings[i], MAX_STRING_SIZE - 1);
+                scores[i].score = max_score;
+                scores[i].str[MAX_STRING_SIZE] = '\0';
+                scores[i].off_set = max_off_set;
+                scores[i].K = max_k;
+                //MPI_Send(&AS_max, 1, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
+                
+                }   
             }
+            MPI_Recv(&size_str_to_check, 1, MPI_INT,
+                     ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            tag = status.MPI_TAG;
 
         } while (tag != STOP);
     }
