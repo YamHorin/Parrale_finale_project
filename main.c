@@ -242,16 +242,24 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
 {
     int length = strlen(s2);
     int result = 0;
+    
 #pragma omp parallel for reduction(+:result)
     for (int i = 0; i < length; i++)
     {
         int x = *(first_str + i + off_set) - 'A';
-        int y = toupper(*((s2 + i))) - 'A';
-        if (i>=k)
-            int y = toupper(*((s2 + i)))+1 - 'A';
-        printf("\n%d , %d\n",x,y);
-        result += matrix[x][y];
-
+        int y = toupper(s2[i]) - 'A'; // No need to redeclare y here
+        if (i >= k)
+            y++; // Update y as needed
+        if (x >= 0 && x < MATRIX_SIZE && y >= 0 && y < MATRIX_SIZE) // Check bounds
+        {
+            printf("\n%d , %d\n", x, y);
+            result += matrix[x][y];
+        }
+        else
+        {
+            // Handle out-of-bounds case or invalid input.
+            // You can add error handling code here.
+        }
     }
     return result;
 }
