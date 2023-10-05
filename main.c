@@ -36,23 +36,22 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 
-
-        int chunk_size = number_strings/num_procs;
-        if (number_strings%num_procs)
-            chunk_size +=number_strings%num_procs;
-        char* strings_to_check[chunk_size];
+        int chunk_size = number_strings / num_procs;
+        if (number_strings % num_procs)
+            chunk_size += number_strings % num_procs;
+        char *strings_to_check[chunk_size];
 
         for (int i = 0; i < chunk_size; i++)
         {
-            strings_to_check[i]  = createDynStr();
+            strings_to_check[i] = createDynStr();
         }
-        chunk_size = number_strings/num_procs;
+        chunk_size = number_strings / num_procs;
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-            
-            MPI_Send(&chunk_size , 1 , MPI_INT , worker_rank , GET , MPI_COMM_WORLD);
-            int start = (chunk_size*worker_rank);
-            int finish = (chunk_size*worker_rank)+ chunk_size;
+
+            MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
+            int start = (chunk_size * worker_rank);
+            int finish = (chunk_size * worker_rank) + chunk_size;
             for (int i = start; i < finish; i++)
             {
                 str_to_send = createDynStr();
@@ -60,27 +59,25 @@ int main(int argc, char *argv[])
                 MPI_Send(&str_length, 1, MPI_INT, worker_rank, WORK, MPI_COMM_WORLD);
                 MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
             }
-            
         }
         double t_start = MPI_Wtime();
         for (int i = 0; i < chunk_size; i++)
         {
-            //caculate_cuda
+            // caculate_cuda
             char *str_to_check = strings_to_check[i];
             int score;
             if (how_to_caculate == NO_MATRIX_SCORE)
-                score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
+                score = caculate_cuda_without_matrix(str_to_check, first_str, my_rank);
             else
-                score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
+                score = caculate_cuda(str_to_check, first_str, matrix, my_rank);
         }
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-            int dummy =0;
-            MPI_Sendrecv(&dummy , 1 , MPI_INT , worker_rank , PRINT , &dummy , 1 , MPI_INT , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
+            int dummy = 0;
+            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, &dummy, 1, MPI_INT, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             /* send STOP message. message has no data */
-            printf("send to rank %d to stop",worker_rank);
             MPI_Send(&dummy, 1, MPI_INT, worker_rank,
-                         STOP, MPI_COMM_WORLD);
+                     STOP, MPI_COMM_WORLD);
         }
 
         fprintf(stderr, "\nsequential time: %f secs\n", MPI_Wtime() - t_start);
@@ -106,75 +103,72 @@ int main(int argc, char *argv[])
         int tag, sqn_taries;
         int chunk_size;
         MPI_Recv(&chunk_size, 1, MPI_INT,
-                    ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                 ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         char strings[chunk_size][MAX_STRING_SIZE];
         tag = status.MPI_TAG;
         struct score_alignment AS_max;
-        struct score_alignment scores [chunk_size];
+        struct score_alignment scores[chunk_size];
         do
         {
-            if (tag==PRINT)
+            if (tag == PRINT)
             {
-                for (int  i = 0; i < chunk_size; i++)
+                for (int i = 0; i < chunk_size; i++)
                 {
                     printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                            my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
+                           my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
                 }
                 int dummy;
-                MPI_Send(&dummy , 1 , MPI_INT , ROOT , DONE , MPI_COMM_WORLD);
-                
+                MPI_Send(&dummy, 1, MPI_INT, ROOT, DONE, MPI_COMM_WORLD);
             }
 
-            if (tag== GET)
+            if (tag == GET)
             {
-                for (int  i = 0; i < chunk_size; i++)
+                for (int i = 0; i < chunk_size; i++)
                 {
                     MPI_Recv(&size_str_to_check, 1, MPI_INT,
-                     ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+                             ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
                     MPI_Recv(strings[i], (size_str_to_check + 1) * sizeof(char),
-                         MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                             MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
                 tag = status.MPI_TAG;
-                
             }
             if (tag == WORK)
             {
-                for (int  i = 0; i < chunk_size; i++)
+                for (int i = 0; i < chunk_size; i++)
                 {
-                
-                size_str_to_check = strlen(strings[i]);
-                AS_max.score = -1;
-                sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
-                                                                    : (size_str_to_check - lenght_first_str);
-                int off_set, max_off_set , max_score=0;
-                int k, max_k, score;
 
-                for (off_set = 0; off_set <= sqn_taries; off_set++)
-                {
-                    for (k = 0; k < size_str_to_check; k++)
+                    size_str_to_check = strlen(strings[i]);
+                    AS_max.score = -1;
+                    sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
+                                                                        : (size_str_to_check - lenght_first_str);
+                    int off_set, max_off_set, max_score = 0;
+                    int k, max_k, score;
+
+                    for (off_set = 0; off_set <= sqn_taries; off_set++)
                     {
-                        if (how_to_caculate == NO_MATRIX_SCORE)
-                            score = caculate_result_without_matrix(strings[i], off_set ,k);
-                        else
-                            score = calculate_result_with_matrix(strings[i], matrix, off_set ,k);
-                        if (max_score <= score)
+                        for (k = 0; k < size_str_to_check; k++)
                         {
+                            if (how_to_caculate == NO_MATRIX_SCORE)
+                                score = caculate_result_without_matrix(strings[i], off_set, k);
+                            else
+                                score = calculate_result_with_matrix(strings[i], matrix, off_set, k);
+                            if (max_score <= score)
+                            {
 
-                            max_k = k;
-                            max_off_set = off_set;
-                            scores[i].score = score;
-                            max_score = score;
+                                max_k = k;
+                                max_off_set = off_set;
+                                scores[i].score = score;
+                                max_score = score;
+                            }
                         }
                     }
-                }
 
-                strncpy(scores[i].str, strings[i], MAX_STRING_SIZE - 1);
-                scores[i].score = max_score;
-                scores[i].str[MAX_STRING_SIZE] = '\0';
-                scores[i].off_set = max_off_set;
-                scores[i].K = max_k;
-                
-                }   
+                    strncpy(scores[i].str, strings[i], MAX_STRING_SIZE - 1);
+                    scores[i].score = max_score;
+                    scores[i].str[MAX_STRING_SIZE] = '\0';
+                    scores[i].off_set = max_off_set;
+                    scores[i].K = max_k;
+                }
             }
             MPI_Recv(&size_str_to_check, 1, MPI_INT,
                      ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -214,21 +208,20 @@ void init(int argc, char **argv)
     }
 }
 
-int caculate_result_without_matrix(const char *s2, int off_set , int k)
+int caculate_result_without_matrix(const char *s2, int off_set, int k)
 {
     int length = strlen(s2);
     int result = 0;
 #pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
-        if (i>=k)
-           result =  *((first_str + i) + off_set) == toupper(*((s2 + i)) + 1);
-        else 
+        if (i >= k)
+            result = *((first_str + i) + off_set) == toupper(*((s2 + i)) + 1);
+        else
         {
             if (*((first_str + i) + off_set) == s2[i])
                 result++;
         }
-        
     }
     return result;
 }
@@ -237,25 +230,24 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
 {
     int length = strlen(s2);
     int result = 0;
-    
-#pragma omp parallel for reduction(+:result)
+
+#pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
-        //if (i + off_set < lenght_first_str)
 
-        char c1  =  *(first_str + i + off_set);
+        char c1 = *(first_str + i + off_set);
         char c2 = *(s2 + i);
-        c1  = toupper(c1);
-        c2  = toupper(c2);
+        c1 = toupper(c1);
+        c2 = toupper(c2);
         int x = c1 - 'A';
-        int y = c2 - 'A'; // No need to redeclare y here
+        int y = c2 - 'A'; 
         if (i >= k)
-        {   
+        {
             y++;
-            if (c2=='Z')
-                y=0; 
+            if (c2 == 'Z')
+                y = 0;
         }
-            
+
         if (x >= 0 && x < MATRIX_SIZE && y >= 0 && y < MATRIX_SIZE) // Check bounds
         {
             result += matrix[x][y];
