@@ -4,16 +4,8 @@
 #include <string.h>
 #include <cuda_runtime.h>
 #include "struct.h"
-const int MAX_STRING_SIZE = 3000; // Define MAX_STRING_SIZE as needed
-const int MATRIX_SIZE = 26;       // Define MATRIX_SIZE as needed
 
-struct score_alignment
-{
-    int score;
-    int K;
-    int off_set;
-    char str[MAX_STRING_SIZE];
-};
+
 __device__ int device_strlen(const char *str)
 {
     int length = 0;

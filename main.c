@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         {
             int dummy = 0;
             struct score_alignment scores[chunk_size];
-            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, scores, chunk_size, MPI_INT, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, scores, chunk_size, mpi_score_alignment_type, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             for (int i = 0; i < chunk_size; i++)
             {
                 printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
@@ -129,9 +129,7 @@ int main(int argc, char *argv[])
         {
             if (tag == PRINT)
             {
-
-                int dummy;
-                MPI_Send(&dummy, 1, MPI_INT, ROOT, DONE, MPI_COMM_WORLD);
+                MPI_Send(scores , chunk_size , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             }
 
             if (tag == GET)
