@@ -108,3 +108,53 @@ int calculate_result_with_matrix(const char* first_str, const char *s2, int matr
     }
     return result;
 }
+
+
+/*
+omp_functions.c: In function ‘void caculate_max_score_no_grade_table(char*, char*, score_alignment*)’:
+omp_functions.c:23:21: error: ‘caculate_result_without_matrix’ was not declared in this scope
+   23 |             score = caculate_result_without_matrix( first_str, str_to_check,off_set, k);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+omp_functions.c:26:23: error: invalid use of incomplete type ‘struct score_alignment’
+   26 |                 AS_ptr->K = k;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+      |                                                                                      ^~~~~~~~~~~~~~~
+omp_functions.c:27:23: error: invalid use of incomplete type ‘struct score_alignment’
+   27 |                 AS_ptr->off_set = off_set;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+      |                                                                                      ^~~~~~~~~~~~~~~
+omp_functions.c:28:23: error: invalid use of incomplete type ‘struct score_alignment’
+   28 |                 AS_ptr->score = score;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+      |                                                                                      ^~~~~~~~~~~~~~~
+omp_functions.c:33:12: error: return-statement with a value, in function returning ‘void’ [-fpermissive]
+   33 |     return 0;
+      |            ^
+omp_functions.c: In function ‘void caculate_max_score_grade_table(char*, char*, int (*)[26], score_alignment*)’:
+omp_functions.c:50:21: error: ‘calculate_result_with_matrix’ was not declared in this scope
+   50 |             score = calculate_result_with_matrix( first_str, str_to_check, matrix, off_set, k);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+omp_functions.c:53:23: error: invalid use of incomplete type ‘struct score_alignment’
+   53 |                 AS_ptr->k = k;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+      |                                                                                      ^~~~~~~~~~~~~~~
+omp_functions.c:54:23: error: invalid use of incomplete type ‘struct score_alignment’
+   54 |                 AS_ptr->off_set = off_set;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+      |                                                                                      ^~~~~~~~~~~~~~~
+omp_functions.c:55:23: error: invalid use of incomplete type ‘struct score_alignment’
+   55 |                 AS_ptr->score = score;
+      |                       ^~
+omp_functions.c:11:86: note: forward declaration of ‘struct score_alignment’
+   11 | void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+*/
