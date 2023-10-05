@@ -1,0 +1,57 @@
+this is a sequential run
+Matrix read successfully!
+A , @
+0 , 0
+B , A� , �B , �C , �D , `E , �A , �B , �E , �F , F , F , E , �E , �A , @
+0 , 0
+B , 9F , C , �D , C , M
+2 , 13
+D , G
+3 , 7
+F , C , �D , E , �A , �B , �C , MC , �D , `C , �A , �D , `B , �
+2 , 13
+A , �D , GB , �
+3 , 7
+E , �F , A , @B , �E , �E , �F , A , @B , 9A , @B , �F , F , C , �D , C , �D , E , �C , MC , �D , F , A , @B , 9C , �F , 
+2 , 13
+E , �D , G
+3 , 7
+F , E , �E , �A , �B , �A , �B , �E , �D , `F , A , @B , 9C , �D , C , M
+2 , 12
+D , G
+3 , 7
+E , �C , �D , E , �A , @B , �F , E , �F , C , �D , `F , E , �A , @B , 9C , �D , A , �B , �C , M
+2 , 12
+D , G
+3 , 6
+A , �B , �A , @B , �C , �D , F , E , �F , F , E , �C , �D , `F , C , M
+2 , 12
+D , G
+3 , 6
+F , A , @B , �A , @B , 9A , �B , �E , �F , C , �D , E , �E , �
+my_rank [2] for the string GdLsvM 
+We found that the max score alignment 0 is from K  - 5 and off set - 2  
+
+my_rank [3] for the string muyQkC 
+We found that the max score alignment 25 is from K  - 2 and off set - 0  
+
+my_rank [1] for the string yNHjaA 
+We found that the max score alignment 0 is from K  - 5 and off set - 2  
+
+my_rank [2] for the string cRLDU 
+We found that the max score alignment 0 is from K  - 4 and off set - 3  
+
+my_rank [2] for the string PSIdyh 
+We found that the max score alignment 0 is from K  - 5 and off set - 2  
+
+my_rank [4] for the string rRPf 
+We found that the max score alignment 0 is from K  - 3 and off set - 4  
+
+my_rank [2] for the string HSsJqu 
+We found that the max score alignment 0 is from K  - 5 and off set - 2  
+
+my_rank [3] for the string WJJHyG 
+We found that the max score alignment 0 is from K  - 5 and off set - 2  
+
+my_rank [1] for the string osIdY 
+We found that the max score alignment 0 is from K  - 4 and off set - 3  
