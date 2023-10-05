@@ -20,29 +20,6 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    // // making new type-struct score_alignment
-    // MPI_Datatype mpi_score_alignment_type;
-    // MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
-    // int block_lengths[4] = {MAX_STRING_SIZE, 1, 1, 1}; // Initialized to zeros
-    // MPI_Aint displacements[4];
-    // struct score_alignment temp; // Used to calculate displacements
-
-    // // Calculate displacements
-    // MPI_Get_address(&temp.str, &displacements[0]);
-    // MPI_Get_address(&temp.off_set, &displacements[1]);
-    // MPI_Get_address(&temp.K, &displacements[2]);
-    // MPI_Get_address(&temp.score, &displacements[3]);
-
-    // for (int i = 3; i > 0; i--)
-    // {
-    //     displacements[i] -= displacements[0];
-    // }
-    // displacements[0] = 0;
-
-    // // Create the custom data type
-    // MPI_Type_create_struct(4, block_lengths, displacements, types, &mpi_score_alignment_type);
-    // MPI_Type_commit(&mpi_score_alignment_type);
-
     if (my_rank == 0)
     {
         printf("this is a sequential run\n");
@@ -59,18 +36,17 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 
-        //fix 5/10
+
         int chunk_size = number_strings/num_procs;
         if (number_strings%num_procs)
             chunk_size +=number_strings%num_procs;
         char* strings_to_check[chunk_size];
-        //for procs 0
+
         for (int i = 0; i < chunk_size; i++)
         {
             strings_to_check[i]  = createDynStr();
         }
         chunk_size = number_strings/num_procs;
-        //#pragma omp parallel for private(str_to_send, worker_rank) to change or delet
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             
@@ -102,41 +78,11 @@ int main(int argc, char *argv[])
             int dummy =0;
             MPI_Sendrecv(&dummy , 1 , MPI_INT , worker_rank , PRINT , &dummy , 1 , MPI_INT , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
             /* send STOP message. message has no data */
+            printf("send to rank %d to stop",worker_rank);
             MPI_Send(&dummy, 1, MPI_INT, worker_rank,
                          STOP, MPI_COMM_WORLD);
         }
 
-        // int str_send = num_procs;
-        // int tasks = number_strings;
-        // int tasks_done;
-        // struct score_alignment localMax;
-        // for (tasks_done = 0; tasks_done < number_strings - 1; tasks_done++)
-        // {
-        //     localMax.score = 0;
-        //     localMax.K = 0;
-        //     localMax.off_set = 9;
-        //     MPI_Recv(&localMax, 1, mpi_score_alignment_type, MPI_ANY_SOURCE,
-        //              DONE, MPI_COMM_WORLD, &status);
-        //     printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-        //         status.MPI_SOURCE, localMax.str, localMax.score, localMax.K, localMax.off_set);
-        //     int tasks_not_sent_yet = tasks - str_send;
-        //     if (tasks_not_sent_yet > 0)
-        //     {
-
-        //         str_to_send = createDynStr();
-        //         str_length = strlen(str_to_send);
-        //         MPI_Send(&str_length, 1, MPI_INT, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
-        //         MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
-        //         str_send++;
-        //     }
-        //     else
-        //     {
-        //         /* send STOP message. message has no data */
-        //         int dummy = 9;
-        //         MPI_Send(&dummy, 1, MPI_INT, status.MPI_SOURCE,
-        //                  STOP, MPI_COMM_WORLD);
-        //     }
-        // }
         fprintf(stderr, "\nsequential time: %f secs\n", MPI_Wtime() - t_start);
     }
     else
@@ -175,8 +121,8 @@ int main(int argc, char *argv[])
                             my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
                 }
                 int dummy;
-                MPI_Sendrecv(&dummy , 1 ,MPI_INT , ROOT , DONE , &dummy , 1 , MPI_INT , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , &status);
-                tag  = status.MPI_TAG;
+                MPI_Send(&dummy , 1 , MPI_INT , ROOT , DONE , MPI_COMM_WORLD);
+                
             }
 
             if (tag== GET)
@@ -227,7 +173,6 @@ int main(int argc, char *argv[])
                 scores[i].str[MAX_STRING_SIZE] = '\0';
                 scores[i].off_set = max_off_set;
                 scores[i].K = max_k;
-                //MPI_Send(&AS_max, 1, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
                 
                 }   
             }
@@ -237,9 +182,9 @@ int main(int argc, char *argv[])
 
         } while (tag != STOP);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+
     free(first_str);
-    //MPI_Type_free(&mpi_score_alignment_type);
+
     MPI_Finalize();
     return EXIT_SUCCESS;
 }
