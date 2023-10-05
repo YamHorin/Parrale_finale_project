@@ -2,9 +2,10 @@
 build:
 	mpicxx -fopenmp -c main.c -o main.o
 	mpicxx -fopenmp -c cFunctions.c -o cFunctions.o
+	mpicxx -fopenmp -c omp_functions.c -o ompFunctions.o
 	nvcc -gencode arch=compute_61,code=sm_61 -c cudaFunctions.cu -o cudaFunctions.o
 	#linking:
-	mpicxx  -fopenmp -o mpiCudaOpenMP  main.o cFunctions.o cudaFunctions.o  -L/usr/local/cuda/lib -L/usr/local/cuda/lib64 -lcudart
+	mpicxx  -fopenmp -o mpiCudaOpenMP  main.o cFunctions.o cudaFunctions.o ompFunctions.o -L/usr/local/cuda/lib -L/usr/local/cuda/lib64 -lcudart
 	
 clean:
 	rm -f *.o ./mpiCudaOpenMP
@@ -14,7 +15,7 @@ clean:
 	rm -f result_seq.txt
 
 run:
-	mpiexec -n 5 ./mpiCudaOpenMP grade_table.txt <input.txt > result_parallel.txt
+	mpiexec -n 5 ./mpiCudaOpenMP grade_table.txt <input.txt >result_parallel.txt
 
 
 normal:

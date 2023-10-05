@@ -5,8 +5,8 @@
 #include <cstring>
 #include "mpi.h"
 #include "cFunctions.h"
-#include "cudaFunctions.h"
 #include "main.h"
+#include "omp_functions.h"
 
 int lenght_first_str;
 int number_strings;
@@ -102,11 +102,8 @@ int main(int argc, char *argv[])
             MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);
 
         MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
-
         first_str = (char *)malloc(lenght_first_str * sizeof(char));
-
         MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);
-
         MPI_Status status;
         int tag, sqn_taries;
         int chunk_size;
@@ -145,40 +142,14 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < chunk_size; i++)
                 {
 
-                    size_str_to_check = strlen(strings[i]);
-                    AS_max.score = -1;
-                    sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
-                                                                        : (size_str_to_check - lenght_first_str);
-                    int off_set, max_off_set, max_score = 0;
-                    int k, max_k, score;
                     t_omp = clock();
-                    for (off_set = 0; off_set <= sqn_taries; off_set++)
-                    {
-                        for (k = 0; k < size_str_to_check; k++)
-                        {
-
-                            if (how_to_caculate == NO_MATRIX_SCORE)
-                                score = caculate_result_without_matrix(strings[i], off_set, k);
-                            else
-                                score = calculate_result_with_matrix(strings[i], matrix, off_set, k);
-                            if (max_score <= score)
-                            {
-                                max_k = k;
-                                max_off_set = off_set;
-                                scores[i].score = score;
-                                max_score = score;
-                            }
-                        }
-                    }
+                    if (how_to_caculate == THERE_IS_MATRIX_SCORE)
+                        caculate_max_score_grade_table(strings[i] , first_str , matrix ,&scores[i]);
+                    else
+                        caculate_max_score_no_grade_table(strings[i] , first_str ,&scores[i]);
                     t_omp = clock()-t_omp;
                     time_taken = ((double) t_omp) / CLOCKS_PER_SEC; // in seconds
 	                fprintf(stderr,"\nOpenMP part took %.2f seconds to execute\n", time_taken);
-
-                    strncpy(scores[i].str, strings[i], MAX_STRING_SIZE - 1);
-                    scores[i].score = max_score;
-                    scores[i].str[MAX_STRING_SIZE] = '\0';
-                    scores[i].off_set = max_off_set;
-                    scores[i].K = max_k;
                 }
             }
             MPI_Recv(&size_str_to_check, 1, MPI_INT,
@@ -219,50 +190,3 @@ void init(int argc, char **argv)
     }
 }
 
-int caculate_result_without_matrix(const char *s2, int off_set, int k)
-{
-    int length = strlen(s2);
-    int result = 0;
-#pragma omp parallel for reduction(+ : result)
-    for (int i = 0; i < length; i++)
-    {
-        if (i >= k)
-            result = *((first_str + i) + off_set) == toupper(*((s2 + i)) + 1);
-        else
-        {
-            if (*((first_str + i) + off_set) == s2[i])
-                result++;
-        }
-    }
-    return result;
-}
-
-int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_SIZE], int off_set, int k)
-{
-    int length = strlen(s2);
-    int result = 0;
-
-#pragma omp parallel for reduction(+ : result)
-    for (int i = 0; i < length; i++)
-    {
-
-        char c1 = *(first_str + i + off_set);
-        char c2 = *(s2 + i);
-        c1 = toupper(c1);
-        c2 = toupper(c2);
-        int x = c1 - 'A';
-        int y = c2 - 'A'; 
-        if (i >= k)
-        {
-            y++;
-            if (c2 == 'Z')
-                y = 0;
-        }
-
-        if (x >= 0 && x < MATRIX_SIZE && y >= 0 && y < MATRIX_SIZE) // Check bounds
-        {
-            result += matrix[x][y];
-        }
-    }
-    return result;
-}
