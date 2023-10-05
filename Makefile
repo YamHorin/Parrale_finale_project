@@ -14,7 +14,7 @@ clean:
 	rm -f result_seq.txt
 
 run:
-	mpiexec -n 5 ./mpiCudaOpenMP grade_table.txt <data2.txt >result_seq.txt
+	mpiexec -n 5 ./mpiCudaOpenMP grade_table.txt <data2.txt 
 
 
 normal:

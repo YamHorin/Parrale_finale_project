@@ -73,20 +73,20 @@ int main(int argc, char *argv[])
         }
         double t_start = MPI_Wtime();
 
-        char *str_to_check = createDynStr();
-        int score;
+        // char *str_to_check = createDynStr();
+        // int score;
         
-        //caculate_cuda
-        if (how_to_caculate == NO_MATRIX_SCORE)
-            score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
-        else
-            score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
+        // //caculate_cuda
+        // if (how_to_caculate == NO_MATRIX_SCORE)
+        //     score = caculate_cuda_without_matrix(str_to_check, first_str ,my_rank);
+        // else
+        //     score = caculate_cuda(str_to_check, first_str, matrix ,my_rank);
 
-        if (score != 0)
-        {
-            printf("error in cuda");
-            MPI_Abort(MPI_COMM_WORLD, -1);
-        }
+        // if (score != 0)
+        // {
+        //     printf("error in cuda");
+        //     MPI_Abort(MPI_COMM_WORLD, -1);
+        // }
 
         int str_send = num_procs;
         int tasks = number_strings;
@@ -162,9 +162,9 @@ int main(int argc, char *argv[])
                     for (k = 0; k < size_str_to_check; k++)
                     {
                         if (how_to_caculate == NO_MATRIX_SCORE)
-                            score = caculate_result_without_matrix(str_k, off_set ,k);
+                            score = caculate_result_without_matrix(str_to_check, off_set ,k);
                         else
-                            score = calculate_result_with_matrix(str_k, matrix, off_set ,k);
+                            score = calculate_result_with_matrix(str_to_check, matrix, off_set ,k);
                         if (max_score <= score)
                         {
 
@@ -246,19 +246,24 @@ int calculate_result_with_matrix(const char *s2, int matrix[MATRIX_SIZE][MATRIX_
 #pragma omp parallel for reduction(+:result)
     for (int i = 0; i < length; i++)
     {
-        int x = *(first_str + i + off_set) - 'A';
-        int y = toupper(s2[i]) - 'A'; // No need to redeclare y here
+        //if (i + off_set < lenght_first_str)
+
+        char c1  =  *(first_str + i + off_set);
+        char c2 = *(s2 + i);
+        c1  = toupper(c1);
+        c2  = toupper(c2);
+        int x = c1 - 'A';
+        int y = c2 - 'A'; // No need to redeclare y here
         if (i >= k)
-            y++; // Update y as needed
+        {   
+            y++;
+            if (c2=='Z')
+                y=0; 
+        }
+            
         if (x >= 0 && x < MATRIX_SIZE && y >= 0 && y < MATRIX_SIZE) // Check bounds
         {
-            printf("\n%d , %d\n", x, y);
             result += matrix[x][y];
-        }
-        else
-        {
-            // Handle out-of-bounds case or invalid input.
-            // You can add error handling code here.
         }
     }
     return result;
