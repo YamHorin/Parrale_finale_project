@@ -1,4 +1,5 @@
 #include <omp.h>
+#include <time.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <cstring>
@@ -14,8 +15,9 @@ int matrix[MATRIX_SIZE][MATRIX_SIZE];
 
 int main(int argc, char *argv[])
 {
-
+    clock_t t_program = clock(), t_omp, t_cuda;
     int my_rank, num_procs;
+    double time_taken;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
@@ -59,7 +61,8 @@ int main(int argc, char *argv[])
                 MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
             }
         }
-        double t_start = MPI_Wtime();
+        t_cuda = clock();
+
         for (int i = 0; i < chunk_size; i++)
         {
             // caculate_cuda
@@ -70,7 +73,10 @@ int main(int argc, char *argv[])
             else
                 score = caculate_cuda(str_to_check, first_str, matrix, my_rank);
         }
-        fprintf(stderr, "\ncuda time: %f secs\n", MPI_Wtime() - t_start);
+        t_cuda = clock() - t_cuda;
+        time_taken = ((double) t_cuda) / CLOCKS_PER_SEC; // in seconds
+        fprintf(stderr,"\nCUDA part took %.2f seconds to execute\n", time_taken);
+        //struct score_alignment scores[chunk_size];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
@@ -80,7 +86,9 @@ int main(int argc, char *argv[])
                      STOP, MPI_COMM_WORLD);
         }
 
-        fprintf(stderr, "\nsequential time: %f secs\n", MPI_Wtime() - t_start);
+        t_program = clock() - t_program;
+		time_taken = ((double) t_program) / CLOCKS_PER_SEC; // in seconds
+		fprintf(stderr,"\nProgram took %.2f seconds to execute\n", time_taken);
     }
     else
     {
@@ -143,11 +151,12 @@ int main(int argc, char *argv[])
                                                                         : (size_str_to_check - lenght_first_str);
                     int off_set, max_off_set, max_score = 0;
                     int k, max_k, score;
-
+                    t_omp = clock();
                     for (off_set = 0; off_set <= sqn_taries; off_set++)
                     {
                         for (k = 0; k < size_str_to_check; k++)
                         {
+
                             if (how_to_caculate == NO_MATRIX_SCORE)
                                 score = caculate_result_without_matrix(strings[i], off_set, k);
                             else
@@ -161,6 +170,9 @@ int main(int argc, char *argv[])
                             }
                         }
                     }
+                    t_omp = clock()-t_omp;
+                    time_taken = ((double) t_omp) / CLOCKS_PER_SEC; // in seconds
+	                fprintf(stderr,"\nOpenMP part took %.2f seconds to execute\n", time_taken);
 
                     strncpy(scores[i].str, strings[i], MAX_STRING_SIZE - 1);
                     scores[i].score = max_score;
