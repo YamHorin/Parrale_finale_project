@@ -20,28 +20,28 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
 
-    // making new type-struct score_alignment
-    MPI_Datatype mpi_score_alignment_type;
-    MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
-    int block_lengths[4] = {MAX_STRING_SIZE, 1, 1, 1}; // Initialized to zeros
-    MPI_Aint displacements[4];
-    struct score_alignment temp; // Used to calculate displacements
+    // // making new type-struct score_alignment
+    // MPI_Datatype mpi_score_alignment_type;
+    // MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
+    // int block_lengths[4] = {MAX_STRING_SIZE, 1, 1, 1}; // Initialized to zeros
+    // MPI_Aint displacements[4];
+    // struct score_alignment temp; // Used to calculate displacements
 
-    // Calculate displacements
-    MPI_Get_address(&temp.str, &displacements[0]);
-    MPI_Get_address(&temp.off_set, &displacements[1]);
-    MPI_Get_address(&temp.K, &displacements[2]);
-    MPI_Get_address(&temp.score, &displacements[3]);
+    // // Calculate displacements
+    // MPI_Get_address(&temp.str, &displacements[0]);
+    // MPI_Get_address(&temp.off_set, &displacements[1]);
+    // MPI_Get_address(&temp.K, &displacements[2]);
+    // MPI_Get_address(&temp.score, &displacements[3]);
 
-    for (int i = 3; i > 0; i--)
-    {
-        displacements[i] -= displacements[0];
-    }
-    displacements[0] = 0;
+    // for (int i = 3; i > 0; i--)
+    // {
+    //     displacements[i] -= displacements[0];
+    // }
+    // displacements[0] = 0;
 
-    // Create the custom data type
-    MPI_Type_create_struct(4, block_lengths, displacements, types, &mpi_score_alignment_type);
-    MPI_Type_commit(&mpi_score_alignment_type);
+    // // Create the custom data type
+    // MPI_Type_create_struct(4, block_lengths, displacements, types, &mpi_score_alignment_type);
+    // MPI_Type_commit(&mpi_score_alignment_type);
 
     if (my_rank == 0)
     {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
             int dummy =0;
             MPI_Sendrecv(&dummy , 1 , MPI_INT , worker_rank , PRINT , &dummy , 1 , MPI_INT , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
             /* send STOP message. message has no data */
-            MPI_Send(&dummy, 1, MPI_INT, status.MPI_SOURCE,
+            MPI_Send(&dummy, 1, MPI_INT, worker_rank,
                          STOP, MPI_COMM_WORLD);
         }
 
@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
                             my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
                 }
                 int dummy;
-                MPI_Send(&dummy, 1, MPI_INT, ROOT, DONE, MPI_COMM_WORLD);
-                
+                MPI_Sendrecv(&dummy , 1 ,MPI_INT , ROOT , DONE , &dummy , 1 , MPI_INT , ROOT , MPI_ANY_TAG , MPI_COMM_WORLD , &status);
+                tag  = status.MPI_TAG;
             }
 
             if (tag== GET)
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     }
     MPI_Barrier(MPI_COMM_WORLD);
     free(first_str);
-    MPI_Type_free(&mpi_score_alignment_type);
+    //MPI_Type_free(&mpi_score_alignment_type);
     MPI_Finalize();
     return EXIT_SUCCESS;
 }
