@@ -128,9 +128,38 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
     }
     displacements[0] = 0;
 
+
     // Create the custom data type
     MPI_Type_create_struct(4, block_lengths, displacements, types, mpi_score_alignment_type);
     MPI_Type_commit(mpi_score_alignment_type);
 
 }
 
+/*
+  113 |     MPI_Datatype mpi_score_alignment_type;
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~
+omp_MPI_functions.c:110:34: note: ‘MPI_Datatype* mpi_score_alignment_type’ previously declared here
+  110 | void make_datatype(MPI_Datatype* mpi_score_alignment_type)
+      |                    ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+omp_MPI_functions.c:132:68: error: invalid conversion from ‘MPI_Datatype’ {aka ‘int’} to ‘MPI_Datatype*’ {aka ‘int*’} [-fpermissive]
+  132 |     MPI_Type_create_struct(4, block_lengths, displacements, types, mpi_score_alignment_type);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    MPI_Datatype {aka int}
+In file included from /usr/include/x86_64-linux-gnu/mpich/mpi.h:977,
+                 from omp_MPI_functions.c:6:
+/usr/include/x86_64-linux-gnu/mpich/mpi_proto.h:359:79: note:   initializing argument 5 of ‘int MPI_Type_create_struct(int, const int*, const MPI_Aint*, const MPI_Datatype*, MPI_Datatype*)’
+  359 |                            const MPI_Datatype array_of_types[], MPI_Datatype *newtype)
+      |                                                                 ~~~~~~~~~~~~~~^~~~~~~
+omp_MPI_functions.c:133:21: error: invalid conversion from ‘MPI_Datatype’ {aka ‘int’} to ‘MPI_Datatype*’ {aka ‘int*’} [-fpermissive]
+  133 |     MPI_Type_commit(mpi_score_alignment_type);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                     |
+      |                     MPI_Datatype {aka int}
+In file included from /usr/include/x86_64-linux-gnu/mpich/mpi.h:977,
+                 from omp_MPI_functions.c:6:
+/usr/include/x86_64-linux-gnu/mpich/mpi_proto.h:339:35: note:   initializing argument 1 of ‘int MPI_Type_commit(MPI_Datatype*)’
+  339 | int MPI_Type_commit(MPI_Datatype *datatype) MPICH_API_PUBLIC;
+      |                     ~~~~~~~~~~~~~~^~~~~~~~
+
+*/
