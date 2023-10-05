@@ -6,7 +6,9 @@
 #include "mpi.h"
 #include "cFunctions.h"
 #include "main.h"
-#include "omp_functions.h"
+#include "cudaFunctions.h"
+#include "omp_MPI_functions.h"
+#include "struct.h"
 
 int lenght_first_str;
 int number_strings;
@@ -21,7 +23,8 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-
+    MPI_Datatype mpi_score_alignment_type;
+    make_datatype(&mpi_score_alignment_type);
     if (my_rank == 0)
     {
         printf("this is a sequential run\n");
@@ -68,6 +71,7 @@ int main(int argc, char *argv[])
             // caculate_cuda
             char *str_to_check = strings_to_check[i];
             int score;
+            
             if (how_to_caculate == NO_MATRIX_SCORE)
                 score = caculate_cuda_without_matrix(str_to_check, first_str, my_rank);
             else
@@ -80,7 +84,15 @@ int main(int argc, char *argv[])
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
-            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, &dummy, 1, MPI_INT, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            struct score_alignment scores[chunk_size];
+            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, scores, chunk_size, MPI_INT, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            for (int i = 0; i < chunk_size; i++)
+            {
+                printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
+                        my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
+            }
+            
+            
             /* send STOP message. message has no data */
             MPI_Send(&dummy, 1, MPI_INT, worker_rank,
                      STOP, MPI_COMM_WORLD);
@@ -117,11 +129,7 @@ int main(int argc, char *argv[])
         {
             if (tag == PRINT)
             {
-                for (int i = 0; i < chunk_size; i++)
-                {
-                    printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                           my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
-                }
+
                 int dummy;
                 MPI_Send(&dummy, 1, MPI_INT, ROOT, DONE, MPI_COMM_WORLD);
             }
@@ -147,6 +155,8 @@ int main(int argc, char *argv[])
                         caculate_max_score_grade_table(strings[i] , first_str , matrix ,&scores[i]);
                     else
                         caculate_max_score_no_grade_table(strings[i] , first_str ,&scores[i]);
+                    strncpy(scores[i].str , strings[i] , MAX_STRING_SIZE);
+                    scores[i].str[MAX_STRING_SIZE] = '\0';
                     t_omp = clock()-t_omp;
                     time_taken = ((double) t_omp) / CLOCKS_PER_SEC; // in seconds
 	                fprintf(stderr,"\nOpenMP part took %.2f seconds to execute\n", time_taken);
@@ -160,7 +170,7 @@ int main(int argc, char *argv[])
     }
 
     free(first_str);
-
+    MPI_Type_free(&mpi_score_alignment_type);
     MPI_Finalize();
     return EXIT_SUCCESS;
 }

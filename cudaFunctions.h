@@ -4,12 +4,7 @@
 #define MATRIX_SIZE 26
 #define MAX_STRING_SIZE 3000
 
-struct score_alignment {
-    int score;
-    int K;
-    int off_set;
-    char str[MAX_STRING_SIZE];
-};
+
 int device_strlen(const char* str);
 void device_strncpy(char* dest, const char* src, int n);
 char gpu_toupper(char c);
