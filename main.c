@@ -146,7 +146,6 @@ int main(int argc, char *argv[])
             }
             if (tag == WORK)
             {
-                #pragma omp paralle for shared(strings , scores)
                 for (int i = 0; i < chunk_size; i++)
                 {
                     t_omp = clock();

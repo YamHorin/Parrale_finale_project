@@ -15,7 +15,7 @@ int caculate_result_without_matrix(const char* first_str, const char *s2, int of
 {
     int length = strlen(s2);
     int result = 0;
-#pragma omp for reduction(+:result)
+#pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
         if (i >= k)
@@ -34,7 +34,7 @@ int calculate_result_with_matrix(const char* first_str, const char *s2, int matr
     int length = strlen(s2);
     int result = 0;
 
-#pragma omp for reduction(+ : result)
+#pragma omp parallel for reduction(+ : result)
     for (int i = 0; i < length; i++)
     {
 
@@ -133,23 +133,9 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
     displacements[0] = 0;
 
 
-
-
     // Create the custom data type
     MPI_Type_create_struct(4, block_lengths, displacements, types, mpi_score_alignment_type);
     MPI_Type_commit(mpi_score_alignment_type);
 
 }
 
-
-/*
-omp_MPI_functions.c: In function ‘int caculate_result_without_matrix(const char*, const char*, int, int)’:
-omp_MPI_functions.c:18:9: error: reduction variable ‘result’ is private in outer context
-   18 | #pragma omp for reduction(+:result)
-      |         ^~~
-omp_MPI_functions.c: In function ‘int calculate_result_with_matrix(const char*, const char*, int (*)[26], int, int)’:
-omp_MPI_functions.c:37:9: error: reduction variable ‘result’ is private in outer context
-   37 | #pragma omp for reduction(+ : result)
-
-
-*/

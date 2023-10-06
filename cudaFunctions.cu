@@ -201,7 +201,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
 
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc 4 error\n");
+        fprintf(stderr, "CUDA  malloc  error\n");
         exit(1);
     }
     // Copy data from host to device
@@ -211,7 +211,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
 
     if (err1 != cudaSuccess || err2 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc 4 error\n");
+        fprintf(stderr, "CUDA   memcpy  error\n");
         exit(1);
     }
     int threadsPerBlock = 256;
@@ -230,7 +230,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
             err3 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
             if (err3 != cudaSuccess)
             {
-                fprintf(stderr, "CUDA  memcpy 3 error\n");
+                fprintf(stderr, "CUDA  memcpy 2 error\n");
                 exit(1);
             }
             if (result >= max_score)
