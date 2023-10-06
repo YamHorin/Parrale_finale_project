@@ -124,3 +124,22 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
     MPI_Type_commit(mpi_score_alignment_type);
 }
 
+
+MPI_Datatype create_string_array_type(int num_strings)
+{
+    MPI_Datatype string_type, array_of_strings_type;
+    
+    // Create a datatype for a single string
+    MPI_Type_contiguous(MPI_MAX_STRING, MPI_CHAR, &string_type);
+    MPI_Type_commit(&string_type);
+
+    // Create a datatype for an array of strings
+    MPI_Type_contiguous(num_strings, string_type, &array_of_strings_type);
+    MPI_Type_commit(&array_of_strings_type);
+
+    // Free the intermediate datatype (string_type)
+    MPI_Type_free(&string_type);
+
+    return array_of_strings_type;
+}
+
