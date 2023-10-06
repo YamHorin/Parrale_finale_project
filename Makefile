@@ -24,4 +24,4 @@ normal:
 	mpicxx  -fopenmp -o MP  main.o cFunctions.o
 
 normal_run:
-	mpiexec -n 1 ./MP grade_table.txt <input.txt >result_seq.txt
+	mpiexec -n 1 ./MP grade_table.txt <data2.txt >result_seq.txt

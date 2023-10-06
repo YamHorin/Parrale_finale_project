@@ -9,7 +9,7 @@
 #include "cudaFunctions.h"
 #include "omp_MPI_functions.h"
 #include "struct.h"
-
+int chunk_size;
 int lenght_first_str;
 int number_strings;
 char *first_str;
@@ -18,7 +18,7 @@ int matrix[MATRIX_SIZE][MATRIX_SIZE];
 int main(int argc, char *argv[])
 {
     clock_t t_program, t_omp, t_cuda;
-    int my_rank, num_procs ,chunk_size;
+    int my_rank, num_procs;
     double time_taken;
 
     MPI_Init(&argc, &argv);
@@ -51,10 +51,19 @@ int main(int argc, char *argv[])
             strings_to_check[i] = createDynStr();
         }
         chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);
+        printf("%d     \n",chunk_size);
+        
+        char *strings_to_give[chunk_size];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
+            for (int i = 0; i < chunk_size; i++)
+            {
+                strings_to_give[i] = createDynStr();
+            }
+            
+            MPI_Send(strings_to_give ,chunk_size*MAX_STRING_SIZE , MPI_CHAR , worker_rank , WORK , MPI_COMM_WORLD);
         
         }
         t_program = clock();
@@ -75,14 +84,26 @@ int main(int argc, char *argv[])
         t_cuda = clock() - t_cuda;
         time_taken = ((double)t_cuda) / CLOCKS_PER_SEC; // in seconds
         fprintf(stderr, "\nCUDA part took %.2f seconds to execute\n", time_taken);
-        char *strings_to_give[(number_strings-master_chunk_size)];
+
         for (int i = 0; i < (number_strings-master_chunk_size); i++)
         {
             strings_to_give[i]  = createDynStr();
         }
         
         //MPI_Scatter(strings_to_give , chunk_size*MAX_STRING_SIZE ,MPI_CHAR ,NULL , 0 , MPI_INT , ROOT  , MPI_COMM_WORLD);  
-        printf("done\n");    
+        struct score_alignment alignment_scores_finale[chunk_size];
+        for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
+        {
+            MPI_Recv(alignment_scores_finale , chunk_size , mpi_score_alignment_type , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
+            for (int  i = 0; i < chunk_size; i++)
+            {
+                printf("We found that the max score alignment %d is from K - %d and off set - %d\n", alignment_scores_finale[i].score, alignment_scores_finale[i].K, alignment_scores_finale[i].off_set);
+            }
+        }
+        
+        t_program = clock() - t_program;
+        time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
+        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);   
     }
 
     
@@ -105,10 +126,12 @@ int main(int argc, char *argv[])
         int chunk_size;
         MPI_Recv(&chunk_size, 1, MPI_INT,
                  ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
         struct score_alignment alignment_scores_for_strings[chunk_size];
         char strings_to_check[chunk_size][MAX_STRING_SIZE];
-        MPI_Scatter(NULL , 0  , MPI_INT , strings_to_check, chunk_size*MAX_STRING_SIZE , MPI_CHAR , ROOT , MPI_COMM_WORLD);
-        printf("hey\n");
+        MPI_Recv(strings_to_check, chunk_size*MAX_STRING_SIZE, MPI_CHAR,
+                 ROOT, WORK, MPI_COMM_WORLD, &status);
+        //MPI_Scatter(NULL , 0  , MPI_INT , strings_to_check, chunk_size*MAX_STRING_SIZE , MPI_CHAR , ROOT , MPI_COMM_WORLD);
                  t_omp = clock();
                 for (int i = 0; i < chunk_size; i++)
                 {
@@ -123,28 +146,13 @@ int main(int argc, char *argv[])
                 time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
                 fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);  
         MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
-        //MPI_Gather(alignment_scores_for_strings , chunk_size , mpi_score_alignment_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
-
     }
     
 
     if (my_rank==0)
     {
         //MPI_Gather(NULL , 0 , MPI_INT , alignment_scores_finale , chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
-         struct score_alignment alignment_scores_finale[chunk_size];
-        for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
-        {
-            MPI_Recv(alignment_scores_finale , chunk_size , mpi_score_alignment_type , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
-            for (int  i = 0; i < chunk_size; i++)
-            {
-            printf("\nmy_rank [%d]\n",my_rank);
-            printf("We found that the max score alignment %d is from K - %d and off set - %d\n", alignment_scores_finale[i].score, alignment_scores_finale[i].K, alignment_scores_finale[i].off_set);
-            }
-        }
-        
-        t_program = clock() - t_program;
-        time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);
+
     }
 
     free(first_str);
