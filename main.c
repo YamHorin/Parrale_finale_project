@@ -126,22 +126,23 @@ int main(int argc, char *argv[])
 
         struct score_alignment alignment_scores_for_strings[chunk_size];
         char strings_to_check[chunk_size][MAX_STRING_SIZE];
-        MPI_Recv(strings_to_check, chunk_size*MAX_STRING_SIZE, MPI_CHAR,
-                 ROOT, WORK, MPI_COMM_WORLD, &status);
-        //MPI_Scatter(NULL , 0  , MPI_INT , strings_to_check, chunk_size*MAX_STRING_SIZE , MPI_CHAR , ROOT , MPI_COMM_WORLD);
-                 t_omp = clock();
-                for (int i = 0; i < chunk_size; i++)
-                {
-                   
-                    if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-                        caculate_max_score_grade_table(strings_to_check[i], first_str, matrix, &alignment_scores_for_strings[i]);
-                    else
-                        caculate_max_score_no_grade_table(strings_to_check[i], first_str, &alignment_scores_for_strings[i]);
+        //MPI_Recv(strings_to_check, chunk_size*MAX_STRING_SIZE, MPI_CHAR,
+         //        ROOT, WORK, MPI_COMM_WORLD, &status);
+        MPI_Scatter(NULL , 0  , MPI_INT , strings_to_check, chunk_size , string_type , ROOT , MPI_COMM_WORLD);
+        fprintf(stderr  ," %d - %s\n" ,my_rank , strings_to_check[0] );
+            t_omp = clock();
+        for (int i = 0; i < chunk_size; i++)
+        {
+            
+            if (how_to_caculate == THERE_IS_MATRIX_SCORE)
+                caculate_max_score_grade_table(strings_to_check[i], first_str, matrix, &alignment_scores_for_strings[i]);
+            else
+                caculate_max_score_no_grade_table(strings_to_check[i], first_str, &alignment_scores_for_strings[i]);
 
-                }
-                t_omp = clock() - t_omp;
-                time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
-                fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);  
+        }
+        t_omp = clock() - t_omp;
+        time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
+        fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);  
         MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
     }
     
