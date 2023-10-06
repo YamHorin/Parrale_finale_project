@@ -24,14 +24,18 @@ char *createDynStr()
 
 void Mutanat_Squence(char *str, int k, int size_str)
 {
-	for (int i = k; i <= size_str; i++)
+	for (int i = 0; i <= size_str; i++)
 	{
-		if (toupper(*(str + i)) >= 'Z')
-			*(str + i) = 'A';
-		if (i == size_str)
-			*(str + i) = '\0';
-		else
-			*(str + i) = toupper(*((str + i)) + 1);
+		if (i>=k)
+		{
+			if (str[i] =='z')
+				str[i] = 'a';
+			else if (str[i] =='Z')
+				str[i] = 'A';
+			else
+				str[i]++;
+		}
+		str[i] = toupper(str[i]);
 	}
 }
 
