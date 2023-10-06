@@ -30,27 +30,26 @@ int main(int argc, char *argv[])
         printf("this is a sequential run\n");
         init(argc, argv);
         int int_enum = (int)how_to_caculate;
+
         MPI_Bcast(&int_enum, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
         if (how_to_caculate == THERE_IS_MATRIX_SCORE)
             MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);
         MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
         MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);
 
-        MPI_Status status;
         char *str_to_send;
         int str_length;
         int worker_rank;
-        int master_chunk_size , chunk_size;
-        master_chunk_size = number_strings >= num_procs? number_strings/num_procs : num_procs/number_strings;
-        if ((number_strings % num_procs)!=0)
-            master_chunk_size += number_strings >= num_procs? number_strings%num_procs : num_procs%number_strings;
+        int master_chunk_size, chunk_size;
+        master_chunk_size = number_strings >= num_procs ? number_strings / num_procs : num_procs / number_strings;
+        if ((number_strings % num_procs) != 0)
+            master_chunk_size += number_strings >= num_procs ? number_strings % num_procs : num_procs % number_strings;
         char *strings_to_check[master_chunk_size];
         for (int i = 0; i < master_chunk_size; i++)
         {
             strings_to_check[i] = createDynStr();
-
         }
-        chunk_size = (number_strings- master_chunk_size) >= (num_procs-1)? (number_strings- master_chunk_size)/(num_procs-1) : (num_procs-1)/(number_strings- master_chunk_size);
+        chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
@@ -71,15 +70,16 @@ int main(int argc, char *argv[])
             // caculate_cuda
             char *str_to_check = strings_to_check[i];
             int score;
-            
+
             if (how_to_caculate == NO_MATRIX_SCORE)
                 score = caculate_cuda_without_matrix(str_to_check, first_str, my_rank);
             else
                 score = caculate_cuda(str_to_check, first_str, matrix, my_rank);
         }
+
         t_cuda = clock() - t_cuda;
-        time_taken = ((double) t_cuda) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr,"\nCUDA part took %.2f seconds to execute\n", time_taken);
+        time_taken = ((double)t_cuda) / CLOCKS_PER_SEC; // in seconds
+        fprintf(stderr, "\nCUDA part took %.2f seconds to execute\n", time_taken);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
@@ -88,24 +88,22 @@ int main(int argc, char *argv[])
             for (int i = 0; i < chunk_size; i++)
             {
                 printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                        my_rank, alignment_scores_for_strings[i].str, alignment_scores_for_strings[i].score, alignment_scores_for_strings[i].K, alignment_scores_for_strings[i].off_set);
+                       my_rank, alignment_scores_for_strings[i].str, alignment_scores_for_strings[i].score, alignment_scores_for_strings[i].K, alignment_scores_for_strings[i].off_set);
             }
-            
-            
+
             /* send STOP message. message has no data */
             MPI_Send(&dummy, 1, MPI_INT, worker_rank,
                      STOP, MPI_COMM_WORLD);
         }
 
         t_program = clock() - t_program;
-		time_taken = ((double) t_program) / CLOCKS_PER_SEC; // in seconds
-		fprintf(stderr,"\nProgram took %.2f seconds to execute\n", time_taken);
+        time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
+        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);
     }
     else
     {
         int size_str_to_check, enumGet;
         char str_to_check[MAX_STRING_SIZE];
-        
 
         MPI_Bcast(&enumGet, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
 
@@ -122,13 +120,12 @@ int main(int argc, char *argv[])
         MPI_Recv(&chunk_size, 1, MPI_INT,
                  ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         struct score_alignment alignment_scores_for_strings[chunk_size];
-        char strings_to_check[chunk_size][MAX_STRING_SIZE];
         tag = status.MPI_TAG;
         do
         {
             if (tag == PRINT)
             {
-                MPI_Send(alignment_scores_for_strings , chunk_size , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
+                MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
             }
 
             if (tag == GET)
@@ -137,7 +134,7 @@ int main(int argc, char *argv[])
                 {
                     MPI_Recv(&size_str_to_check, 1, MPI_INT,
                              ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                    MPI_Recv(strings_to_check[i], (size_str_to_check + 1) * sizeof(char),
+                    MPI_Recv(alignment_scores_for_strings[i].str, (size_str_to_check + 1) * sizeof(char),
                              MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
                 tag = status.MPI_TAG;
@@ -148,14 +145,12 @@ int main(int argc, char *argv[])
                 {
                     t_omp = clock();
                     if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-                        caculate_max_score_grade_table(strings_to_check[i] , first_str , matrix ,&alignment_scores_for_strings[i]);
+                        caculate_max_score_grade_table(alignment_scores_for_strings[i].str, first_str, matrix, &alignment_scores_for_strings[i]);
                     else
-                        caculate_max_score_no_grade_table(strings_to_check[i] , first_str ,&alignment_scores_for_strings[i]);
-                    strncpy(alignment_scores_for_strings[i].str , strings_to_check[i] , MAX_STRING_SIZE);
-                    alignment_scores_for_strings[i].str[MAX_STRING_SIZE] = '\0';
-                    t_omp = clock()-t_omp;
-                    time_taken = ((double) t_omp) / CLOCKS_PER_SEC; // in seconds
-	                fprintf(stderr,"\nOpenMP part took %.2f seconds to execute\n", time_taken);
+                        caculate_max_score_no_grade_table(alignment_scores_for_strings[i].str, first_str, &alignment_scores_for_strings[i]);
+                    t_omp = clock() - t_omp;
+                    time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
+                    fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);
                 }
             }
             MPI_Recv(&size_str_to_check, 1, MPI_INT,
@@ -195,4 +190,3 @@ void init(int argc, char **argv)
             printf("There was an error reading the matrix.\n");
     }
 }
-
