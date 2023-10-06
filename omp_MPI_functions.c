@@ -59,7 +59,7 @@ int calculate_result_with_matrix(const char* first_str, const char *s2, int matr
     return result;
 }
 
-
+//to fix
 void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
 {
     int lenght_first_str = strlen(first_str);
@@ -68,11 +68,14 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_off_set, max_score = 0;
     int k, max_k, score;
+    
     for (off_set = 0; off_set <= sqn_taries; off_set++)
-    {
+    {   
+
+        
         for (k = 0; k < size_str_to_check; k++)
         {
-            score = caculate_result_without_matrix( first_str, str_to_check,off_set, k);
+
             if (max_score <= score)
             {
                 AS_ptr->K = k;
@@ -94,12 +97,35 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
     int off_set, max_off_set, max_score = 0;
     int k, max_k, score;
 
-    
+    #pragma omp parallel private(k ,off_set ,max_score)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {
+
         for (k = 0; k < size_str_to_check; k++)
         {
-            score = calculate_result_with_matrix( first_str, str_to_check, matrix, off_set, k);
+                #pragma omp for reduction(+ : score)
+                for (int i = 0; i < size_str_to_check; i++)
+                {
+
+                    char c1 = *(first_str + i + off_set);
+                    char c2 = *(str_to_check + i);
+                    c1 = toupper(c1);
+                    c2 = toupper(c2);
+                    int x = c1 - 'A';
+                    int y = c2 - 'A'; 
+                    if (i >= k)
+                    {
+                        y++;
+                        if (c2 == 'Z')
+                            y = 0;
+                    }
+
+                    if (x >= 0 && x < MATRIX_SIZE && y >= 0 && y < MATRIX_SIZE) // Check bounds
+                    {
+                        score += matrix[x][y];
+                    }
+                }
+            #pragma omp critical
             if (max_score <= score)
             {
                 AS_ptr->K = k;

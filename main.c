@@ -81,16 +81,16 @@ int main(int argc, char *argv[])
         t_cuda = clock() - t_cuda;
         time_taken = ((double) t_cuda) / CLOCKS_PER_SEC; // in seconds
         fprintf(stderr,"\nCUDA part took %.2f seconds to execute\n", time_taken);
-        //struct score_alignment scores[chunk_size];
+        //struct score_alignment alignment_scores_for_strings[chunk_size];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
-            struct score_alignment scores[chunk_size];
-            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, scores, chunk_size, mpi_score_alignment_type, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            struct score_alignment alignment_scores_for_strings[chunk_size];
+            MPI_Sendrecv(&dummy, 1, MPI_INT, worker_rank, PRINT, alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             for (int i = 0; i < chunk_size; i++)
             {
                 printf("\nmy_rank [%d] for the string %s \nWe found that the max score alignment %d is from K  - %d and off set - %d  \n",
-                        my_rank, scores[i].str, scores[i].score, scores[i].K, scores[i].off_set);
+                        my_rank, alignment_scores_for_strings[i].str, alignment_scores_for_strings[i].score, alignment_scores_for_strings[i].K, alignment_scores_for_strings[i].off_set);
             }
             
             
@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
     {
         int size_str_to_check, enumGet;
         char str_to_check[MAX_STRING_SIZE];
+        
 
         MPI_Bcast(&enumGet, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
 
@@ -122,15 +123,14 @@ int main(int argc, char *argv[])
         int chunk_size;
         MPI_Recv(&chunk_size, 1, MPI_INT,
                  ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-        char strings[chunk_size][MAX_STRING_SIZE];
+        struct score_alignment alignment_scores_for_strings[chunk_size];
+        char strings_to_check[chunk_size][MAX_STRING_SIZE];
         tag = status.MPI_TAG;
-        struct score_alignment AS_max;
-        struct score_alignment scores[chunk_size];
         do
         {
             if (tag == PRINT)
             {
-                MPI_Send(scores , chunk_size , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
+                MPI_Send(alignment_scores_for_strings , chunk_size , mpi_score_alignment_type , ROOT , DONE , MPI_COMM_WORLD);
             }
 
             if (tag == GET)
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                 {
                     MPI_Recv(&size_str_to_check, 1, MPI_INT,
                              ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-                    MPI_Recv(strings[i], (size_str_to_check + 1) * sizeof(char),
+                    MPI_Recv(strings_to_check[i], (size_str_to_check + 1) * sizeof(char),
                              MPI_CHAR, ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
                 tag = status.MPI_TAG;
@@ -150,11 +150,11 @@ int main(int argc, char *argv[])
                 {
                     t_omp = clock();
                     if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-                        caculate_max_score_grade_table(strings[i] , first_str , matrix ,&scores[i]);
+                        caculate_max_score_grade_table(strings_to_check[i] , first_str , matrix ,&alignment_scores_for_strings[i]);
                     else
-                        caculate_max_score_no_grade_table(strings[i] , first_str ,&scores[i]);
-                    strncpy(scores[i].str , strings[i] , MAX_STRING_SIZE);
-                    scores[i].str[MAX_STRING_SIZE] = '\0';
+                        caculate_max_score_no_grade_table(strings_to_check[i] , first_str ,&alignment_scores_for_strings[i]);
+                    strncpy(alignment_scores_for_strings[i].str , strings_to_check[i] , MAX_STRING_SIZE);
+                    alignment_scores_for_strings[i].str[MAX_STRING_SIZE] = '\0';
                     t_omp = clock()-t_omp;
                     time_taken = ((double) t_omp) / CLOCKS_PER_SEC; // in seconds
 	                fprintf(stderr,"\nOpenMP part took %.2f seconds to execute\n", time_taken);

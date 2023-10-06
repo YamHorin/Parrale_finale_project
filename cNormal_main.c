@@ -58,10 +58,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     printf("this is a normal run\n");
+    double t_start = MPI_Wtime();
       init(argc, argv);
-      double t_start = MPI_Wtime();
-      MPI_Bcast(&lenght_first_str , 1 , MPI_INT , ROOT , MPI_COMM_WORLD);
-      MPI_Bcast(first_str ,lenght_first_str * sizeof(char) , MPI_CHAR , ROOT , MPI_COMM_WORLD);
       char* str_to_check;
       int score;
         for (int tasks_done = 0; tasks_done<number_strings; tasks_done++)
