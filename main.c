@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             strings_to_give[i]  = createDynStr();
         }
         
-        //MPI_Scatter(strings_to_give , chunk_size*MAX_STRING_SIZE ,MPI_CHAR ,NULL , 0 , MPI_INT , ROOT  , MPI_COMM_WORLD);  
+        MPI_Scatter(strings_to_give , chunk_size*MAX_STRING_SIZE ,MPI_CHAR ,NULL , 0 , MPI_INT , ROOT  , MPI_COMM_WORLD);  
         struct score_alignment alignment_scores_finale[chunk_size];
         for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {

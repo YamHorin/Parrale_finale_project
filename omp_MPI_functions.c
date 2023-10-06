@@ -130,7 +130,7 @@ MPI_Datatype create_string_array_type(int num_strings)
     MPI_Datatype string_type, array_of_strings_type;
     
     // Create a datatype for a single string
-    MPI_Type_contiguous(MPI_MAX_STRING, MPI_CHAR, &string_type);
+    MPI_Type_contiguous(MAX_STRING_SIZE, MPI_CHAR, &string_type);
     MPI_Type_commit(&string_type);
 
     // Create a datatype for an array of strings
