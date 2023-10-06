@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
             printf("\nmy_rank [0] for the string %s \nI found that the max score alignment %d is from K  - %d and off set - %d  \n",
             localMax.str, localMax.score , localMax.K , localMax.off_set);
         }
-        fprintf(stderr,"sequential time: %f secs\n", MPI_Wtime() - t_start);
-    MPI_Finalize();
+    fprintf(stderr,"sequential time: %f secs\n", MPI_Wtime() - t_start);
+     MPI_Finalize();
     return EXIT_SUCCESS;
     }
 
