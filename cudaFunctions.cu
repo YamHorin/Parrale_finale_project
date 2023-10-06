@@ -170,7 +170,6 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     cudaFree(d_matrix);
     cudaFree(dev_result);
     // Print the result
-    printf("\nmy_rank [%d] For the string %s,\n",my_rank, str_to_check);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
     return 0;
@@ -247,7 +246,6 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
     cudaFree(d_first_str);
     cudaFree(dev_result);
     // Print the result
-    printf("\nmy_rank [%d]\n",my_rank);
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
     return 0;

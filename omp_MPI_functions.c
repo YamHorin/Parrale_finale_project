@@ -122,6 +122,5 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
     // Create the custom data type
     MPI_Type_create_struct(3, block_lengths, displacements, types, mpi_score_alignment_type);
     MPI_Type_commit(mpi_score_alignment_type);
-
 }
 
