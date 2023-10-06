@@ -125,7 +125,7 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 }
 
 
-MPI_Datatype create_string_type(int num_strings)
+MPI_Datatype create_string_type()
 {
     MPI_Datatype string_type;
     
