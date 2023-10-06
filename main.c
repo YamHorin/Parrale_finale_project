@@ -40,23 +40,22 @@ int main(int argc, char *argv[])
         char *str_to_send;
         int str_length;
         int worker_rank;
-
-        int chunk_size = number_strings >= num_procs? number_strings/num_procs : num_procs/number_strings;
-        if (number_strings % num_procs)
-            chunk_size += number_strings >= num_procs? number_strings%num_procs : num_procs%number_strings;
-        char *strings_to_check[chunk_size];
-        for (int i = 0; i < chunk_size; i++)
+        int master_chunk_size , chunk_size;
+        master_chunk_size = number_strings >= num_procs? number_strings/num_procs : num_procs/number_strings;
+        if ((number_strings % num_procs)!=0)
+            master_chunk_size += number_strings >= num_procs? number_strings%num_procs : num_procs%number_strings;
+        char *strings_to_check[master_chunk_size];
+        for (int i = 0; i < master_chunk_size; i++)
         {
             strings_to_check[i] = createDynStr();
+
         }
-        chunk_size = (number_strings- chunk_size) >= (num_procs-1)? (number_strings- chunk_size)/(num_procs-1) : (num_procs-1)/(number_strings- chunk_size);
+        chunk_size = (number_strings- master_chunk_size) >= (num_procs-1)? (number_strings- master_chunk_size)/(num_procs-1) : (num_procs-1)/(number_strings- master_chunk_size);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
-            int start = (chunk_size * worker_rank);
-            int finish = (chunk_size * worker_rank) + chunk_size;
-            for (int i = start; i < finish; i++)
+            for (int i = 0; i < chunk_size; i++)
             {
                 str_to_send = createDynStr();
                 str_length = strlen(str_to_send);
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
         t_program = clock();
         t_cuda = clock();
 
-        for (int i = 0; i < chunk_size; i++)
+        for (int i = 0; i < master_chunk_size; i++)
         {
             // caculate_cuda
             char *str_to_check = strings_to_check[i];
@@ -81,7 +80,6 @@ int main(int argc, char *argv[])
         t_cuda = clock() - t_cuda;
         time_taken = ((double) t_cuda) / CLOCKS_PER_SEC; // in seconds
         fprintf(stderr,"\nCUDA part took %.2f seconds to execute\n", time_taken);
-        //struct score_alignment alignment_scores_for_strings[chunk_size];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             int dummy = 0;
