@@ -9,53 +9,12 @@
 #define ROOT 0
 #define MAX_STRING_SIZE 3000
 
-
-void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+void caculate_max_score_grade_table(char* str_to_check , char* first_str , int matrix[MATRIX_SIZE][MATRIX_SIZE] , struct score_alignment* AS_ptr)
 {
+    struct score_alignment AS;
     #pragma omp declare reduction(AS_max_func : struct score_alignment : \
                         omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
     initializer(omp_priv = omp_orig)
-    int lenght_first_str = strlen(first_str);
-    int size_str_to_check = strlen(str_to_check);
-    int sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
-                                                        : (size_str_to_check - lenght_first_str);
-    int off_set, max_score = 0;
-    int k, max_k, score=0;
-    #pragma omp parallel firstprivate(max_score , off_set , k)
-    for (off_set = 0; off_set <= sqn_taries; off_set++)
-    {   
-
-        fprintf(stderr, "off_set %d thread num = %d num threads = %d\n",off_set , omp_get_thread_num() ,omp_get_num_threads());
-        #pragma omp for reduction(AS_max_func : AS_ptr)
-        for (k = 0; k < size_str_to_check; k++)
-        {
-            score = 0;
-           #pragma omp for reduction(+ : score)
-            for (int i = 0; i < size_str_to_check; i++)
-            {
-                if (i >= k)
-                    score = (*((first_str + i) + off_set) == toupper(*((str_to_check + i)) + 1));
-                else
-                {
-                    if (*((first_str + i) + off_set) == str_to_check[i])
-                        score++;
-                }
-            }
-            #pragma omp critical
-            if (max_score <= score)
-            {
-                AS_ptr->K = k;
-                AS_ptr->off_set = off_set;
-                AS_ptr->score = score;
-                max_score = score;
-            }
-        }
-    }
-}
-
-
-void caculate_max_score_grade_table(char* str_to_check , char* first_str , int matrix[MATRIX_SIZE][MATRIX_SIZE] , struct score_alignment* AS_ptr)
-{
     int lenght_first_str = strlen(first_str);
     int size_str_to_check = strlen(str_to_check);
     int sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
@@ -66,7 +25,7 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
     #pragma omp parallel private(k ,off_set ,max_score)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {
-
+        #pragma omp for reduction(AS_max_func : AS)
         for (k = 0; k < size_str_to_check; k++)
         {
                 #pragma omp for reduction(+ : score)
@@ -101,8 +60,60 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
             }
         }
     }
+    AS_ptr->K = AS.K;
+    AS_ptr->off_set = AS.off_set;
+    AS_ptr->score = AS.score;
 
 }
+void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
+{
+    struct score_alignment AS;
+    #pragma omp declare reduction(AS_max_func : struct score_alignment : \
+                        omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
+    initializer(omp_priv = omp_orig)
+    int lenght_first_str = strlen(first_str);
+    int size_str_to_check = strlen(str_to_check);
+    int sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
+                                                        : (size_str_to_check - lenght_first_str);
+    int off_set, max_score = 0;
+    int k, max_k, score=0;
+    #pragma omp parallel firstprivate(max_score , off_set , k)
+    for (off_set = 0; off_set <= sqn_taries; off_set++)
+    {   
+
+        fprintf(stderr, "off_set %d thread num = %d num threads = %d\n",off_set , omp_get_thread_num() ,omp_get_num_threads());
+        #pragma omp for reduction(AS_max_func : AS)
+        for (k = 0; k < size_str_to_check; k++)
+        {
+            score = 0;
+           #pragma omp for reduction(+ : score)
+            for (int i = 0; i < size_str_to_check; i++)
+            {
+                if (i >= k)
+                    score = (*((first_str + i) + off_set) == toupper(*((str_to_check + i)) + 1));
+                else
+                {
+                    if (*((first_str + i) + off_set) == str_to_check[i])
+                        score++;
+                }
+            }
+            #pragma omp critical
+            if (max_score <= score)
+            {
+                AS.K = k;
+                AS.off_set = off_set;
+                AS.score = score;
+                max_score = score;
+            }
+        }
+    }
+                    AS_ptr->K = AS.K;
+                AS_ptr->off_set = AS.off_set;
+                AS_ptr->score = AS.score;
+}
+
+
+
 
 void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 {
@@ -131,14 +142,13 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 }
 
 
-MPI_Datatype create_string_type()
-{
-    MPI_Datatype string_type;
-    
-    // Create a datatype for a single string
-    MPI_Type_contiguous(MAX_STRING_SIZE, MPI_CHAR, &string_type);
-    MPI_Type_commit(&string_type);
-
-    return strings_type;
-}
-
+/*
+omp_MPI_functions.c: In function ‘void caculate_max_score_grade_table(char*, char*, int (*)[26], score_alignment*)’:
+omp_MPI_functions.c:31:25: error: work-sharing region may not be closely nested inside of work-sharing, ‘loop’, ‘critical’, ‘ordered’, ‘master’, explicit ‘task’ or ‘taskloop’ region
+   31 |                 #pragma omp for reduction(+ : score)
+      |                         ^~~
+omp_MPI_functions.c: In function ‘void caculate_max_score_no_grade_table(char*, char*, score_alignment*)’:
+omp_MPI_functions.c:89:20: error: work-sharing region may not be closely nested inside of work-sharing, ‘loop’, ‘critical’, ‘ordered’, ‘master’, explicit ‘task’ or ‘taskloop’ region
+   89 |            #pragma omp for reduction(+ : score)
+      |                    ^~~
+*/
