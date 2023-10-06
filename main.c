@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-    MPI_Datatype mpi_score_alignment_type;
+    MPI_Datatype mpi_score_alignment_type ,string_type;
+    string_type = create_string_type();
     make_datatype(&mpi_score_alignment_type);
     if (my_rank == 0)
     {
@@ -50,22 +51,18 @@ int main(int argc, char *argv[])
         {
             strings_to_check[i] = createDynStr();
         }
-        chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);
-        printf("%d     \n",chunk_size);
-        
-        char *strings_to_give[chunk_size];
+        chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);        
+        char *strings_to_give[(number_strings-master_chunk_size)];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
-            for (int i = 0; i < chunk_size; i++)
-            {
-                strings_to_give[i] = createDynStr();
-            }
-            
-            MPI_Send(strings_to_give ,chunk_size*MAX_STRING_SIZE , MPI_CHAR , worker_rank , WORK , MPI_COMM_WORLD);
-        
         }
+        for (int i = 0; i < (number_strings-master_chunk_size); i++)
+        {
+            strings_to_give[i] = createDynStr();
+        }
+        MPI_Scatter(strings_to_give , chunk_size , string_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
         t_program = clock();
         t_cuda = clock();
 
