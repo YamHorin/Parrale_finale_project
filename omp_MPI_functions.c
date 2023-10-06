@@ -12,17 +12,21 @@
 
 void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , struct score_alignment* AS_ptr)
 {
+    #pragma omp declare reduction(AS_max_func : struct score_alignment : \
+                        omp_out = (omp_out.score > omp_in.score ? omp_out : omp_in)) \
+    initializer(omp_priv = omp_orig)
     int lenght_first_str = strlen(first_str);
     int size_str_to_check = strlen(str_to_check);
     int sqn_taries = (size_str_to_check < lenght_first_str) ? (lenght_first_str - size_str_to_check)
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_score = 0;
-    int k, max_k, score;
-    #pragma omp parallel private(k ,off_set ,max_score)
+    int k, max_k, score=0;
+    #pragma omp parallel firstprivate(max_score)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {   
 
         fprintf(stderr, "off_set %d thread num = %d num threads = %d\n",off_set , omp_get_thread_num() ,omp_get_num_threads());
+        #pragma omp for reduction(AS_max_func : AS_ptr)
         for (k = 0; k < size_str_to_check; k++)
         {
            #pragma omp for reduction(+ : score)
