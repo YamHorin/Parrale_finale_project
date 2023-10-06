@@ -24,7 +24,7 @@ char *createDynStr()
 
 void Mutanat_Squence(char *str, int k, int size_str)
 {
-	for (int i = 0; i <= size_str; i++)
+	for (int i = 0; i < size_str; i++)
 	{
 		if (i>=k)
 		{
