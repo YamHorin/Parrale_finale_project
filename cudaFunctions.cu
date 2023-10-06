@@ -27,8 +27,8 @@ __device__ void device_strncpy(char *dest, const char *src, int n)
 
 __device__ char gpu_toupper(char c)
 {
-    if (c >= 'a' && c <= 'A')
-        return c - ('a' - 'A');
+    if (c >= 'a' && c <= 'z')
+        return (c -'a') + 'A';
     return c;
 }
 __global__ void caculate_result_without_matrix(char *str_to_check, char *first_str, int size_second_str, int *result, int off_set, int k)
@@ -65,6 +65,8 @@ __global__ void caculate_result(char *str_to_check, char *first_str, int size_se
 {
     __shared__ int r;
     int value;
+    int x,y;
+    char a,b;
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid == 0)
         r = 0;
@@ -72,17 +74,21 @@ __global__ void caculate_result(char *str_to_check, char *first_str, int size_se
     if (tid < size_second_str)
     {
         int i = tid;
+        a = first_str[i + off_set];
+        a = gpu_toupper(a);
+        b = str_to_check[i];
+        b = gpu_toupper(b);
         if (tid >= k)
         {
-
-            int x = gpu_toupper(first_str[i + off_set]) - 'A';
-            int y = (gpu_toupper(str_to_check[i]) + 1) - 'A';
+            b++;
+            x = a - 'A';
+            y = b - 'A';
             value = matrix[x * MATRIX_SIZE + y];
         }
         else
         {
-            int x = gpu_toupper(first_str[i + off_set]) - 'A';
-            int y = (gpu_toupper(str_to_check[i])) - 'A';
+            x = a - 'A';
+            y = b - 'A';
             value = matrix[x * MATRIX_SIZE + y];
         }
         atomicAdd(&r, value);
@@ -138,7 +144,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
 
     int threadsPerBlock = 256;
     int result = 0;
-    int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
+    int blocksPerGrid = (size_str_to_check > threadsPerBlock) ? size_str_to_check / threadsPerBlock : 1;
     int max_score = 0;
     int sqn_taries = (size_str_to_check < size_first_str) ? (size_first_str - size_str_to_check) : (size_str_to_check - size_first_str);
 
