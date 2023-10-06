@@ -17,7 +17,7 @@ int matrix[MATRIX_SIZE][MATRIX_SIZE];
 
 int main(int argc, char *argv[])
 {
-    clock_t t_program = clock(), t_omp, t_cuda;
+    clock_t t_program, t_omp, t_cuda;
     int my_rank, num_procs;
     double time_taken;
     MPI_Init(&argc, &argv);
@@ -41,15 +41,15 @@ int main(int argc, char *argv[])
         int str_length;
         int worker_rank;
 
-        int chunk_size = number_strings > num_procs? number_strings/num_procs : num_procs/number_strings;
+        int chunk_size = number_strings >= num_procs? number_strings/num_procs : num_procs/number_strings;
         if (number_strings % num_procs)
-            chunk_size += number_strings > num_procs? number_strings%num_procs : num_procs%number_strings;
+            chunk_size += number_strings >= num_procs? number_strings%num_procs : num_procs%number_strings;
         char *strings_to_check[chunk_size];
         for (int i = 0; i < chunk_size; i++)
         {
             strings_to_check[i] = createDynStr();
         }
-        chunk_size = number_strings > num_procs? number_strings/num_procs : num_procs/number_strings;
+        chunk_size = (number_strings- chunk_size) >= (num_procs-1)? (number_strings- chunk_size)/(num_procs-1) : (num_procs-1)/(number_strings- chunk_size);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
                 MPI_Send(str_to_send, (str_length + 1) * sizeof(char), MPI_CHAR, worker_rank, WORK, MPI_COMM_WORLD);
             }
         }
+        t_program = clock();
         t_cuda = clock();
 
         for (int i = 0; i < chunk_size; i++)
@@ -145,9 +146,9 @@ int main(int argc, char *argv[])
             }
             if (tag == WORK)
             {
+                #pragma omp paralle for shared(strings , scores)
                 for (int i = 0; i < chunk_size; i++)
                 {
-
                     t_omp = clock();
                     if (how_to_caculate == THERE_IS_MATRIX_SCORE)
                         caculate_max_score_grade_table(strings[i] , first_str , matrix ,&scores[i]);
