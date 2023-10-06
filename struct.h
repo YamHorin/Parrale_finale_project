@@ -10,6 +10,7 @@ struct score_alignment {
     int score;
     int K;
     int off_set;
+    char str [MAX_STRING_SIZE]
 };
 
 #endif

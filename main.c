@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
             strings_to_check[i] = createDynStr();
         }
         chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);        
-        char *strings_to_give[(number_strings-master_chunk_size)];
+       struct score_alignment strings_to_give[(number_strings-master_chunk_size)];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
 
@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < (number_strings-master_chunk_size); i++)
         {
-            strings_to_give[i] = createDynStr();
+            strings_to_give[i].str = createDynStr();
         }
-        MPI_Scatter(strings_to_give , chunk_size , string_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
+        MPI_Scatter(strings_to_give , chunk_size , mpi_score_alignment_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
         t_program = clock();
         t_cuda = clock();
 
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         char strings_to_check[chunk_size][MAX_STRING_SIZE];
         //MPI_Recv(strings_to_check, chunk_size*MAX_STRING_SIZE, MPI_CHAR,
          //        ROOT, WORK, MPI_COMM_WORLD, &status);
-        MPI_Scatter(NULL , 0  , MPI_INT , strings_to_check, chunk_size , string_type , ROOT , MPI_COMM_WORLD);
+        MPI_Scatter(NULL , 0  , MPI_INT , alignment_scores_for_strings, chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
         fprintf(stderr  ," %d - %s\n" ,my_rank , strings_to_check[0] );
             t_omp = clock();
         for (int i = 0; i < chunk_size; i++)
@@ -146,12 +146,6 @@ int main(int argc, char *argv[])
         MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
     }
     
-
-    if (my_rank==0)
-    {
-        //MPI_Gather(NULL , 0 , MPI_INT , alignment_scores_finale , chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
-
-    }
 
     free(first_str);
     MPI_Type_free(&mpi_score_alignment_type);
