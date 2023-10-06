@@ -102,18 +102,17 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
 void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 {
     // making new type-struct score_alignment
-    MPI_Datatype types[4] = {MPI_CHAR, MPI_INT, MPI_INT, MPI_INT};
-    int block_lengths[4] = {MAX_STRING_SIZE, 1, 1, 1}; // Initialized to zeros
-    MPI_Aint displacements[4];
+    MPI_Datatype types[3] = { MPI_INT, MPI_INT, MPI_INT};
+    int block_lengths[3] = { 1, 1, 1}; // Initialized to zeros
+    MPI_Aint displacements[3];
     struct score_alignment temp; // Used to calculate displacements
 
     // Calculate displacements
-    MPI_Get_address(&temp.str, &displacements[0]);
-    MPI_Get_address(&temp.off_set, &displacements[1]);
-    MPI_Get_address(&temp.K, &displacements[2]);
-    MPI_Get_address(&temp.score, &displacements[3]);
+    MPI_Get_address(&temp.off_set,&displacements[0]);
+    MPI_Get_address(&temp.K,&displacements[1]);
+    MPI_Get_address(&temp.score,&displacements[2]);
 
-    for (int i = 3; i > 0; i--)
+    for (int i = 2; i > 0; i--)
     {
         displacements[i] -= displacements[0];
     }
@@ -121,7 +120,7 @@ void make_datatype(MPI_Datatype* mpi_score_alignment_type)
 
 
     // Create the custom data type
-    MPI_Type_create_struct(4, block_lengths, displacements, types, mpi_score_alignment_type);
+    MPI_Type_create_struct(3, block_lengths, displacements, types, mpi_score_alignment_type);
     MPI_Type_commit(mpi_score_alignment_type);
 
 }
