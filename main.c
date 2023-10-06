@@ -24,8 +24,7 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-    MPI_Datatype mpi_score_alignment_type ,string_type;
-    string_type = create_string_type();
+    MPI_Datatype mpi_score_alignment_type;
     make_datatype(&mpi_score_alignment_type);
     if (my_rank == 0)
     {
@@ -46,23 +45,24 @@ int main(int argc, char *argv[])
         master_chunk_size = number_strings >= num_procs ? number_strings / num_procs : num_procs / number_strings;
         if ((number_strings % num_procs) != 0)
             master_chunk_size += number_strings >= num_procs ? number_strings % num_procs : num_procs % number_strings;
-        char *strings_to_check[master_chunk_size];
+        char strings_to_check[master_chunk_size][MAX_STRING_SIZE];
         for (int i = 0; i < master_chunk_size; i++)
         {
-            strings_to_check[i] = createDynStr();
+             scanf("%s",strings_to_check[i]);
         }
         chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);        
-       struct score_alignment strings_to_give[(number_strings-master_chunk_size)];
+       struct score_alignment strings_to_give[chunk_size];
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-
+            for (int i = 0; i < chunk_size; i++)
+            {
+                scanf("%s",strings_to_give[i].str);
+            }
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
+            MPI_Send(strings_to_give, chunk_size, mpi_score_alignment_type, worker_rank, WORK, MPI_COMM_WORLD);
         }
-        for (int i = 0; i < (number_strings-master_chunk_size); i++)
-        {
-            strings_to_give[i].str = createDynStr();
-        }
-        MPI_Scatter(strings_to_give , chunk_size , mpi_score_alignment_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
+
+        //MPI_Scatter(strings_to_give , chunk_size , mpi_score_alignment_type , NULL , 0 , MPI_INT , ROOT , MPI_COMM_WORLD);
         t_program = clock();
         t_cuda = clock();
 
@@ -81,13 +81,6 @@ int main(int argc, char *argv[])
         t_cuda = clock() - t_cuda;
         time_taken = ((double)t_cuda) / CLOCKS_PER_SEC; // in seconds
         fprintf(stderr, "\nCUDA part took %.2f seconds to execute\n", time_taken);
-
-        for (int i = 0; i < (number_strings-master_chunk_size); i++)
-        {
-            strings_to_give[i]  = createDynStr();
-        }
-        
-        MPI_Scatter(strings_to_give , chunk_size*MAX_STRING_SIZE ,MPI_CHAR ,NULL , 0 , MPI_INT , ROOT  , MPI_COMM_WORLD);  
         struct score_alignment alignment_scores_finale[chunk_size];
         for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
@@ -126,18 +119,18 @@ int main(int argc, char *argv[])
 
         struct score_alignment alignment_scores_for_strings[chunk_size];
         char strings_to_check[chunk_size][MAX_STRING_SIZE];
-        //MPI_Recv(strings_to_check, chunk_size*MAX_STRING_SIZE, MPI_CHAR,
-         //        ROOT, WORK, MPI_COMM_WORLD, &status);
-        MPI_Scatter(NULL , 0  , MPI_INT , alignment_scores_for_strings, chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
-        fprintf(stderr  ," %d - %s\n" ,my_rank , strings_to_check[0] );
+        MPI_Recv(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type,
+                ROOT, WORK, MPI_COMM_WORLD, &status);
+        //MPI_Scatter(NULL , 0  , MPI_INT , alignment_scores_for_strings, chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
+        fprintf(stderr  ," %d - %s\n" ,my_rank , alignment_scores_for_strings[0].str );
             t_omp = clock();
         for (int i = 0; i < chunk_size; i++)
         {
             
             if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-                caculate_max_score_grade_table(strings_to_check[i], first_str, matrix, &alignment_scores_for_strings[i]);
+                caculate_max_score_grade_table(alignment_scores_for_strings[i].str, first_str, matrix, &alignment_scores_for_strings[i]);
             else
-                caculate_max_score_no_grade_table(strings_to_check[i], first_str, &alignment_scores_for_strings[i]);
+                caculate_max_score_no_grade_table(alignment_scores_for_strings[i].str, first_str, &alignment_scores_for_strings[i]);
 
         }
         t_omp = clock() - t_omp;

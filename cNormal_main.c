@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
                     
                     for (int k =0; k < size_str_to_check; k++)
                     { 
+                        score = 0;
                         strcpy(str_to_check ,localMax.str);
                           Mutanat_Squence(str_to_check ,k,size_str_to_check);
                           

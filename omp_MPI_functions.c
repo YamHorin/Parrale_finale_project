@@ -21,7 +21,7 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_score = 0;
     int k, max_k, score=0;
-    #pragma omp parallel firstprivate(max_score)
+    #pragma omp parallel firstprivate(max_score , off_set , k)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {   
 
@@ -29,6 +29,7 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
         #pragma omp for reduction(AS_max_func : AS_ptr)
         for (k = 0; k < size_str_to_check; k++)
         {
+            score = 0;
            #pragma omp for reduction(+ : score)
             for (int i = 0; i < size_str_to_check; i++)
             {
