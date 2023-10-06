@@ -18,12 +18,14 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_score = 0;
     int k, max_k, score;
-    #pragma omp parallel private(k ,off_set ,max_score)
+    //#pragma omp parallel private(k ,off_set ,max_score)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {   
+
+        fprintf(stderr, "off_set %d thread num = %d num threads = %d\n",off_set , omp_get_thread_num() ,omp_get_num_threads());
         for (k = 0; k < size_str_to_check; k++)
         {
-            #pragma omp for reduction(+ : score)
+           // #pragma omp for reduction(+ : score)
             for (int i = 0; i < size_str_to_check; i++)
             {
                 if (i >= k)
@@ -34,7 +36,7 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                         score++;
                 }
             }
-            #pragma omp critical
+            //#pragma omp critical
             if (max_score <= score)
             {
                 AS_ptr->K = k;

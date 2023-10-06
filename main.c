@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
+    
 
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
             for (int i = 0; i < chunk_size; i++)

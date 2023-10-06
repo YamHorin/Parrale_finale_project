@@ -121,7 +121,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
 
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess || err4 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc 4 error\n");
+        fprintf(stderr, "CUDA  malloc error\n");
         exit(1);
     }
     // Copy data from host to device
@@ -132,7 +132,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     err3 = cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc 4 error\n");
+        fprintf(stderr, "CUDA  memcpy 1-3 error\n");
         exit(1);
     }
 
