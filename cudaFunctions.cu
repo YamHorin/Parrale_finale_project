@@ -5,24 +5,6 @@
 #include <cuda_runtime.h>
 #include "struct.h"
 
-__device__ int device_strlen(const char *str)
-{
-    int length = 0;
-    while (str[length] != '\0')
-    {
-        length++;
-    }
-    return length;
-}
-
-__device__ void device_strncpy(char *dest, const char *src, int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        dest[i] = src[i];
-    }
-    dest[n] = '\0';
-}
 
 __device__ char gpu_toupper(char c)
 {
