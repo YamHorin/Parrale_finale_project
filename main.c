@@ -19,7 +19,7 @@ int matrix[MATRIX_SIZE][MATRIX_SIZE];
 
 int main(int argc, char *argv[])
 {
-    clock_t t_program, t_omp, t_cuda;
+    clock_t t_program;
     int my_rank, num_procs;
     double time_taken;
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     make_datatype(&mpi_score_alignment_type); // func in omp_mpi_functions
     if (my_rank == 0)
     {
-        printf("this is a sequential run\n");
+        printf("this is a paralell run\n");
         init(argc, argv); // reads the first str and file grade table
         int int_enum = (int)how_to_caculate;
 
@@ -70,8 +70,6 @@ int main(int argc, char *argv[])
             MPI_Send(strings_to_give, chunk_size, mpi_score_alignment_type, worker_rank, WORK, MPI_COMM_WORLD);
         }
         t_program = clock();
-        t_cuda = clock();
-        // clock to see how much the cuda part is taking
         // for each string in strings_to_check we caculate the result and print-the print happend in the caculate cuda
         for (int i = 0; i < master_chunk_size; i++)
         {
@@ -84,9 +82,6 @@ int main(int argc, char *argv[])
                 score = caculate_cuda(str_to_check, first_str, matrix, my_rank);
         }
 
-        t_cuda = clock() - t_cuda;
-        time_taken = ((double)t_cuda) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nCUDA part took %.2f seconds to execute\n", time_taken);
         struct score_alignment alignment_scores_finale[chunk_size];
         // for each procs that isn't the master - we recv the info and print it
         for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
@@ -100,7 +95,7 @@ int main(int argc, char *argv[])
         // the main time that took for the program
         t_program = clock() - t_program;
         time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);
+        fprintf(stderr, "\nparallel program took %.2f seconds to execute\n", time_taken);
     }
 
     else
@@ -124,7 +119,7 @@ int main(int argc, char *argv[])
         MPI_Recv(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type,
                  ROOT, WORK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        t_omp = clock(); // to see how much the omp part of the program takes
+       
         // using a parallel space in the main
         #pragma omp parallel for shared(alignment_scores_for_strings)
         for (int i = 0; i < chunk_size; i++)
@@ -135,9 +130,7 @@ int main(int argc, char *argv[])
             else
                 caculate_max_score_no_grade_table(alignment_scores_for_strings[i].str, first_str, &alignment_scores_for_strings[i]);
         }
-        t_omp = clock() - t_omp;
-        time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);
+        
         MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
     }
 

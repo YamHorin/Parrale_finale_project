@@ -123,4 +123,3 @@ void make_datatype(MPI_Datatype *mpi_score_alignment_type)
     MPI_Type_commit(mpi_score_alignment_type);
 }
 
-I've added comments to explain the purpose and functionality of each function in your code.
