@@ -10,7 +10,7 @@
 #include "omp_MPI_functions.h"
 #include "struct.h"
 
-//static values
+// static values
 int chunk_size;
 int lenght_first_str;
 int number_strings;
@@ -26,28 +26,28 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-    MPI_Datatype mpi_score_alignment_type;//datatype to sending the result to proc 0 for the other procs
-    make_datatype(&mpi_score_alignment_type);// func in omp_mpi_functions
+    MPI_Datatype mpi_score_alignment_type;    // datatype to sending the result to proc 0 for the other procs
+    make_datatype(&mpi_score_alignment_type); // func in omp_mpi_functions
     if (my_rank == 0)
     {
         printf("this is a sequential run\n");
-        init(argc, argv);//reads the first str and file grade table
+        init(argc, argv); // reads the first str and file grade table
         int int_enum = (int)how_to_caculate;
 
-        MPI_Bcast(&int_enum, 1, MPI_INT, ROOT, MPI_COMM_WORLD);//enum that tells if we have grade table 
+        MPI_Bcast(&int_enum, 1, MPI_INT, ROOT, MPI_COMM_WORLD); // enum that tells if we have grade table
 
         if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);//bcast the grade table
+            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD); // bcast the grade table
 
         MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
-        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);//bcast the first str of the data 
+        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD); // bcast the first str of the data
 
         int worker_rank;
         int master_chunk_size, chunk_size;
         master_chunk_size = number_strings >= num_procs ? number_strings / num_procs : num_procs / number_strings;
         /*
-        
-        master_chunk size - chunk size for procs 0 that add an number_strings % num_procs 
+
+        master_chunk size - chunk size for procs 0 that add an number_strings % num_procs
         chunk size  = chunk size that every procs gets
         */
         if ((number_strings % num_procs) != 0)
@@ -55,24 +55,24 @@ int main(int argc, char *argv[])
         char strings_to_check[master_chunk_size][MAX_STRING_SIZE];
         for (int i = 0; i < master_chunk_size; i++)
         {
-             scanf("%s",strings_to_check[i]);
+            scanf("%s", strings_to_check[i]);
         }
-        chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);        
-       struct score_alignment strings_to_give[chunk_size];
-       //reading and sending strings to check to each procs  
+        chunk_size = (number_strings - master_chunk_size) >= (num_procs - 1) ? (number_strings - master_chunk_size) / (num_procs - 1) : (num_procs - 1) / (number_strings - master_chunk_size);
+        struct score_alignment strings_to_give[chunk_size];
+        // reading and sending strings to check to each procs
         for (worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
             for (int i = 0; i < chunk_size; i++)
             {
-                scanf("%s",strings_to_give[i].str);
+                scanf("%s", strings_to_give[i].str);
             }
             MPI_Send(&chunk_size, 1, MPI_INT, worker_rank, GET, MPI_COMM_WORLD);
             MPI_Send(strings_to_give, chunk_size, mpi_score_alignment_type, worker_rank, WORK, MPI_COMM_WORLD);
         }
         t_program = clock();
         t_cuda = clock();
-        //clock to see how much the cuda part is taking
-        //for each string in strings_to_check we caculate the result and print-the print happend in the caculate cuda
+        // clock to see how much the cuda part is taking
+        // for each string in strings_to_check we caculate the result and print-the print happend in the caculate cuda
         for (int i = 0; i < master_chunk_size; i++)
         {
             char *str_to_check = strings_to_check[i];
@@ -88,64 +88,61 @@ int main(int argc, char *argv[])
         time_taken = ((double)t_cuda) / CLOCKS_PER_SEC; // in seconds
         fprintf(stderr, "\nCUDA part took %.2f seconds to execute\n", time_taken);
         struct score_alignment alignment_scores_finale[chunk_size];
-        //for each procs that isn't the master - we recv the info and print it
+        // for each procs that isn't the master - we recv the info and print it
         for (int worker_rank = 1; worker_rank < num_procs; worker_rank++)
         {
-            MPI_Recv(alignment_scores_finale , chunk_size , mpi_score_alignment_type , worker_rank , DONE , MPI_COMM_WORLD , MPI_STATUS_IGNORE);
-            for (int  i = 0; i < chunk_size; i++)
+            MPI_Recv(alignment_scores_finale, chunk_size, mpi_score_alignment_type, worker_rank, DONE, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            for (int i = 0; i < chunk_size; i++)
             {
                 printf("We found that the max score alignment %d is from K - %d and off set - %d\n", alignment_scores_finale[i].score, alignment_scores_finale[i].K, alignment_scores_finale[i].off_set);
             }
         }
-        //the main time that took for the program
+        // the main time that took for the program
         t_program = clock() - t_program;
         time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);   
+        fprintf(stderr, "\nProgram took %.2f seconds to execute\n", time_taken);
     }
 
-    
     else
     {
         int enumGet;
         MPI_Bcast(&enumGet, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
-        how_to_caculate = (enum matrix_score)enumGet;//casting the int into enum
+        how_to_caculate = (enum matrix_score)enumGet; // casting the int into enum
         if (how_to_caculate == THERE_IS_MATRIX_SCORE)
-            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD);//bcast the grade table
+            MPI_Bcast(matrix, MATRIX_SIZE * MATRIX_SIZE, MPI_INT, ROOT, MPI_COMM_WORLD); // bcast the grade table
 
         MPI_Bcast(&lenght_first_str, 1, MPI_INT, ROOT, MPI_COMM_WORLD);
         first_str = (char *)malloc(lenght_first_str * sizeof(char));
-        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD);//bcast the first str in the data
+        MPI_Bcast(first_str, lenght_first_str * sizeof(char), MPI_CHAR, ROOT, MPI_COMM_WORLD); // bcast the first str in the data
         int chunk_size;
-        
+
         MPI_Recv(&chunk_size, 1, MPI_INT,
                  ROOT, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        struct score_alignment alignment_scores_for_strings[chunk_size];//gets the strings to check from the master
+        struct score_alignment alignment_scores_for_strings[chunk_size]; // gets the strings to check from the master
         char strings_to_check[chunk_size][MAX_STRING_SIZE];
         MPI_Recv(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type,
-                ROOT, WORK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                 ROOT, WORK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        t_omp = clock();//to see how much the omp part of the program takes
-        //using a parallel space in the main 
-        #pragma omp  parallel for shared(alignment_scores_for_strings)
+        t_omp = clock(); // to see how much the omp part of the program takes
+        // using a parallel space in the main
+        #pragma omp parallel for shared(alignment_scores_for_strings)
         for (int i = 0; i < chunk_size; i++)
         {
-            
+
             if (how_to_caculate == THERE_IS_MATRIX_SCORE)
                 caculate_max_score_grade_table(alignment_scores_for_strings[i].str, first_str, matrix, &alignment_scores_for_strings[i]);
             else
                 caculate_max_score_no_grade_table(alignment_scores_for_strings[i].str, first_str, &alignment_scores_for_strings[i]);
-
         }
         t_omp = clock() - t_omp;
         time_taken = ((double)t_omp) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);  
+        fprintf(stderr, "\nOpenMP part took %.2f seconds to execute\n", time_taken);
         MPI_Send(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type, ROOT, DONE, MPI_COMM_WORLD);
     }
-    
 
-    free(first_str);//free chr*
-    MPI_Type_free(&mpi_score_alignment_type);//free space type
+    free(first_str);                          // free chr*
+    MPI_Type_free(&mpi_score_alignment_type); // free space type
     MPI_Finalize();
     return EXIT_SUCCESS;
 }
