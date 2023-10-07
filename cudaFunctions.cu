@@ -5,7 +5,6 @@
 #include <cuda_runtime.h>
 #include "struct.h"
 
-
 __device__ int device_strlen(const char *str)
 {
     int length = 0;
@@ -28,9 +27,11 @@ __device__ void device_strncpy(char *dest, const char *src, int n)
 __device__ char gpu_toupper(char c)
 {
     if (c >= 'a' && c <= 'z')
-        return (c -'a') + 'A';
+        return (c - 'a') + 'A';
     return c;
 }
+
+// CUDA kernel to calculate alignment result without using a matrix
 __global__ void caculate_result_without_matrix(char *str_to_check, char *first_str, int size_second_str, int *result, int off_set, int k)
 {
     __shared__ int r;
@@ -44,7 +45,6 @@ __global__ void caculate_result_without_matrix(char *str_to_check, char *first_s
         int i = tid;
         if (tid >= k)
         {
-
             int x = gpu_toupper(first_str[i + off_set]) - 'A';
             int y = (gpu_toupper(str_to_check[i]) + 1) - 'A';
             value = (x == y);
@@ -52,7 +52,7 @@ __global__ void caculate_result_without_matrix(char *str_to_check, char *first_s
         else
         {
             int x = gpu_toupper(first_str[i + off_set]) - 'A';
-            int y = (gpu_toupper(str_to_check[i])) - 'A';
+            int y = gpu_toupper(str_to_check[i]) - 'A';
             value = (x == y);
         }
         atomicAdd(&r, value);
@@ -61,12 +61,14 @@ __global__ void caculate_result_without_matrix(char *str_to_check, char *first_s
     if (tid == 0)
         *result = r;
 }
+
+// CUDA kernel to calculate alignment result using a matrix
 __global__ void caculate_result(char *str_to_check, char *first_str, int size_second_str, int *result, int off_set, int *matrix, int k)
 {
     __shared__ int r;
     int value;
-    int x,y;
-    char a,b;
+    int x, y;
+    char a, b;
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid == 0)
         r = 0;
@@ -98,9 +100,9 @@ __global__ void caculate_result(char *str_to_check, char *first_str, int size_se
         *result = r;
 }
 
-int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE] , int my_rank)
+// Function to perform CUDA-based sequence alignment calculation
+int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MATRIX_SIZE][MATRIX_SIZE], int my_rank)
 {
-
     // Calculate the lengths of the strings
     int size_str_to_check = strlen(str_to_check);
     int size_first_str = strlen(first_str);
@@ -127,9 +129,10 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
 
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess || err4 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc error\n");
+        fprintf(stderr, "CUDA malloc error\n");
         exit(1);
     }
+    
     // Copy data from host to device
     err1 = cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
 
@@ -138,7 +141,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     err3 = cudaMemcpy(d_matrix, matrix, MATRIX_SIZE * MATRIX_SIZE * sizeof(int), cudaMemcpyHostToDevice);
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  memcpy 1-3 error\n");
+        fprintf(stderr, "CUDA memcpy 1-3 error\n");
         exit(1);
     }
 
@@ -158,7 +161,7 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
             err4 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
             if (err4 != cudaSuccess)
             {
-                fprintf(stderr, "CUDA  memcpy 4 error\n");
+                fprintf(stderr, "CUDA memcpy 4 error\n");
                 exit(1);
             }
             if (result >= max_score)
@@ -175,13 +178,15 @@ int caculate_cuda(const char *str_to_check, const char *first_str, int matrix[MA
     cudaFree(d_first_str);
     cudaFree(d_matrix);
     cudaFree(dev_result);
+    
     // Print the result
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
     return 0;
 }
 
-int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str , int my_rank)
+// Function to perform CUDA-based sequence alignment calculation without using a matrix
+int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str, int my_rank)
 {
     // Calculate the lengths of the strings
     int size_str_to_check = strlen(str_to_check);
@@ -206,9 +211,10 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
 
     if (err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA  malloc  error\n");
+        fprintf(stderr, "CUDA malloc error\n");
         exit(1);
     }
+
     // Copy data from host to device
     err1 = cudaMemcpy(d_str_to_check, str_to_check, size_str_to_check + 1, cudaMemcpyHostToDevice);
 
@@ -216,9 +222,10 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
 
     if (err1 != cudaSuccess || err2 != cudaSuccess)
     {
-        fprintf(stderr, "CUDA   memcpy  error\n");
+        fprintf(stderr, "CUDA memcpy error\n");
         exit(1);
     }
+
     int threadsPerBlock = 256;
     int result = 0;
     int blocksPerGrid = (size_str_to_check > MAX_STRING_SIZE) ? size_str_to_check / threadsPerBlock : 1;
@@ -235,7 +242,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
             err3 = cudaMemcpy(&result, dev_result, sizeof(int), cudaMemcpyDeviceToHost);
             if (err3 != cudaSuccess)
             {
-                fprintf(stderr, "CUDA  memcpy 2 error\n");
+                fprintf(stderr, "CUDA memcpy 2 error\n");
                 exit(1);
             }
             if (result >= max_score)
@@ -251,6 +258,7 @@ int caculate_cuda_without_matrix(const char *str_to_check, const char *first_str
     cudaFree(d_str_to_check);
     cudaFree(d_first_str);
     cudaFree(dev_result);
+
     // Print the result
     printf("We found that the max score alignment %d is from K - %d and off set - %d\n", localMax.score, localMax.K, localMax.off_set);
 
