@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
                localMax.str, localMax.score, localMax.K, localMax.off_set);
     }
 
-    fprintf(stderr, "\nsequantila program took %.2f seconds to execute\n", MPI_Wtime() - t_start);
+    fprintf(stderr, "\nSequantila program took %.2f seconds to execute\n", MPI_Wtime() - t_start);
     MPI_Finalize();
     return EXIT_SUCCESS;
 }

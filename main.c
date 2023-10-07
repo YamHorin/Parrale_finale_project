@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         // the main time that took for the program
         t_program = clock() - t_program;
         time_taken = ((double)t_program) / CLOCKS_PER_SEC; // in seconds
-        fprintf(stderr, "\nparallel program took %.2f seconds to execute\n", time_taken);
+        fprintf(stderr, "\nParallel program took %.2f seconds to execute\n", time_taken);
     }
 
     else
