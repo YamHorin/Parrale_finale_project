@@ -21,7 +21,6 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                                                         : (size_str_to_check - lenght_first_str);
     int off_set, max_score = 0;
     int k, max_k, score=0;
-    #pragma omp parallel firstprivate(max_score)
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {   
 
@@ -29,7 +28,7 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
         for (k = 0; k < size_str_to_check; k++)
         {
             score = 0;
-           #pragma omp for reduction(+ : score)
+           #pragma omp parallel for reduction(+ : score)
             for (int i = 0; i < size_str_to_check; i++)
             {
                 if (i >= k)
@@ -40,7 +39,7 @@ void caculate_max_score_no_grade_table(char* str_to_check , char* first_str , st
                         score++;
                 }
             }
-            #pragma omp critical
+
             if (max_score <= score)
             {
                 AS_ptr->K = k;
@@ -61,14 +60,13 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
                                                         : (size_str_to_check - lenght_first_str);
     int off_set=0, max_off_set, max_score = 0;
     int k=0, max_k, score;
-
     for (off_set = 0; off_set <= sqn_taries; off_set++)
     {
 
         for (k = 0; k < size_str_to_check; k++)
         {
                 score = 0;
-                #pragma omp parallel for reduction(+ : score)
+                #pragma omp  parallel for reduction(+ : score)
                 for (int i = 0; i < size_str_to_check; i++)
                 {
 
@@ -91,7 +89,7 @@ void caculate_max_score_grade_table(char* str_to_check , char* first_str , int m
                         score += matrix[x][y];
                     }
                 }
-            #pragma omp critical
+
             if (max_score <= score)
             {
                 AS_ptr->K = k;

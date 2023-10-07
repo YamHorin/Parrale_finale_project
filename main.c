@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
         MPI_Recv(alignment_scores_for_strings, chunk_size, mpi_score_alignment_type,
                 ROOT, WORK, MPI_COMM_WORLD, &status);
         //MPI_Scatter(NULL , 0  , MPI_INT , alignment_scores_for_strings, chunk_size , mpi_score_alignment_type , ROOT , MPI_COMM_WORLD);
-        fprintf(stderr  ," %d - %s\n" ,my_rank , alignment_scores_for_strings[0].str );
             t_omp = clock();
+        #pragma omp  parallel for shared(alignment_scores_for_strings)
         for (int i = 0; i < chunk_size; i++)
         {
             
