@@ -1,7 +1,8 @@
 # project in parrale computing class 2023
 </p>
 <div align="center">
- <img alt="sa" height="200px" src="https://www.researchgate.net/publication/335788307/figure/fig1/AS:802510126206977@1568344732732/DNA-sub-sequence-alignment-problem.jpg">
+ <img alt="sequence problem
+alignment" height="200px" src="https://www.researchgate.net/publication/335788307/figure/fig1/AS:802510126206977@1568344732732/DNA-sub-sequence-alignment-problem.jpg">
 </div>
 * this is a project that use MPI, openMP, cuda code
 * this project is about comparing series (strings) of letters in the English alphabet.
