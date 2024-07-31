@@ -2,7 +2,7 @@
 </p>
 <div align="center">
  <img alt="sequence problem
-alignment" height="200px" src="https://www.researchgate.net/publication/335788307/figure/fig1/AS:802510126206977@1568344732732/DNA-sub-sequence-alignment-problem.jpg">
+alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/RPLP0_90_ClustalW_aln.gif/1200px-RPLP0_90_ClustalW_aln.gif">
 </div>
 * this is a project that use MPI, openMP, cuda code
 * this project is about comparing series (strings) of letters in the English alphabet.
