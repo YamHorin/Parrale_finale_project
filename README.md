@@ -41,12 +41,14 @@ Note also the parts of the code in which they are expressed:
  <img alt="sequence problem
 alignment" height="200px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZyQ5Q1Mn_MCebW5mY9eDBoJP3-Y3an9a0sQ&s">
 </div>
+
 ## open MP
 
 <div align="center">
  <img alt="sequence problem
 alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/OpenMP_logo.png/640px-OpenMP_logo.png">
 </div>
+
 ## cuda
 
 <div align="center">
