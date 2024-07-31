@@ -49,7 +49,7 @@ alignment" height="150px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:A
 
 <div align="center">
  <img alt="sequence problem
-alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/OpenMP_logo.png/640px-OpenMP_logo.png">
+alignment" height="100px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/OpenMP_logo.png/640px-OpenMP_logo.png">
 </div>
 
 * The Open MPI Project is an open source Message Passing Interface implementation that is developed and maintained by a consortium of academic, research, and industry partners. Open MPI is therefore able to combine the expertise, technologies, and resources from all across the High Performance Computing community in order to build the best MPI library available. 
@@ -62,3 +62,6 @@ alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/th
  <img alt="sequence problem
 alignment" height="200px" src="https://images.ctfassets.net/8cjpn0bwx327/3jtrlZ8NvafV1uGB6Ab4tA/a6f6551ff62b3c348a5654042771fee4/Cuda.png">
 </div>
+
+* CUDA® is a parallel computing platform and programming model developed by NVIDIA for general computing on graphical processing units (GPUs). With CUDA, developers are able to dramatically speed up computing applications by harnessing the power of GPUs.
+* visit the official [website]([https://www.open-mpi.org/](https://developer.nvidia.com/cuda-zone)) of cude for more info and to download 
