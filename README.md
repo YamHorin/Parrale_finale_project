@@ -33,3 +33,23 @@ If you use make clean, it will clean all the running files for you at the end.
 We created a struct called score_alignment and in addition we created MPI_Datatype:
 which holds all the printed information.
 Note also the parts of the code in which they are expressed:
+
+## tools we used this project 
+## MPI
+
+<div align="center">
+ <img alt="sequence problem
+alignment" height="200px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZyQ5Q1Mn_MCebW5mY9eDBoJP3-Y3an9a0sQ&s">
+</div>
+## open MP
+
+<div align="center">
+ <img alt="sequence problem
+alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/OpenMP_logo.png/640px-OpenMP_logo.png">
+</div>
+## cuda
+
+<div align="center">
+ <img alt="sequence problem
+alignment" height="200px" src="https://images.ctfassets.net/8cjpn0bwx327/3jtrlZ8NvafV1uGB6Ab4tA/a6f6551ff62b3c348a5654042771fee4/Cuda.png">
+</div>
