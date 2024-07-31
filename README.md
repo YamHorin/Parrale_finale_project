@@ -1,4 +1,8 @@
 # project in parrale computing class 2023
+</p>
+<div align="center">
+ <img alt="sa" height="200px" src="https://www.researchgate.net/publication/335788307/figure/fig1/AS:802510126206977@1568344732732/DNA-sub-sequence-alignment-problem.jpg">
+</div>
 * this is a project that use MPI, openMP, cuda code
 * this project is about comparing series (strings) of letters in the English alphabet.
 is a simplification of algorithms used in bioinformatics where the goal is
@@ -8,7 +12,7 @@ represents some chemical entity and a series of letters represents the structure
 For example, a DNA molecule consists of four types of
 nucleotides that are accepted to be marked with the letters A, T, C, G. and then the string
 TCCGT can represent a segment of a DNA molecule.
-The problem of comparing series that we will deal with is known in biology as the sequence problem
+* The problem of comparing series that we will deal with is known in biology as the sequence problem
 alignment
 
 ## Various information files:
