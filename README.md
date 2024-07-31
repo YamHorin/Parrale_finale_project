@@ -41,6 +41,7 @@ Note also the parts of the code in which they are expressed:
  <img alt="sequence problem
 alignment" height="150px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZyQ5Q1Mn_MCebW5mY9eDBoJP3-Y3an9a0sQ&s">
 </div>
+
 * The Message Passing Interface (MPI) is an Application Program Interface that defines a model of parallel computing where each parallel process has its own local memory, and data must be explicitly shared by passing messages between processes.
 * to install (only in linux) : [link](https://rantahar.github.io/introduction-to-mpi/setup.html) 
 
