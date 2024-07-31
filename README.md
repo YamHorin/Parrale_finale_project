@@ -4,6 +4,7 @@
  <img alt="sequence problem
 alignment" height="200px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/RPLP0_90_ClustalW_aln.gif/1200px-RPLP0_90_ClustalW_aln.gif">
 </div>
+
 * this is a project that use MPI, openMP, cuda code
 * this project is about comparing series (strings) of letters in the English alphabet.
 is a simplification of algorithms used in bioinformatics where the goal is
