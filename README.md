@@ -65,4 +65,4 @@ alignment" height="200px" src="https://images.ctfassets.net/8cjpn0bwx327/3jtrlZ8
 </div>
 
 * CUDA® is a parallel computing platform and programming model developed by NVIDIA for general computing on graphical processing units (GPUs). With CUDA, developers are able to dramatically speed up computing applications by harnessing the power of GPUs.
-* visit the official [website]((https://developer.nvidia.com/cuda-zone)) of cude for more info and to download 
+* visit the official [website](https://developer.nvidia.com/cuda-zone) of cude for more info and to download 
