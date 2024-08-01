@@ -44,7 +44,7 @@ alignment" height="150px" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:A
 </div>
 
 * The Message Passing Interface (MPI) is an Application Program Interface that defines a model of parallel computing where each parallel process has its own local memory, and data must be explicitly shared by passing messages between processes.
-* to install (only in linux and mac os) : [cleck on this link](https://rantahar.github.io/introduction-to-mpi/setup.html) 
+* to install (only in linux and mac os) : [click on this link](https://rantahar.github.io/introduction-to-mpi/setup.html) 
 
 ## open MP
 
